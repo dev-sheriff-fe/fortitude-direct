@@ -1,0 +1,66 @@
+"use client"
+
+import { X } from "lucide-react"
+
+interface MobileMenuProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 z-50 md:hidden">
+      <div className="fixed inset-0 bg-black/20" onClick={onClose} />
+      <div className="fixed left-0 top-0 h-full w-80 bg-white shadow-xl">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
+              <div className="w-4 h-4 bg-white rounded-sm"></div>
+            </div>
+            <span className="text-xl font-bold text-gray-900">PickBazar</span>
+          </div>
+          <button onClick={onClose} className="p-2">
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+
+        <nav className="p-4">
+          <div className="space-y-6">
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              Shops
+            </a>
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              Offers
+            </a>
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              Contact
+            </a>
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              Flash Sale
+            </a>
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              Manufacturers/Publishers
+            </a>
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              Authors
+            </a>
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              FAQ
+            </a>
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              Terms & Conditions
+            </a>
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              Customer Refund Policy
+            </a>
+            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+              Vendor Refund Policy
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+  )
+}
