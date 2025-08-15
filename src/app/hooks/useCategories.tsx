@@ -8,15 +8,15 @@ export const useCategories = () => {
     const {data,isLoading,error} = useQuery({
         queryKey: ['categories'],
         queryFn: ()=>axiosInstance.request({
-            url: `/categories`,
-            method: 'GET',
+           url: '/ecommerce/products/categories',
             params: {
-                searchJoin: 'and',
-                limit: 1000,
-                language: 'en',
-                parent: null,
-                search: 'type.slug:gadget'
-            }
+            name: "",
+            entityCode: "H2P",
+            category: '',
+            tag: '',
+            pageNumber: 1,
+            pageSize: 200
+        }
         })
     })
 

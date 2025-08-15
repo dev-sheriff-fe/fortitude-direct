@@ -4,14 +4,16 @@ import bannerImg from '@/assets/Gadget-banners.webp'
 import Image from "next/image";
 import FilterHeader from "@/components/gadgets/filter-header";
 import ProductsGrid from "@/components/gadgets/products-grid";
+import CartTriggerDesktop from "@/components/ui/cart-trigger-desktop";
 
 export default async function Home() {
   return (
     <main className="w-full flex-1 flex">
       {/* Categories desktop - Fixed sidebar */}
         <CategoriesDesktop />
+        <CartTriggerDesktop/>
       {/* Main content area - Scrollable */}
-      <div className="flex-1 w-full ">
+      <div className="flex-1 w-full relative lg:py-4">
         <div className="w-full">
           {/* banner */}
           <div className="relative w-full  lg:p-4">
