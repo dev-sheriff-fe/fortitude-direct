@@ -6,10 +6,12 @@ import { useCart } from "@/store/cart"
 import CartWrappper from "./cart-wrapper"
 import { SheetTrigger } from "./sheet"
 import Cart from "./cart"
+import SearchInput from "./search-input"
 
 export function MobileNavigation() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const { cart } = useCart()
+    const [openSearch,setOpenSearch] = useState(false)
 
   return (
     <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden">
@@ -18,7 +20,7 @@ export function MobileNavigation() {
           <Menu className="h-6 w-6 text-gray-600" />
         </button>
 
-        <button className="flex flex-col items-center gap-1 p-2">
+        <button className="flex flex-col items-center gap-1 p-2" onClick={() => setOpenSearch(true)}>
           <Search className="h-6 w-6 text-gray-600" />
         </button>
 
@@ -41,6 +43,12 @@ export function MobileNavigation() {
         </button>
       </div>
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      {/* Mobile Search Input */}
+      {
+        openSearch && <SearchInput
+          onClose={() => setOpenSearch(false)}
+        />
+      }
     </div>
   )
 }

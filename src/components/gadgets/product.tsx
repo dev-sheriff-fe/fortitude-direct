@@ -4,14 +4,14 @@ import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 import Image from 'next/image'
 import React from 'react'
 
-export const Product = ({ product }: { product: ProductProps }) => {
+export const Product = ({ product, onClick }: { product: ProductProps, onClick: () => void }) => {
     const discount = product?.salePrice ? Math.ceil((product.oldPrice! - product.salePrice!) / product.oldPrice! * 100):0
 
     const {inCart,addToCart,singleQuantity,increment,decrement} = useCart()
     
     
   return (
-    <div className='w-full bg-white shadow-md relative p-4 rounded-sm space-y-2'>
+    <div className='w-full bg-white shadow-md relative p-4 rounded-sm space-y-2' onClick={onClick}>
         {discount > 0 && (
             <div className='absolute top-0 right-0 bg-accent text-white p-1 rounded-bl-md'>
                 {discount}%
@@ -41,7 +41,10 @@ export const Product = ({ product }: { product: ProductProps }) => {
 
         {
             singleQuantity(product?.id) <= 0 && (
-                <button className='group flex w-full py-3 bg-[#f3f4f6] items-center justify-center gap-2 text-sm text-[#6b7280] font-semibold rounded-md mt-2  transition-colors duration-200 relative hover:bg-accent hover:text-white cursor-pointer' onClick={() => addToCart(product as any)}>
+                <button className='group flex w-full py-3 bg-[#f3f4f6] items-center justify-center gap-2 text-sm text-[#6b7280] font-semibold rounded-md mt-2  transition-colors duration-200 relative hover:bg-accent hover:text-white cursor-pointer' onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(product as any)
+                }}>
             <span className='flex-1'>Add</span>
             <span className='bg-[#e5e7eb] h-full absolute right-0 group-hover:bg-accent group-hover:text-white px-3 flex items-center justify-center text-[16px] text-black rounded-r-md border-l group-hover:border-accent'>+</span>
         </button>
@@ -50,7 +53,10 @@ export const Product = ({ product }: { product: ProductProps }) => {
 
         {
             inCart(product?.id) && (
-                <div className='group flex w-full py-3 bg-accent items-center justify-between gap-2 text-sm text-[white] font-semibold rounded-md mt-2  transition-colors duration-200 relative hover:bg-accent hover:text-white cursor-pointer' onClick={() => addToCart(product as any)}>
+                <div className='group flex w-full py-3 bg-accent items-center justify-between gap-2 text-sm text-[white] font-semibold rounded-md mt-2  transition-colors duration-200 relative hover:bg-accent hover:text-white cursor-pointer' onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(product as any)
+                }}>
                 <button className='bg-accent h-full flex-[0.2] absolute left-0 group-hover:bg-accent group-hover:text-white px-3 flex items-center justify-center text-[16px] text-white border-accent rounded-l-md border-r group-hover:border-accent' onClick={() => decrement(product as any)}>-</button>
                 <span className='flex-1 text-center'>{singleQuantity(product?.id)}</span>
                 <button className='bg-accent h-full flex-[0.2] absolute right-0 group-hover:bg-accent group-hover:text-white px-3 flex items-center justify-center text-[16px] text-white border-accent rounded-r-md border-l group-hover:border-accent' onClick={() => increment(product as any)}>+</button>

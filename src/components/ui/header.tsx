@@ -3,16 +3,19 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ChevronDown, Search, Menu } from "lucide-react"
+import { ChevronDown, Search, Menu, X } from "lucide-react"
+import { Input } from "./input"
+import SearchInput from "./search-input"
 
 export function Header() {
+  const [openSearch,setOpenSearch] = useState(false)
   return (
     <>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
               <div className="w-4 h-4 bg-white rounded-sm"></div>
             </div>
             <span className="text-xl font-bold text-gray-900">PickBazar</span>
@@ -25,7 +28,7 @@ export function Header() {
           <div className="flex items-center gap-8">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-teal-500 rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-accent rounded-lg flex items-center justify-center">
                 <div className="w-5 h-5 bg-white rounded-sm transform rotate-45"></div>
               </div>
               <span className="text-2xl font-bold text-gray-900">PickBazar</span>
@@ -34,7 +37,7 @@ export function Header() {
             {/* Gadget Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2 text-teal-600 hover:text-teal-700 font-medium">
+                <Button variant="ghost" className="flex items-center gap-2  font-medium">
                   <div className="w-5 h-5 rounded-full border-2 border-accent flex items-center justify-center">
                     <div className="w-2 h-2 bg-accent rounded-full"></div>
                   </div>
@@ -74,17 +77,23 @@ export function Header() {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900">
+            <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900" onClick={() => setOpenSearch(true)}>
               <Search className="h-5 w-5" />
             </Button>
-            <Button className="bg-accent hover:bg-teal-700 text-white px-6 py-2 rounded-md font-medium">
+            <Button className="bg-accent hover:bg-accent-foreground text-white px-6 py-2 rounded-md font-medium">
               Join
             </Button>
-            <Button className="bg-accent hover:bg-teal-700 text-white px-4 py-2 rounded-md font-medium">
+            <Button className="bg-accent hover:bg-accent-foreground text-white px-4 py-2 rounded-md font-medium">
               Become a Seller
             </Button>
           </div>
         </div>
+        {/* Mobile Search Input */}
+        {
+          openSearch && <SearchInput
+            onClose={() => setOpenSearch(false)}
+          />
+        }
       </header>
     </>
   )

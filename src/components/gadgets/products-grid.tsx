@@ -5,22 +5,26 @@ import { useQuery } from "@tanstack/react-query"
 import { Product } from "./product"
 import { ProductProps } from "@/types"
 import { useSearchParams } from "next/navigation"
+import { Dialog, DialogContent } from "../ui/dialog"
+import { useState } from "react"
+import ProductDetail from "../ui/product-modal"
 
 const ProductsGrid = () => {
     // This component displays a grid of products
     const searchParams = useSearchParams();
     const category = searchParams.get('category') || ''
-
-    console.log(category);
+    const name = searchParams.get('name') || ''
+    const [modalProduct, setModalProduct] = useState<ProductProps | null>(null)
+    const [isOpen, setIsOpen] = useState(false)
     
    const { data,isLoading } = useQuery({
-  queryKey: ["products",category],
+  queryKey: ["products",category,name],
   queryFn: () => {
     return axiosInstance.request({
       method: "GET",
       url: '/ecommerce/products/list',
       params: {
-        name: '',
+        name,
         storeCode: '',
         entityCode: 'H2P',
         category,
@@ -42,13 +46,23 @@ const ProductsGrid = () => {
     </div>
     
 
+    console.log(isOpen);
+    
+
   return (
     <div className='p-4'>
         <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-3">
           {data?.products?.map((product:ProductProps) => (
-            <Product key={product.id} product={product} />
+            <Product key={product.id} product={product} onClick={() => {
+              setModalProduct(product);
+              setIsOpen(true);
+            }} />
           ))}
         </div>
+
+        {
+          isOpen && <ProductDetail product={modalProduct} setIsOpen={setIsOpen} />
+        }
     </div>
   )
 }

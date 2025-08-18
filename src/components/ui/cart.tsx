@@ -1,9 +1,10 @@
 import React from 'react'
 import { SheetContent, SheetHeader } from './sheet'
-import { ShoppingBag, Plus, Minus, X } from 'lucide-react'
+import { ShoppingBag, Plus, Minus, X, ShoppingBagIcon } from 'lucide-react'
 import { Button } from './button'
 import Link from 'next/link'
 import { useCart } from '@/store/cart'
+import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 
 const Cart = () => {
     const {cart, decrement, increment, removeItem} = useCart()
@@ -11,7 +12,7 @@ const Cart = () => {
     const totalAmount = cart.reduce((total, item) => total + item.subTotal, 0)
     
     return (
-        <SheetContent className=''>
+        <SheetContent className='min-w-[400px] lg:min-w-[450px] '>
             <SheetHeader className='w-full items-center border-b gap-1 text-accent text-[18px] font-semibold'>
                 <span><ShoppingBag size={20} strokeWidth={2.5} /></span> <span>{cart.length > 1 ? `${cart.length} items` : `${cart.length} item`}</span>
             </SheetHeader>
@@ -23,6 +24,14 @@ const Cart = () => {
               scrollbarColor: 'transparent',
             }}
             >
+                {
+                    cart.length === 0 && (
+                        <div className='flex flex-col items-center justify-center h-full gap-4'>
+                            <ShoppingBagIcon className='w-30 h-30 mx-auto text-accent' />
+                            <h3 className='font-semibold'>No items in cart</h3>
+                        </div>
+                    )
+                }
                 {
                     cart.map((item, index) =>(
                         <div key={item?.id} className={`${cart.length === index + 1 ? 'border-b-0' : 'border-b'}`}>
@@ -62,7 +71,7 @@ const Cart = () => {
                                     <h3 className='font-medium text-sm text-gray-900 truncate'>{item.name}</h3>
                                     <div className='flex items-center gap-2 mt-1'>
                                         <span className='text-green-600 font-medium text-sm'>
-                                            ${item.salePrice.toFixed(2)}
+                                            {formatPrice(item.salePrice, item?.ccy as CurrencyCode)}
                                         </span>
                                         <span className='text-xs text-gray-500'>
                                             {item.quantity} X 1 pcs
@@ -79,7 +88,7 @@ const Cart = () => {
                                         <X size={16} />
                                     </button>
                                     <span className='font-semibold text-sm'>
-                                        ${item.subTotal.toFixed(2)}
+                                        {formatPrice(item.subTotal,item?.ccy as CurrencyCode)}
                                     </span>
                                 </div>
                             </div>
@@ -94,7 +103,7 @@ const Cart = () => {
                         <Button className='w-full bg-accent rounded-full text-white font-semibold p-3 h-full flex items-center justify-between px-4'>
                         <span>Checkout</span>
                         <span className='px-4 py-2 rounded-full bg-white text-accent'>
-                            ${totalAmount.toFixed(2)}
+                            {formatPrice(totalAmount, 'NGN' as CurrencyCode)}
                         </span>
                     </Button>
                         
