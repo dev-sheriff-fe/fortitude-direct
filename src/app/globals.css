@@ -76,6 +76,13 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* --teal: #21ceb1;
+  --success-foreground: 0 0% 100%; */
+  /* --warning: 45 93% 47%;
+  --warning-foreground: 0 0% 100%;
+  --info: 217 91% 60%;
+  --info-foreground: 0 0% 100%;
+  --radius: 0.5rem; */
 }
 
 .dark {
