@@ -1,6 +1,6 @@
 'use client'
 import { ProductProps } from '@/types';
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog';
 import Image from 'next/image';
 import { Heart, Star } from 'lucide-react';
@@ -158,10 +158,12 @@ const ProductDetail = ({ product, setIsOpen }: ProductDetailProps) => {
                     ):
                     <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-3 mt-1">
                               {data?.products?.map((product:ProductProps) => (
-                                <Product key={product.id} product={product} onClick={() => {
+                                <Suspense>
+                                    <Product key={product.id} product={product} onClick={() => {
                                   setModalProduct(product);
                                   setIsOpen(true);
                                 }} />
+                                </Suspense>
                               ))}
                     </div>
                 }

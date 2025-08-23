@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Search, Menu, X } from "lucide-react"
@@ -103,9 +103,11 @@ export function Header() {
         </div>
         {/* Mobile Search Input */}
         {
-          openSearch && <SearchInput
+          openSearch && <Suspense>
+            <SearchInput
             onClose={() => setOpenSearch(false)}
           />
+          </Suspense>
         }
       </header>
     </>

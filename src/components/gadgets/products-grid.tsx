@@ -6,7 +6,7 @@ import { Product } from "./product"
 import { ProductProps } from "@/types"
 import { useSearchParams } from "next/navigation"
 import { Dialog, DialogContent } from "../ui/dialog"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import ProductDetail from "../ui/product-modal"
 
 const ProductsGrid = () => {
@@ -62,7 +62,7 @@ const ProductsGrid = () => {
         </div>
 
         {
-          isOpen && <ProductDetail product={modalProduct} setIsOpen={setIsOpen} />
+          isOpen && <Suspense><ProductDetail product={modalProduct} setIsOpen={setIsOpen} /></Suspense>
         }
     </div>
   )
