@@ -34,7 +34,9 @@ export default async function Home() {
           </div>
 
           {/* filter header */}
-          <FilterHeader/>
+          <Suspense>
+            <FilterHeader/>
+          </Suspense>
            {/* <ProductGrid/> */}
            <Suspense>
             <ProductsGrid/>
