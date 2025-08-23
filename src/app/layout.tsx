@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./Provider";
+import { Toaster } from "@/components/ui/sonner";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,9 +30,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#f3f4f6]`}
       >
+        <Script 
+          src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"
+          strategy="beforeInteractive"
+        />
         <Providers>
           {children}
         </Providers>
+        <Toaster/>
       </body>
     </html>
   );

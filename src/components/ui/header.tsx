@@ -6,6 +6,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/compon
 import { ChevronDown, Search, Menu, X } from "lucide-react"
 import { Input } from "./input"
 import SearchInput from "./search-input"
+import Image from "next/image"
+import h2p_logo from '@/assets/farham_logo.png'
+import Link from "next/link"
 
 export function Header() {
   const [openSearch,setOpenSearch] = useState(false)
@@ -15,10 +18,15 @@ export function Header() {
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-              <div className="w-4 h-4 bg-white rounded-sm"></div>
-            </div>
-            <span className="text-xl font-bold text-gray-900">PickBazar</span>
+            <div className="w-9 h-9 relative rounded-lg flex items-center justify-center">
+                <Image
+                src={h2p_logo}
+                alt="H2P Logo"
+                fill
+                className="object-cover"
+                />
+              </div>
+            
           </div>
           <div className="w-10"></div>
         </div>
@@ -28,10 +36,13 @@ export function Header() {
           <div className="flex items-center gap-8">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-accent rounded-lg flex items-center justify-center">
-                <div className="w-5 h-5 bg-white rounded-sm transform rotate-45"></div>
+              <div className="w-9 h-9 relative rounded-lg flex items-center justify-center">
+                <Image
+                src={h2p_logo}
+                alt="H2P Logo"
+                fill
+                />
               </div>
-              <span className="text-2xl font-bold text-gray-900">PickBazar</span>
             </div>
 
             {/* Gadget Dropdown */}
@@ -62,7 +73,7 @@ export function Header() {
             <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
               Contact
             </a>
-            <DropdownMenu>
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium">
                   Pages
@@ -72,7 +83,7 @@ export function Header() {
               <DropdownMenuContent>
                 <div className="p-2">Page options...</div>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </nav>
 
           {/* Right Side Actions */}
@@ -83,9 +94,11 @@ export function Header() {
             <Button className="bg-accent hover:bg-accent-foreground text-white px-6 py-2 rounded-md font-medium">
               Join
             </Button>
-            <Button className="bg-accent hover:bg-accent-foreground text-white px-4 py-2 rounded-md font-medium">
+            <Link href={`/admin-login`} target="_blank">
+              <Button className="bg-accent hover:bg-accent-foreground text-white px-4 py-2 rounded-md font-medium">
               Become a Seller
             </Button>
+            </Link>
           </div>
         </div>
         {/* Mobile Search Input */}

@@ -35,6 +35,10 @@ export const Product = ({ product, onClick }: { product: ProductProps, onClick: 
             )}
         </div>
 
+        <span className='text-sm text-[#6b7280]'>
+            ({formatPrice(product.usdPrice!, 'USD')})
+        </span>
+
         <h3 className="truncate text-md font-semibold text-[#6b7280]">
             {product.name!}
         </h3>

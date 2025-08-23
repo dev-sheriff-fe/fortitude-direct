@@ -10,6 +10,7 @@ const CategoriesDesktop = () => {
   const {data, isLoading, error} = useCategories()
   const searchParams = useSearchParams();
   const selectedCategory = searchParams.get('category') || '';
+  const storeCode = searchParams.get('storeCode') || ''
 
   console.log(data);
 
@@ -49,7 +50,7 @@ const CategoriesDesktop = () => {
               className='w-full h-[136px] mt-0.5'
             >
               <Link 
-                href={`?category=${category?.name}`} 
+                href={`?category=${category?.name}&storeCode=${storeCode}`} 
                 className={`w-full h-full flex flex-col items-center justify-center bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 cursor-pointer ${
                   selectedCategory === category.name 
                     ? 'ring-2 ring-accent' 

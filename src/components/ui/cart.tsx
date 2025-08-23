@@ -1,15 +1,89 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { SheetContent, SheetHeader } from './sheet'
 import { ShoppingBag, Plus, Minus, X, ShoppingBagIcon } from 'lucide-react'
 import { Button } from './button'
 import Link from 'next/link'
 import { useCart } from '@/store/cart'
-import { CurrencyCode, formatPrice } from '@/utils/helperfns'
+import { CurrencyCode, formatPrice, generateRandomNumber, getCurrentDate } from '@/utils/helperfns'
+import { useMutation } from '@tanstack/react-query'
+import axiosInstance from '@/utils/fetch-function'
+import { toast } from 'sonner'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const Cart = () => {
-    const {cart, decrement, increment, removeItem} = useCart()
-    
+    const {cart, decrement, increment, removeItem, mainCcy} = useCart()
+    const ccy = mainCcy()
     const totalAmount = cart.reduce((total, item) => total + item.subTotal, 0)
+    const router = useRouter()
+    const rand = generateRandomNumber(15)
+    const currentDate = getCurrentDate()
+    const searchParams = useSearchParams()
+    const storeCode = searchParams.get('storeCode') || ''
+
+    const {mutate,isPending} = useMutation({
+        mutationFn: (data:any)=>axiosInstance.request({
+            url: '/store/save-cart',
+            method: 'POST',
+            params: {
+                entityCode: 'H2P',
+                storeCode
+            },
+            data
+        }),
+        onSuccess: (data) =>{
+            if (data?.data?.responseCode !== '000' ) {
+                toast.error(data?.data?.desc||data?.data?.responseMessage || 'Something went wrong!')
+                return
+            }
+            sessionStorage.setItem('checkout',JSON.stringify(data?.data))
+            toast.success(data?.data?.desc||data?.data?.responseMessage || 'Order submitted successfully!')
+            router.push(`/checkout?storeCode=STO445&orderNo=${data?.data?.orderNo}`)
+        },
+        onError: (error) =>{
+            toast.error('An error occurred while submitting the order.')
+        }
+    })
+
+    const submitOrder = () =>{
+        const orderItems = cart.map(item=>({
+            itemCode: '',
+            itemName: item?.name,
+            price: item?.salePrice,
+            quantity: item?.quantity,
+            amount: item?.subTotal,
+            discount: 0,
+            picture: item?.picture
+        }))
+        const payload = {
+            channel: "WEB",
+            cartId: `CART${rand}`,
+            orderDate: currentDate,
+            totalAmount: totalAmount,
+            totalDiscount: 0,
+            deliveryOption: "",
+            paymentMethod: "",
+            couponCode: "",
+            ccy,
+            deliveryFee: 0,
+            geolocation: "",
+            deviceId: "",
+            orderSatus: "",
+            paymentStatus: "",
+            deliveryAddress: {
+            id: 0,
+            street: "",
+            landmark: "",
+            postCode: "",
+            city: "",
+            state: "",
+            country: "",
+            addressType: ""
+        },
+            cartItems: orderItems
+        }
+
+        mutate(payload)
+    }
     
     return (
         <SheetContent className='min-w-[400px] lg:min-w-[450px] '>
@@ -70,7 +144,7 @@ const Cart = () => {
                                 <div className='flex-1 min-w-0'>
                                     <h3 className='font-medium text-sm text-gray-900 truncate'>{item.name}</h3>
                                     <div className='flex items-center gap-2 mt-1'>
-                                        <span className='text-green-600 font-medium text-sm'>
+                                        <span className='text-accent font-medium text-sm'>
                                             {formatPrice(item.salePrice, item?.ccy as CurrencyCode)}
                                         </span>
                                         <span className='text-xs text-gray-500'>
@@ -99,22 +173,22 @@ const Cart = () => {
             </div>
 
             <div className='p-4 w-full'>
-                <Link href='/checkout' className='w-full '>
-                        <Button className='w-full bg-accent rounded-full text-white font-semibold p-3 h-full flex items-center justify-between px-4'>
-                        <span>Checkout</span>
-                        <span className='px-4 py-2 rounded-full bg-white text-accent'>
-                            {formatPrice(totalAmount, 'NGN' as CurrencyCode)}
+                        <Button className='w-full bg-accent hover:bg-accent-foreground rounded-full text-white font-semibold p-3 h-full flex items-center text-center justify-between px-4' disabled={cart.length === 0} onClick={submitOrder}>
+                        {isPending? 'Processing Order...': <>
+                            <span>Checkout</span>
+                        <span className={`${cart.length === 0 && 'hidden'} px-4 py-2 rounded-full bg-white text-accent`}>
+                            {formatPrice(totalAmount, ccy as CurrencyCode)}
                         </span>
+                        </>}
                     </Button>
-                        
-                    </Link>
-                
             </div>
         </SheetContent>
     )
 }
 
 export default Cart
+
+// '/checkout?storeCode=STO445'
 
 // 'use client';
 

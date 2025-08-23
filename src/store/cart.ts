@@ -13,6 +13,7 @@ export interface MenuItem {
   unit?:string;
   code?:string;
   ccy?: string;
+  usdPrice?: number
 //   bg?: string;
 //   color?: string;
 }
@@ -35,6 +36,8 @@ interface CartStore {
   removeItem: (id: number|undefined) => void;
   clearCart: () => void;
   getCartTotal: () => number;
+  mainCcy: ()=>string | undefined;
+  usdTotal: ()=> number;
 }
 
 // Create store with proper typing and persistence
@@ -43,6 +46,11 @@ export const useCart = create<CartStore>()(
     (set, get) => ({
       cartVisibility: false,
       cart: [],
+      mainCcy: () => {
+        const { cart } = get();
+        const currency = cart.length > 0 ? cart[0].ccy : '';
+        return currency;
+      },
 
       inCart: (id) => {
         const { cart } = get();
@@ -125,6 +133,10 @@ export const useCart = create<CartStore>()(
       getCartTotal: () => {
         const { cart } = get();
         return cart.reduce((total, item) => total + item.subTotal, 0);
+      },
+      usdTotal: () => {
+        const { cart } = get();
+        return cart.reduce((total, item) => total + (item.usdPrice || 0) * item.quantity, 0);
       }
     }),
     {

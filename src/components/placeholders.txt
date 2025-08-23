@@ -1,0 +1,26 @@
+<FormField
+                        control={form.control}
+                        name="hasExistingCredit"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Existing Credit Experience</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                className="flex flex-col space-y-1"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="yes" id="credit-yes" />
+                                  <Label htmlFor="credit-yes">I have used BNPL services before</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="no" id="credit-no" />
+                                  <Label htmlFor="credit-no">This is my first time</Label>
+                                </div>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />

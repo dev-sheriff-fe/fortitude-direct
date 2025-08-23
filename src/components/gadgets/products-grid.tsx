@@ -14,6 +14,7 @@ const ProductsGrid = () => {
     const searchParams = useSearchParams();
     const category = searchParams.get('category') || ''
     const name = searchParams.get('name') || ''
+    const storeCode = searchParams.get('storeCode') || ''
     const [modalProduct, setModalProduct] = useState<ProductProps | null>(null)
     const [isOpen, setIsOpen] = useState(false)
     
@@ -25,7 +26,7 @@ const ProductsGrid = () => {
       url: '/ecommerce/products/list',
       params: {
         name,
-        storeCode: '',
+        storeCode,
         entityCode: 'H2P',
         category,
         tag: '',

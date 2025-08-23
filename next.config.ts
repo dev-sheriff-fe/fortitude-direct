@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
     domains: [
       'mmcpdocs.s3.eu-west-2.amazonaws.com'
     ]
-  }
+  },
+  devIndicators: false
 };
 
 export default nextConfig;

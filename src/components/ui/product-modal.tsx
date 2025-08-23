@@ -82,6 +82,8 @@ const ProductDetail = ({ product, setIsOpen }: ProductDetailProps) => {
                             <span className='text-accent text-2xl sm:text-3xl font-semibold block'>
                                 {formatPrice(product?.salePrice! || product?.oldPrice!, product?.ccy! as CurrencyCode)}
                             </span>
+
+                            ({formatPrice(product?.usdPrice!, 'USD')})
                         </div>
                         
                         {/* Add to Cart Section */}

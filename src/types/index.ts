@@ -18,6 +18,7 @@ export interface ProductProps {
   barCode?: string;
   expiryDate?: string | null;
   unit?: string;
+  usdPrice?: number;
 }
 
 export interface Category {
