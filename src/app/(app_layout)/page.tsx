@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import Home from './page-content'
 
-const page = () => {
+const HomePage  = () => {
   return (
     <Suspense>
       <Home/>
@@ -9,4 +9,4 @@ const page = () => {
   )
 }
 
-export default page
+export default HomePage 

@@ -36,7 +36,9 @@ export default async function Home() {
           {/* filter header */}
           <FilterHeader/>
            {/* <ProductGrid/> */}
-           <ProductsGrid/>
+           <Suspense>
+            <ProductsGrid/>
+           </Suspense>
         </div>
       </div>
     </main>
