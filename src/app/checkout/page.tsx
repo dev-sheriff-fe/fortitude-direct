@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -326,7 +326,8 @@ console.log(data);
   );
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <Suspense>
+      <div className="min-h-screen bg-background p-4">
       <div className="max-w-6xl mx-auto py-8">
         {currentStep === 'cart' && <CartView handlePaymentSelect={handlePaymentSelect} />}
         {currentStep === 'payment' && <PaymentView />}
@@ -334,6 +335,7 @@ console.log(data);
         {currentStep === 'success' && <SuccessView />}
       </div>
     </div>
+    </Suspense>
   );
 };
 

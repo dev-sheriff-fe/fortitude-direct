@@ -1,5 +1,5 @@
-import Cookie from 'js-cookie'
-import SSRCookie from 'cookie';
+import Cookie from 'js-cookie';
+import { parse } from 'cookie';
 import {
   AUTH_CRED,
   BUSINESS_MANAGER,
@@ -32,7 +32,7 @@ export function getAuthCredentials(context?: any): {
 }
 
 export function parseSSRCookie(context: any) {
-  return SSRCookie.parse(context.req.headers.cookie ?? '');
+  return parse(context.req.headers.cookie ?? '');
 }
 
 export function hasAccess(
@@ -46,6 +46,7 @@ export function hasAccess(
   }
   return false;
 }
+
 export function isAuthenticated(_cookies: any) {
   console.log(_cookies[TOKEN]);
   console.log(_cookies[PERMISSIONS]);
@@ -55,11 +56,12 @@ export function isAuthenticated(_cookies: any) {
     !!_cookies[PERMISSIONS].length
   );
 }
+
 export const logout = () => {
   console.log('logout called');
 
   Cookie.remove(AUTH_CRED);
-  if (window != undefined) {
+  if (typeof window !== 'undefined') {
     window.location.href = `/admin-login`;
     window.localStorage.removeItem('token_store_admin');
   }
