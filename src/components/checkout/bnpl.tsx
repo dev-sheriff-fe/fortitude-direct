@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { Button } from '../ui/button'
 import { ArrowLeft, Calendar,  Loader2, TrendingUp, User } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
@@ -210,7 +210,8 @@ const BNPL = ({setBnplStep,setCreditScore,setCurrentStep,setScore}:BNPLProps) =>
   
   return (
     <>
-      <div className="max-w-6xl mx-auto space-y-6 ">
+      <Suspense>
+        <div className="max-w-6xl mx-auto space-y-6 ">
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost" 
@@ -261,6 +262,7 @@ const BNPL = ({setBnplStep,setCreditScore,setCurrentStep,setScore}:BNPLProps) =>
               <PaymentSchedulePreview/>
             </div>
           </div>
+      </Suspense>
     </>
   )
 }

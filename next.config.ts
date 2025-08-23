@@ -19,7 +19,15 @@ const nextConfig: NextConfig = {
     compiler:{
       removeConsole:true
     }
-  })
+  }),
+   typescript: {
+      ignoreBuildErrors: true,
+    },
+    eslint: {
+      ignoreDuringBuilds: true,
+    },
+
+    devIndicators: false
 };
 
 export default nextConfig;

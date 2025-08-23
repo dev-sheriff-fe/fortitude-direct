@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 
+
 export default function EscrowCheckout() {
   const [status, setStatus] = useState("");
   const [txId, setTxId] = useState("");
@@ -14,36 +15,33 @@ export default function EscrowCheckout() {
   
   // Basic escrow contract ABI - you'll need to replace this with your actual contract ABI
   const ESCROW_ABI = [
-    {
-      "inputs": [
-        {"name": "orderId", "type": "bytes32"},
-        {"name": "buyer", "type": "address"},
-        {"name": "merchant", "type": "address"}, 
-        {"name": "amount", "type": "uint256"},
-        {"name": "expiry", "type": "uint256"},
-        {"name": "attestRef", "type": "string"}
-      ],
-      "name": "fund",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {"name": "orderId", "type": "bytes32"},
-        {"name": "merchant", "type": "address"},
-        {"name": "expiry", "type": "uint256"},
-        {"name": "attestRef", "type": "string"}
-      ],
-      "name": "payWithTRX",
-      "outputs": [],
-      "stateMutability": "payable", 
-      "type": "function"
-    }
+    {"entrys":[{"inputs":[{"name":"escrowId","type":"bytes32"},{"name":"payer","type":"address"},{"name":"payee","type":"address"},{"name":"amount","type":"uint256"},{"name":"expiry","type":"uint256"},{"name":"attestRef","type":"bytes32"}],"name":"fund","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"name":"payer","type":"address"},{"name":"payee","type":"address"},{"name":"amount","type":"uint256"},{"name":"released","type":"bool"},{"name":"expiry","type":"uint256"},{"name":"attestRef","type":"bytes32"}],"constant":true,"inputs":[{"type":"bytes32"}],"name":"escrows","stateMutability":"View","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"name":"usdt","stateMutability":"View","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"name":"attestations","stateMutability":"View","type":"Function"},{"inputs":[{"name":"escrowId","type":"bytes32"}],"name":"release","stateMutability":"Nonpayable","type":"Function"},{"inputs":[{"name":"_usdt","type":"address"},{"name":"_attestations","type":"address"}],"stateMutability":"Nonpayable","type":"Constructor"}]}
   ];
   const [checkoutData, setCheckoutData] = useState<any>(null);
+  const [tronWeb, setTronWeb] = useState<any>(null);
+  
   // Backend API
   const API_ENDPOINT = "/api/escrow/record";
+
+  useEffect(() => {
+    const initTronWeb = async () => {
+      if ((window as any).tronWeb && (window as any).tronWeb.ready) {
+        const tw = (window as any).tronWeb;
+
+        // 🔹 Force fullHost to Nile testnet
+        tw.setFullNode("https://api.nileex.io");
+        tw.setSolidityNode("https://api.nileex.io");
+        tw.setEventServer("https://api.nileex.io");
+
+        setTronWeb(tw);
+        console.log("TronWeb initialized successfully");
+      } else {
+        console.warn("TronLink not found. Please install TronLink.");
+        setStatus("⚠️ TronLink not found. Please install TronLink extension.");
+      }
+    };
+    initTronWeb();
+  }, []);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('checkout');
@@ -53,12 +51,12 @@ export default function EscrowCheckout() {
   }, []);
 
   // Helper function to wait for transaction confirmation
-  const waitForTransaction = useCallback(async (tronWeb: any, txId: string): Promise<any> => {
+  const waitForTransaction = useCallback(async (tronWebInstance: any, txId: string): Promise<any> => {
     return new Promise(async (resolve) => {
       let receipt: any = null;
       for (let i = 0; i < 30; i++) {
         try {
-          receipt = await tronWeb.trx.getTransactionInfo(txId);
+          receipt = await tronWebInstance.trx.getTransactionInfo(txId);
           if (receipt && receipt.receipt) {
             resolve(receipt);
             return;
@@ -80,18 +78,12 @@ export default function EscrowCheckout() {
     setTxId("");
 
     try {
-      // Check TronLink availability
-      if (!(window as any).tronWeb) {
-        throw new Error("TronLink is not installed. Please install TronLink extension.");
+      // Check if TronWeb is initialized
+      if (!tronWeb) {
+        throw new Error("TronLink is not initialized. Please make sure TronLink is installed and unlocked.");
       }
 
-      if (!(window as any).tronWeb.ready) {
-        throw new Error("TronLink is not ready. Please unlock your wallet.");
-      }
-
-      const tronWeb = (window as any).tronWeb;
-      
-      // More detailed wallet checks
+      // More detailed wallet checks using our tronWeb instance
       if (!tronWeb.defaultAddress || !tronWeb.defaultAddress.base58) {
         throw new Error("No wallet address found. Please connect your TronLink wallet.");
       }
@@ -118,7 +110,7 @@ export default function EscrowCheckout() {
       
       const amount = 0.5 * USDT_DECIMALS;
       const expiry = Math.floor(Date.now() / 1000) + 86400;
-      const attestRef = "TXN_REF_" + Date.now();
+      const attestRef = tronWeb.sha3("TXN_REF_" + Date.now());
 
       console.log("Transaction params:", { orderId, buyer, amount, expiry, attestRef });
 
@@ -182,6 +174,8 @@ export default function EscrowCheckout() {
             shouldPollResponse: false
           });
           tx = result;
+          console.log(result);
+          
         } catch (fundError) {
           console.error("Fund method error:", fundError);
           throw new Error(`TRC20 payment failed: ${fundError.message || fundError}`);
@@ -202,6 +196,8 @@ export default function EscrowCheckout() {
             shouldPollResponse: false
           });
           tx = result;
+          console.log(result);
+          
         } catch (trxError) {
           console.error("PayWithTRX method error:", trxError);
           throw new Error(`TRX payment failed: ${trxError.message || trxError}`);
@@ -222,7 +218,7 @@ export default function EscrowCheckout() {
       setTxId(tx);
       setStatus(`Transaction sent: ${tx}. Waiting for confirmation...`);
 
-      // Wait for transaction confirmation
+      // Wait for transaction confirmation using our tronWeb instance
       try {
         const receipt = await waitForTransaction(tronWeb, tx);
         const statusText = receipt && receipt.receipt ? "CONFIRMED" : "PENDING";
@@ -289,11 +285,26 @@ export default function EscrowCheckout() {
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, waitForTransaction, ESCROW_VAULT, MERCHANT, USDT_DECIMALS, API_ENDPOINT, checkoutData]);
+  }, [isLoading, waitForTransaction, ESCROW_VAULT, MERCHANT, USDT_DECIMALS, API_ENDPOINT, checkoutData, tronWeb]);
 
   return (
     <div style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
       <h1>🚀 BorderlessFusePay Checkout</h1>
+
+      {/* TronWeb Status Indicator */}
+      <div style={{ 
+        marginBottom: "1rem", 
+        padding: "0.5rem", 
+        backgroundColor: tronWeb ? "#d4edda" : "#f8d7da", 
+        borderRadius: "4px",
+        fontSize: "0.9rem",
+        border: `1px solid ${tronWeb ? "#c3e6cb" : "#f5c6cb"}`
+      }}>
+        <strong>TronWeb Status:</strong> {tronWeb ? "✅ Connected" : "❌ Not Connected"}
+        {tronWeb && tronWeb.defaultAddress && (
+          <div><strong>Wallet:</strong> {tronWeb.defaultAddress.base58}</div>
+        )}
+      </div>
 
       {/* Debug info */}
       <div style={{ 
@@ -321,15 +332,15 @@ export default function EscrowCheckout() {
       <div style={{ marginBottom: "1rem" }}>
         <button
           onClick={() => fundEscrow(true)}
-          disabled={isLoading}
+          disabled={isLoading || !tronWeb}
           style={{ 
             padding: "1rem 2rem", 
             marginRight: "1rem",
-            backgroundColor: isLoading ? "#ccc" : "#007bff",
+            backgroundColor: (isLoading || !tronWeb) ? "#ccc" : "#007bff",
             color: "white",
             border: "none",
             borderRadius: "4px",
-            cursor: isLoading ? "not-allowed" : "pointer"
+            cursor: (isLoading || !tronWeb) ? "not-allowed" : "pointer"
           }}
         >
           {isLoading ? "Processing..." : "Pay 0.5 USDT (TRC20)"}
@@ -337,14 +348,14 @@ export default function EscrowCheckout() {
 
         <button
           onClick={() => fundEscrow(false)}
-          disabled={isLoading}
+          disabled={isLoading || !tronWeb}
           style={{ 
             padding: "1rem 2rem",
-            backgroundColor: isLoading ? "#ccc" : "#28a745",
+            backgroundColor: (isLoading || !tronWeb) ? "#ccc" : "#28a745",
             color: "white",
             border: "none",
             borderRadius: "4px",
-            cursor: isLoading ? "not-allowed" : "pointer"
+            cursor: (isLoading || !tronWeb) ? "not-allowed" : "pointer"
           }}
         >
           {isLoading ? "Processing..." : "Pay 0.5 TRX (native)"}

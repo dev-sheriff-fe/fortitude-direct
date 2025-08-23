@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { ThemeProvider } from '@aws-amplify/ui-react';
 import { FaceLivenessDetector } from '@aws-amplify/ui-react-liveness'
 import '@aws-amplify/ui-react/styles.css';
@@ -184,7 +184,8 @@ const LivenessCheckPage = () => {
   
 
   return (
-    <ThemeProvider>
+    <Suspense>
+      <ThemeProvider>
       {isLoading ? (
         <div className='w-screen flex items-center justify-center'>
           <Loader text='Please wait...' />
@@ -313,6 +314,7 @@ const LivenessCheckPage = () => {
         </div>
       )}
     </ThemeProvider>
+    </Suspense>
   );
 };
 
