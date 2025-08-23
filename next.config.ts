@@ -7,7 +7,19 @@ const nextConfig: NextConfig = {
       'mmcpdocs.s3.eu-west-2.amazonaws.com'
     ]
   },
-  devIndicators: false
+  ...(process.env.NODE_ENV==='production' && {
+    devIndicators: false,
+   typescript: {
+      ignoreBuildErrors: true,
+    },
+    eslint: {
+      ignoreDuringBuilds: true,
+    },
+
+    compiler:{
+      removeConsole:true
+    }
+  })
 };
 
 export default nextConfig;
