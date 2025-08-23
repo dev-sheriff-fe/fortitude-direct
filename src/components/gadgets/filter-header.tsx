@@ -1,6 +1,6 @@
 'use client'
 import { SlidersHorizontal } from 'lucide-react'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Sheet, SheetTrigger } from '../ui/sheet'
 import CategoriesMoile from './categories-mobile'
 
@@ -14,7 +14,9 @@ const FilterHeader = () => {
         Filter
       </button>
         </SheetTrigger>
-        <CategoriesMoile/>
+        <Suspense>
+          <CategoriesMoile/>
+        </Suspense>
       </Sheet>
     </div>
   )

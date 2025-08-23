@@ -6,7 +6,7 @@ import Image from "next/image";
 import FilterHeader from "@/components/gadgets/filter-header";
 import ProductsGrid from "@/components/gadgets/products-grid";
 import CartTriggerDesktop from "@/components/ui/cart-trigger-desktop";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default async function Home() {
@@ -17,7 +17,9 @@ export default async function Home() {
   return (
     <main className="w-full flex-1 flex">
       {/* Categories desktop - Fixed sidebar */}
-        <CategoriesDesktop />
+        <Suspense>
+          <CategoriesDesktop />
+        </Suspense>
         <CartTriggerDesktop/>
       {/* Main content area - Scrollable */}
       <div className="flex-1 w-full relative lg:py-4">

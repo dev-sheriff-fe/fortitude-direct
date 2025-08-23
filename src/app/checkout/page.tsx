@@ -125,11 +125,13 @@ console.log(data);
   const PaymentView = () => {
     if (selectedPayment === 'usdt') {
       return (
-        <UsdtPayment
+        <Suspense>
+          <UsdtPayment
         copyToClipboard={copyToClipboard}
         setCurrentStep={setCurrentStep}
         currentStep={currentStep}
         />
+        </Suspense>
       );
     }
 
@@ -144,19 +146,23 @@ console.log(data);
 
      if (selectedPayment === 'tron') {
       return (
-        <EscrowCheckout/>
+        <Suspense>
+          <EscrowCheckout/>
+        </Suspense>
       );
     }
 
     if (selectedPayment === 'bnpl') {
       if (bnplStep === 'registration') {
         return (
-          <BNPL
+          <Suspense>
+            <BNPL
             setBnplStep={setBnplStep}
             setCreditScore={setCreditScore}
             setCurrentStep={setCurrentStep}
             setScore= {setScore}
           />
+          </Suspense>
         );
       }
 
@@ -193,12 +199,14 @@ console.log(data);
 
       if (bnplStep === 'approved' || score || creditScore) {
         return (
-          <BNPLApproved
+          <Suspense>
+            <BNPLApproved
             setBnplStep={setBnplStep}
             setCurrentStep={setCurrentStep}
             score={score}
             setSelectedPayment = {setSelectedPayment}
           />
+          </Suspense>
         );
       }
 
