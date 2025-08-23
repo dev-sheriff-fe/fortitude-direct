@@ -132,34 +132,6 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
             </CardContent>
           </Card>
 
-          {/* Tron Link */}
-
-          {/* <Card 
-            className={`cursor-pointer transition-all hover:shadow-md`}
-            onClick={() => handlePaymentSelect('tron')}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <CoinsIcon className="w-6 h-6 text-accent" />
-                <div className="flex-1">
-                  <h4 className="font-semibold">BFPay</h4>
-                </div>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-accent">
-                  <Shield className="w-4 h-4" />
-                  <span>Instant approval</span>
-                </div>
-                <div className="flex items-center gap-2 text-accent">
-                </div>
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4" />
-                  <span>~3 second confirmation</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card> */}
-
           {/* Card Option */}
           <Card 
             className="cursor-pointer hover:shadow-md transition-all"

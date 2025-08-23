@@ -144,13 +144,13 @@ console.log(data);
       );
     }
 
-     if (selectedPayment === 'tron') {
-      return (
-        <Suspense>
-          <EscrowCheckout/>
-        </Suspense>
-      );
-    }
+    //  if (selectedPayment === 'tron') {
+    //   return (
+    //     <Suspense>
+    //       <EscrowCheckout/>
+    //     </Suspense>
+    //   );
+    // }
 
     if (selectedPayment === 'bnpl') {
       if (bnplStep === 'registration') {
