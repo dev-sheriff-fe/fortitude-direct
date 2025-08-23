@@ -9,7 +9,7 @@ import CartTriggerDesktop from "@/components/ui/cart-trigger-desktop";
 import { Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default async function Home() {
+export default function Home() {
   const router = useRouter()
   useEffect(()=>{
     router?.push(`?storeCode=STO445`)
