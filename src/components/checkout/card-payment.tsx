@@ -6,8 +6,8 @@ import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { useToast } from '@/app/hooks/use-toast'
 import { useCart } from '@/store/cart'
-import { formatPrice } from '@/utils/helperfns'
-import { CheckoutStep, PaymentMethod } from '@/app/checkout/page'
+import { CurrencyCode, formatPrice } from '@/utils/helperfns'
+
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
 import {
   PaymentElement,
@@ -16,6 +16,7 @@ import {
   useElements,
 } from '@stripe/react-stripe-js';
 import { useMutation } from '@tanstack/react-query'
+import { CheckoutStep, PaymentMethod } from '@/app/checkout/checkoutContent'
 
 type CardPaymentProps = {
     setCurrentStep: (step: CheckoutStep) => void;
@@ -100,7 +101,7 @@ const CardPayment = ({ setCurrentStep, setSelectedPayment }: CardPaymentProps) =
       return minimum && total < minimum;
     };
 
-    const { mutate, data, isLoading, error } = useMutation({
+    const { mutate, data, isPending, error } = useMutation({
       mutationFn: async ({ amount, currency }: CreatePaymentIntentPayload) => {
         const res = await fetch("/api/create-payment-intent", {
           method: "POST",
@@ -185,7 +186,7 @@ const CardPayment = ({ setCurrentStep, setSelectedPayment }: CardPaymentProps) =
             <CardContent>
               <p>
                 The minimum charge amount for {currency?.toUpperCase()} is {minimumDisplay}. 
-                Your current total is {formatPrice(total, currency as string)}.
+                Your current total is {formatPrice(total, currency as CurrencyCode)}.
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
                 Please add more items to your cart or choose a different payment method.
@@ -212,7 +213,7 @@ const CardPayment = ({ setCurrentStep, setSelectedPayment }: CardPaymentProps) =
 
           <Card>
             <CardHeader className='flex items-center'>
-              <span>Total: {formatPrice(total, currency as string)}</span>
+              <span>Total: {formatPrice(total, currency as CurrencyCode)}</span>
             </CardHeader>
 
             {!paymentMethod && (
@@ -228,7 +229,7 @@ const CardPayment = ({ setCurrentStep, setSelectedPayment }: CardPaymentProps) =
 
             {paymentMethod === 'stripe' && (
               <CardContent className="space-y-4">
-                {isLoading && <p>Setting up payment...</p>}
+                {isPending && <p>Setting up payment...</p>}
                 {error && (
                   <div className="text-red-500 text-sm">
                     Error: {(error as Error).message}

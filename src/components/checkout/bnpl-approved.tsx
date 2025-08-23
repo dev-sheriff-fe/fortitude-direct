@@ -8,8 +8,8 @@ import { Input } from '../ui/input';
 import { useCart } from '@/store/cart';
 import { CurrencyCode, formatPrice, timestampToDays } from '@/utils/helperfns';
 import { useToast } from '@/app/hooks/use-toast';
-import { BNPLStep, CheckoutStep, CreditScoreData, PaymentMethod } from '@/app/checkout/page';
 import LivenessTrigger from './bnpl/LivenessTrigger';
+import { BNPLStep, CheckoutStep, PaymentMethod } from '@/app/checkout/checkoutContent';
 
 type Props = {
     setBnplStep: (step: BNPLStep) => void;

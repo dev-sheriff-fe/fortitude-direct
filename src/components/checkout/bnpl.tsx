@@ -6,8 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { useCart } from '@/store/cart';
-
-import { BNPLStep, CheckoutStep, CreditScoreData } from '@/app/checkout/page';
 import { useToast } from '@/app/hooks/use-toast';
 import { useFileUpload } from '@/app/hooks/useUpload';
 import Personal from './bnpl/Personal'
@@ -21,6 +19,7 @@ import { toast } from 'sonner'
 import { fileUrlFormatted, getCurrentDate } from '@/utils/helperfns'
 import { useSearchParams } from 'next/navigation'
 import BNPLApproved from './bnpl-approved'
+import { BNPLStep, CheckoutStep, CreditScoreData } from '@/app/checkout/checkoutContent'
 
 export interface RegistrationData {
   firstname: string;

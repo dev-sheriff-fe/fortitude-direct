@@ -5,8 +5,8 @@ import { ArrowLeft, Bot, Building2, Calendar, CreditCard, DollarSign, Shield, Wa
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useCart } from '@/store/cart';
-import { PaymentMethod } from '@/app/checkout/page';
 import { CurrencyCode, formatPrice } from '@/utils/helperfns';
+import { PaymentMethod } from '@/app/checkout/checkoutContent';
 
 type CartViewProps = {
     handlePaymentSelect: (method: PaymentMethod) => void;

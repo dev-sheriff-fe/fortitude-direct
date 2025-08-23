@@ -5,13 +5,13 @@ import { ArrowLeft, Copy, Wallet } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Label } from '../ui/label'
 import { useCart } from '@/store/cart'
-import { CheckoutStep } from '@/app/checkout/page'
 import { useToast } from '@/app/hooks/use-toast'
 import { useQuery } from '@tanstack/react-query'
 import axiosInstance from '@/utils/fetch-function'
 import QrCode from 'react-qr-code'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { CurrencyCode, formatPrice } from '@/utils/helperfns'
+import { CheckoutStep } from '@/app/checkout/checkoutContent'
 
 type UsdtPaymentProps = {
     setCurrentStep: (step: CheckoutStep) => void;
