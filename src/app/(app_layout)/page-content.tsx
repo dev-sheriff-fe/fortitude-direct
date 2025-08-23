@@ -13,7 +13,7 @@ export default function Home() {
   const router = useRouter()
   useEffect(()=>{
     router?.push(`?storeCode=STO445`)
-  },[])
+  },[router])
   return (
     <main className="w-full flex-1 flex">
       {/* Categories desktop - Fixed sidebar */}
