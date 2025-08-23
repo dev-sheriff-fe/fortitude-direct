@@ -1,13 +1,13 @@
 'use client'
-import React, { Suspense } from 'react'
-import Home from './page-content'
+import dynamic from 'next/dynamic'
 
-const HomePage  = () => {
-  return (
-    <Suspense>
-      <Home/>
-    </Suspense>
-  )
+const Home = dynamic(() => import('./page-content'), {
+  ssr: false,
+  loading: () => <div>Loading...</div>
+})
+
+const HomePage = () => {
+  return <Home />
 }
 
-export default HomePage 
+export default HomePage
