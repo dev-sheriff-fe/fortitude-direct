@@ -119,9 +119,9 @@ const getStatusIcon = (status: Order['status']): React.ReactNode => {
 export default function TransactionHistory(): React.ReactElement {
   const {user} = useUser()
   const {data} = useQuery({
-    queryKey: ['recent-orders'],
+    queryKey: ['recent-trans'],
     queryFn: () =>axiosInstance.request({
-      url: '/ecommerce/fetch-orders',
+      url: '/store-dashboard/fetchRecentTrans',
       method: 'GET',
       params: {
         storeCode: user?.storeCode,

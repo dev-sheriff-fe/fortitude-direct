@@ -1,38 +1,63 @@
 "use client";
 
+import axiosInstance from "@/utils/fetch-function";
+import { useMutation } from "@tanstack/react-query";
 import { useState, useCallback, useEffect } from "react";
-
+import { toast } from "sonner";
 
 export default function EscrowCheckout() {
   const [status, setStatus] = useState("");
   const [txId, setTxId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Contract & merchant addresses
+  // Contract & addresses
   const ESCROW_VAULT = "TAbYX6SxkNp7zMqRRsAfPtsMs4o2zTmzms";
   const MERCHANT = "TXxPrefBbyktVJmtNqXvcL3xAXn4cFLfez";
+  const USDT_CONTRACT = "TXYZopYRdj2D9XRtbG4uDSoTHGzjKdMr4E"; // Nile testnet USDT
   const USDT_DECIMALS = 1_000_000;
   
-  // Basic escrow contract ABI - you'll need to replace this with your actual contract ABI
+  // Use your original ABI - only fund method exists
   const ESCROW_ABI = [
-    {"entrys":[{"inputs":[{"name":"escrowId","type":"bytes32"},{"name":"payer","type":"address"},{"name":"payee","type":"address"},{"name":"amount","type":"uint256"},{"name":"expiry","type":"uint256"},{"name":"attestRef","type":"bytes32"}],"name":"fund","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"name":"payer","type":"address"},{"name":"payee","type":"address"},{"name":"amount","type":"uint256"},{"name":"released","type":"bool"},{"name":"expiry","type":"uint256"},{"name":"attestRef","type":"bytes32"}],"constant":true,"inputs":[{"type":"bytes32"}],"name":"escrows","stateMutability":"View","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"name":"usdt","stateMutability":"View","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"name":"attestations","stateMutability":"View","type":"Function"},{"inputs":[{"name":"escrowId","type":"bytes32"}],"name":"release","stateMutability":"Nonpayable","type":"Function"},{"inputs":[{"name":"_usdt","type":"address"},{"name":"_attestations","type":"address"}],"stateMutability":"Nonpayable","type":"Constructor"}]}
+    {"entrys":[
+      {"inputs":[{"name":"escrowId","type":"bytes32"},{"name":"payer","type":"address"},{"name":"payee","type":"address"},{"name":"amount","type":"uint256"},{"name":"expiry","type":"uint256"},{"name":"attestRef","type":"bytes32"}],"name":"fund","stateMutability":"Payable","type":"Function","payable":true},
+      {"outputs":[{"name":"payer","type":"address"},{"name":"payee","type":"address"},{"name":"amount","type":"uint256"},{"name":"released","type":"bool"},{"name":"expiry","type":"uint256"},{"name":"attestRef","type":"bytes32"}],"constant":true,"inputs":[{"type":"bytes32"}],"name":"escrows","stateMutability":"View","type":"Function"},
+      {"outputs":[{"type":"address"}],"constant":true,"name":"usdt","stateMutability":"View","type":"Function"},
+      {"outputs":[{"type":"address"}],"constant":true,"name":"attestations","stateMutability":"View","type":"Function"},
+      {"inputs":[{"name":"escrowId","type":"bytes32"}],"name":"release","stateMutability":"Nonpayable","type":"Function"}
+    ]}
   ];
+
+  // Standard TRC20 ABI for USDT
+  const TRC20_ABI = [
+    {"outputs":[{"type":"bool"}],"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","stateMutability":"Nonpayable","type":"Function"},
+    {"outputs":[{"type":"uint256"}],"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","stateMutability":"View","type":"Function"},
+    {"outputs":[{"type":"uint256"}],"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","stateMutability":"View","type":"Function"}
+  ];
+
   const [checkoutData, setCheckoutData] = useState<any>(null);
   const [tronWeb, setTronWeb] = useState<any>(null);
   
-  // Backend API
-  const API_ENDPOINT = "/api/escrow/record";
+  const {mutate} = useMutation({
+    mutationFn: (data:any)=>axiosInstance.request({
+      url: '/chainTransaction/save',
+      method: 'POST'
+    }),
+    onSuccess: (data)=>{
+      if (data?.data?.code !== '00') {
+        toast.error(data?.data?.desc)
+        return
+      }
+      toast.success(data?.data?.desc||'Order sent')
+    }
+  })
 
   useEffect(() => {
     const initTronWeb = async () => {
       if ((window as any).tronWeb && (window as any).tronWeb.ready) {
         const tw = (window as any).tronWeb;
-
-        // 🔹 Force fullHost to Nile testnet
         tw.setFullNode("https://api.nileex.io");
         tw.setSolidityNode("https://api.nileex.io");
         tw.setEventServer("https://api.nileex.io");
-
         setTronWeb(tw);
         console.log("TronWeb initialized successfully");
       } else {
@@ -50,7 +75,6 @@ export default function EscrowCheckout() {
     }
   }, []);
 
-  // Helper function to wait for transaction confirmation
   const waitForTransaction = useCallback(async (tronWebInstance: any, txId: string): Promise<any> => {
     return new Promise(async (resolve) => {
       let receipt: any = null;
@@ -66,232 +90,208 @@ export default function EscrowCheckout() {
         }
         await new Promise((r) => setTimeout(r, 1000));
       }
-      resolve(receipt); // Return whatever we have after 30 attempts
+      resolve(receipt);
     });
   }, []);
 
+  const checkUSDTBalance = useCallback(async (address: string): Promise<number> => {
+    try {
+      const usdtContract = await tronWeb.contract(TRC20_ABI, USDT_CONTRACT);
+      const balance = await usdtContract.balanceOf(address).call();
+      return parseInt(balance.toString()) / USDT_DECIMALS;
+    } catch (error) {
+      console.error("Error checking USDT balance:", error);
+      return 0;
+    }
+  }, [tronWeb]);
+
+  const checkUSDTAllowance = useCallback(async (owner: string, spender: string): Promise<number> => {
+    try {
+      const usdtContract = await tronWeb.contract(TRC20_ABI, USDT_CONTRACT);
+      const allowance = await usdtContract.allowance(owner, spender).call();
+      return parseInt(allowance.toString()) / USDT_DECIMALS;
+    } catch (error) {
+      console.error("Error checking USDT allowance:", error);
+      return 0;
+    }
+  }, [tronWeb]);
+
+  const approveUSDT = useCallback(async (spender: string, amount: number): Promise<string> => {
+    try {
+      const usdtContract = await tronWeb.contract(TRC20_ABI, USDT_CONTRACT);
+      const amountInWei = Math.floor(amount * USDT_DECIMALS);
+      
+      const result = await usdtContract.approve(spender, amountInWei).send({
+        feeLimit: 50_000_000,
+        shouldPollResponse: false
+      });
+      
+      return result;
+    } catch (error) {
+      console.error("USDT approval error:", error);
+      throw new Error(`USDT approval failed: ${error.message || error}`);
+    }
+  }, [tronWeb]);
+
   const fundEscrow = useCallback(async (isTRC20: boolean) => {
-    if (isLoading) return; // Prevent multiple simultaneous calls
+    if (isLoading) return;
     
     setIsLoading(true);
     setStatus("");
     setTxId("");
 
     try {
-      // Check if TronWeb is initialized
-      if (!tronWeb) {
-        throw new Error("TronLink is not initialized. Please make sure TronLink is installed and unlocked.");
-      }
-
-      // More detailed wallet checks using our tronWeb instance
-      if (!tronWeb.defaultAddress || !tronWeb.defaultAddress.base58) {
-        throw new Error("No wallet address found. Please connect your TronLink wallet.");
+      if (!tronWeb || !tronWeb.defaultAddress || !tronWeb.defaultAddress.base58) {
+        throw new Error("TronLink not connected. Please connect your wallet.");
       }
 
       const buyer = tronWeb.defaultAddress.base58;
-      console.log("Buyer address:", buyer);
-
-      // Generate transaction parameters
       const orderIdStr = checkoutData?.orderNo || `ORDER_${Date.now()}`;
-      
-      if (!orderIdStr || typeof orderIdStr !== 'string') {
-        throw new Error("Invalid order ID. Please refresh and try again.");
-      }
-      
-      console.log("Order ID String:", orderIdStr);
-      
-      // Check if sha3 function exists
-      if (!tronWeb.sha3) {
-        throw new Error("TronWeb sha3 function not available. Please update TronLink.");
-      }
-      
       const orderId = tronWeb.sha3(orderIdStr);
-      console.log("Hashed Order ID:", orderId);
-      
-      const amount = 0.5 * USDT_DECIMALS;
+      const amount = 0.5; // 0.5 tokens/TRX
+      const amountInWei = isTRC20 ? Math.floor(amount * USDT_DECIMALS) : Math.floor(amount * 1_000_000); // TRX uses 6 decimals
       const expiry = Math.floor(Date.now() / 1000) + 86400;
       const attestRef = tronWeb.sha3("TXN_REF_" + Date.now());
 
-      console.log("Transaction params:", { orderId, buyer, amount, expiry, attestRef });
+      console.log("Transaction params:", { 
+        orderId, buyer, MERCHANT, amount, amountInWei, expiry, attestRef, isTRC20 
+      });
 
-      setStatus("Connecting to contract...");
-
-      // Check if contract address is valid
-      if (!tronWeb.isAddress(ESCROW_VAULT)) {
-        throw new Error(`Invalid contract address: ${ESCROW_VAULT}`);
-      }
-
-      console.log("Attempting to connect to contract:", ESCROW_VAULT);
-      
-      // Try to get contract instance - start with the simplest approach
-      let contract;
-      try {
-        console.log("Trying contract creation without ABI first...");
-        contract = await tronWeb.contract().at(ESCROW_VAULT);
-        console.log("Contract instance created successfully:", contract);
-      } catch (contractError) {
-        console.error("Contract creation failed:", contractError);
-        
-        // Try with explicit ABI as fallback
-        try {
-          console.log("Trying contract creation with explicit ABI...");
-          contract = await tronWeb.contract(ESCROW_ABI, ESCROW_VAULT);
-          console.log("Contract instance created with ABI:", contract);
-        } catch (abiError) {
-          console.error("Contract creation with ABI also failed:", abiError);
-          throw new Error(`Failed to connect to contract at ${ESCROW_VAULT}. Please verify the contract exists and is deployed on the current network.`);
-        }
-      }
-
-      setStatus("Preparing transaction...");
-
-      // Check if required methods exist on contract
-      if (isTRC20 && !contract.fund) {
-        throw new Error("Contract does not have 'fund' method. Please check the contract ABI.");
-      }
-      if (!isTRC20 && !contract.payWithTRX) {
-        throw new Error("Contract does not have 'payWithTRX' method. Please check the contract ABI.");
-      }
-
-      setStatus("Sending transaction...");
-
-      let tx: string;
+      // Get contract instance
+      const contract = await tronWeb.contract(ESCROW_ABI, ESCROW_VAULT);
 
       if (isTRC20) {
-        console.log("Calling fund method with params:", { orderId, buyer, MERCHANT, amount, expiry, attestRef });
+        // TRC20 USDT Payment Flow
+        setStatus("Checking USDT balance...");
         
-        // TRC20 USDT fund
-        try {
-          const result = await contract.fund(
-            orderId,
-            buyer,
-            MERCHANT,
-            amount,
-            expiry,
-            attestRef
-          ).send({ 
-            feeLimit: 100_000_000,
-            shouldPollResponse: false
-          });
-          tx = result;
-          console.log(result);
-          
-        } catch (fundError) {
-          console.error("Fund method error:", fundError);
-          throw new Error(`TRC20 payment failed: ${fundError.message || fundError}`);
+        const balance = await checkUSDTBalance(buyer);
+        console.log(`USDT Balance: ${balance}`);
+        
+        if (balance < amount) {
+          throw new Error(`Insufficient USDT balance. Required: ${amount}, Available: ${balance}`);
         }
+
+        setStatus("Checking USDT allowance...");
+        const currentAllowance = await checkUSDTAllowance(buyer, ESCROW_VAULT);
+        console.log(`Current allowance: ${currentAllowance}`);
+
+        if (currentAllowance < amount) {
+          setStatus("Approving USDT spend...");
+          const approveTx = await approveUSDT(ESCROW_VAULT, amount * 2); // Approve 2x for future txs
+          console.log("Approval transaction:", approveTx);
+          
+          setStatus("Waiting for approval confirmation...");
+          await waitForTransaction(tronWeb, approveTx);
+          
+          // Wait a bit more for blockchain state update
+          await new Promise(r => setTimeout(r, 2000));
+        }
+
+        setStatus("Executing USDT escrow funding...");
+        
+        const result = await contract.fund(
+          orderId,
+          buyer,
+          MERCHANT,
+          amountInWei,
+          expiry,
+          attestRef
+        ).send({ 
+          feeLimit: 100_000_000,
+          shouldPollResponse: false
+        });
+        
+        setTxId(result);
+        console.log("Fund transaction:", result);
+
       } else {
-        console.log("Calling payWithTRX method with params:", { orderId, MERCHANT, expiry, attestRef, callValue: amount });
+        // TRX Native Payment Flow using fund() method
+        setStatus("Checking TRX balance...");
         
-        // TRX native payment
-        try {
-          const result = await contract.payWithTRX(
-            orderId,
-            MERCHANT,
-            expiry,
-            attestRef
-          ).send({ 
-            feeLimit: 100_000_000, 
-            callValue: amount,
-            shouldPollResponse: false
-          });
-          tx = result;
-          console.log(result);
-          
-        } catch (trxError) {
-          console.error("PayWithTRX method error:", trxError);
-          throw new Error(`TRX payment failed: ${trxError.message || trxError}`);
+        const balance = await tronWeb.trx.getBalance(buyer);
+        const trxBalance = balance / 1_000_000;
+        console.log(`TRX Balance: ${trxBalance}`);
+        
+        if (trxBalance < (amount + 0.1)) { // +0.1 for fees
+          throw new Error(`Insufficient TRX balance. Required: ${amount + 0.1}, Available: ${trxBalance}`);
         }
+
+        setStatus("Executing TRX escrow payment using fund method...");
+        
+        // For TRX payments, use fund() with callValue and pass 0 for amount
+        // Some contracts expect amount=0 for native payments, others expect the actual amount
+        // Try with 0 first, then amountInWei if that fails
+        const result = await contract.fund(
+          orderId,
+          buyer,
+          MERCHANT,
+          0, // Pass 0 for TRX payments since value is in callValue
+          expiry,
+          attestRef
+        ).send({ 
+          feeLimit: 100_000_000, 
+          callValue: amountInWei, // The actual TRX amount
+          shouldPollResponse: false
+        });
+        
+        setTxId(result);
+        console.log("Fund (TRX) transaction:", result);
       }
-      
-      console.log("Transaction result:", tx);
 
-      if (!tx) {
-        throw new Error("Transaction failed to execute - no transaction ID returned");
+      if (!txId) {
+        throw new Error("Transaction failed - no transaction ID returned");
       }
 
-      if (typeof tx !== 'string') {
-        console.error("Unexpected transaction result:", tx);
-        throw new Error("Invalid transaction result format");
-      }
+      setStatus(`Transaction sent: ${txId}. Waiting for confirmation...`);
 
-      setTxId(tx);
-      setStatus(`Transaction sent: ${tx}. Waiting for confirmation...`);
+      // Wait for confirmation
+      const receipt = await waitForTransaction(tronWeb, txId);
+      const isConfirmed = receipt && receipt.receipt && receipt.receipt.result === "SUCCESS";
+      const statusText = isConfirmed ? "CONFIRMED" : "PENDING";
 
-      // Wait for transaction confirmation using our tronWeb instance
-      try {
-        const receipt = await waitForTransaction(tronWeb, tx);
-        const statusText = receipt && receipt.receipt ? "CONFIRMED" : "PENDING";
+      setStatus(`Transaction ${statusText}. ${isConfirmed ? "✅" : "⏳"}`);
 
-        setStatus(`Transaction ${statusText}. Preparing backend update...`);
+      // Backend integration
+      const payload = {
+        txId,
+        fromAddress: buyer,
+        orderId: orderIdStr,
+        amount: amountInWei,
+        status: statusText,
+        fee: receipt?.fee || 0,
+        symbol: isTRC20 ? 'USDT' : 'TRX',
+        merchantAddress: MERCHANT,
+        contractAddress: ESCROW_VAULT,
+        paymentType: isTRC20 ? "USDT" : "TRX",
+        attestationRef: attestRef
+      };
 
-        // Post transaction info to backend
-        const payload = {
-          txId: tx,
-          buyerAddress: buyer,
-          orderId: orderIdStr,
-          amount,
-          status: statusText,
-          merchantAddress: MERCHANT,
-          contractAddress: ESCROW_VAULT,
-          paymentType: isTRC20 ? "USDT" : "TRX",
-          timestamp: new Date().toISOString(),
-        };
-
-        console.log("Backend payload:", payload);
-
-        // Uncommented for testing - you can re-enable when backend is ready
-        // const response = await fetch(API_ENDPOINT, {
-        //   method: "POST",
-        //   headers: { 
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(payload),
-        // });
-
-        // if (!response.ok) {
-        //   throw new Error(`Backend request failed: ${response.status} ${response.statusText}`);
-        // }
-
-        // const result = await response.json();
-
-        setStatus(
-          `✅ Transaction ${statusText} (${isTRC20 ? "USDT" : "TRX"}). Ready for backend integration.`
-        );
-      } catch (confirmError) {
-        console.error("Transaction confirmation error:", confirmError);
-        setStatus(`⚠️ Transaction sent but confirmation failed: ${confirmError.message}`);
-      }
+      console.log("Backend payload:", payload);
+      // mutate(payload); // Uncomment when backend is ready
 
     } catch (err: any) {
       console.error("Transaction error:", err);
-      
-      // Better error message formatting
       let errorMessage = "Unknown error occurred";
       
-      if (err && typeof err === 'object') {
-        if (err.message) {
-          errorMessage = err.message;
-        } else if (err.error) {
-          errorMessage = typeof err.error === 'string' ? err.error : JSON.stringify(err.error);
-        } else {
-          errorMessage = JSON.stringify(err);
-        }
+      if (err?.message) {
+        errorMessage = err.message;
       } else if (typeof err === 'string') {
         errorMessage = err;
+      } else if (err?.error) {
+        errorMessage = typeof err.error === 'string' ? err.error : JSON.stringify(err.error);
       }
       
       setStatus(`❌ Error: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, waitForTransaction, ESCROW_VAULT, MERCHANT, USDT_DECIMALS, API_ENDPOINT, checkoutData, tronWeb]);
+  }, [isLoading, waitForTransaction, checkUSDTBalance, checkUSDTAllowance, approveUSDT, checkoutData, tronWeb]);
 
   return (
     <div style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-      <h1>🚀 BorderlessFusePay Checkout</h1>
+      <h1>🚀 BorderlessFusePay Checkout (Fixed)</h1>
 
-      {/* TronWeb Status Indicator */}
+      {/* TronWeb Status */}
       <div style={{ 
         marginBottom: "1rem", 
         padding: "0.5rem", 
@@ -306,7 +306,7 @@ export default function EscrowCheckout() {
         )}
       </div>
 
-      {/* Debug info */}
+      {/* Debug Info */}
       <div style={{ 
         marginBottom: "1rem", 
         padding: "0.5rem", 
@@ -318,17 +318,22 @@ export default function EscrowCheckout() {
         <br />
         <strong>Contract:</strong> {ESCROW_VAULT}
         <br />
-        <strong>Network Check:</strong> 
+        <strong>USDT Contract:</strong> {USDT_CONTRACT}
+        <br />
+        <strong>Network:</strong> Nile Testnet
+        <br />
+        <strong>Contract Verification:</strong> 
         <a 
           href={`https://tronscan.org/#/contract/${ESCROW_VAULT}`}
           target="_blank" 
           rel="noopener noreferrer"
           style={{ color: "#007bff", marginLeft: "0.5rem" }}
         >
-          Verify Contract on TronScan
+          Verify on TronScan
         </a>
       </div>
 
+      {/* Payment Buttons */}
       <div style={{ marginBottom: "1rem" }}>
         <button
           onClick={() => fundEscrow(true)}
@@ -362,6 +367,7 @@ export default function EscrowCheckout() {
         </button>
       </div>
 
+      {/* Status Display */}
       {status && (
         <div style={{ 
           padding: "1rem", 
@@ -374,6 +380,7 @@ export default function EscrowCheckout() {
         </div>
       )}
       
+      {/* Transaction Link */}
       {txId && (
         <div style={{ 
           padding: "1rem", 

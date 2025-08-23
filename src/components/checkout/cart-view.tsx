@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { Button } from '../ui/button';
-import { ArrowLeft, Bot, Building2, Calendar, CreditCard, DollarSign, Shield, Wallet, Zap } from 'lucide-react';
+import { ArrowLeft, Bot, Building2, Calendar, CoinsIcon, CreditCard, DollarSign, Shield, Wallet, Zap } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useCart } from '@/store/cart';
@@ -134,15 +134,15 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
 
           {/* Tron Link */}
 
-          <Card 
+          {/* <Card 
             className={`cursor-pointer transition-all hover:shadow-md`}
             onClick={() => handlePaymentSelect('tron')}
           >
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-3">
-                <Wallet className="w-6 h-6 text-accent" />
+                <CoinsIcon className="w-6 h-6 text-accent" />
                 <div className="flex-1">
-                  <h4 className="font-semibold">Tron (TRC-20)</h4>
+                  <h4 className="font-semibold">BFPay</h4>
                 </div>
               </div>
               <div className="space-y-2 text-sm">
@@ -151,8 +151,6 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
                   <span>Instant approval</span>
                 </div>
                 <div className="flex items-center gap-2 text-accent">
-                  {/* <DollarSign className="w-4 h-4" /> */}
-                  {/* <span>Save ${estimatedSavings.toFixed(2)} in fees</span> */}
                 </div>
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4" />
@@ -160,7 +158,7 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Card Option */}
           <Card 
