@@ -4,9 +4,9 @@ import { ArrowLeft, Banknote, Building2, Copy, Shield } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Label } from '../ui/label';
 import { useToast } from '@/app/hooks/use-toast';
-import { CheckoutStep } from '@/app/checkout/page';
 import { useCart } from '@/store/cart';
 import { CurrencyCode, formatPrice } from '@/utils/helperfns';
+import { CheckoutStep } from '@/app/checkout/checkoutContent';
 
 
 type Props = {
