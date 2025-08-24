@@ -191,7 +191,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard,currentStep}: UsdtPaymentP
       });
     }, []);
   
-    // Helper function to approve USDT spending
+    // Helper function to approve USDT spending - FIXED VERSION
     const approveUSDT = async (amount: number) => {
       try {
         setStatus("Approving USDT spending...");
@@ -199,9 +199,16 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard,currentStep}: UsdtPaymentP
         // Get USDT contract without ABI (TronWeb will fetch it automatically)
         const usdtContract = await tronWeb.contract().at(USDT_CONTRACT);
         
+        // IMPORTANT: Convert amount to integer (remove decimals)
+        // The amount should already be in the correct units (multiplied by USDT_DECIMALS)
+        // but we need to ensure it's an integer
+        const amountInteger = Math.floor(amount);
+        
+        console.log("Approving USDT amount:", amountInteger, "for spender:", ESCROW_VAULT);
+        
         const approveResult = await usdtContract.approve(
           ESCROW_VAULT,
-          amount
+          amountInteger  // Use integer amount
         ).send({
           feeLimit: 50_000_000,
           shouldPollResponse: false
@@ -253,8 +260,15 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard,currentStep}: UsdtPaymentP
         const orderId = tronWeb.sha3(orderIdStr);
         console.log("Hashed Order ID:", orderId);
         
-        // Fixed amount calculation
-        const amount = isTRC20 ? (0.5 * USDT_DECIMALS) : (0.5 * 1_000_000); // 0.5 USDT or 0.5 TRX
+        // FIXED: Ensure amount calculation produces integers
+        const rawAmount = isTRC20 ? 
+          (checkoutData?.payingAmount * USDT_DECIMALS) : 
+          (checkoutData?.payingAmount * 1_000_000);
+        
+        const amount = Math.floor(rawAmount); // Ensure integer
+        
+        console.log("Raw amount:", rawAmount, "Final amount:", amount);
+        
         const expiry = Math.floor(Date.now() / 1000) + 86400;
         const attestRef = tronWeb.sha3("TXN_REF_" + Date.now());
   
@@ -747,7 +761,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard,currentStep}: UsdtPaymentP
               <div className="space-y-3">
                 <div>
                   <Label className="text-xs text-muted-foreground">AMOUNT</Label>
-                  <p className="text-2xl font-bold">{loading?<div className='w-full bg-gray-100 h-6 rounded-sm animate-pulse'/>: `USDT ${data?.totalAmount}`}</p>
+                  <p className="text-2xl font-bold">{loading?<div className='w-full bg-gray-100 h-6 rounded-sm animate-pulse'/>: `USDT ${checkoutData?.payingAmount?.toFixed(2)||0}`}</p>
                   <p className="text-sm text-muted-foreground">≈ {formatPrice(cartTotal,ccy as CurrencyCode)}</p>
                 </div>
 

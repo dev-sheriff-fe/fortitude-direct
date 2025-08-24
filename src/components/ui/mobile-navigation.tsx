@@ -14,7 +14,7 @@ export function MobileNavigation() {
     const [openSearch,setOpenSearch] = useState(false)
 
   return (
-    <div className="sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden">
+    <div className="sticky bottom-0 left-0 right-0 bg-white border-t z-50 border-gray-200 md:hidden">
       <div className="flex items-center justify-around py-2">
         <button className="flex flex-col items-center gap-1 p-2" onClick={() => setIsMobileMenuOpen(true)}>
           <Menu className="h-6 w-6 text-gray-600" />

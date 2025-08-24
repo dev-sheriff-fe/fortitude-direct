@@ -46,13 +46,13 @@ const Cart = () => {
 
     const submitOrder = () =>{
         const orderItems = cart.map(item=>({
-            itemCode: '',
+            itemCode: item?.code,
             itemName: item?.name,
             price: item?.salePrice,
             quantity: item?.quantity,
             amount: item?.subTotal,
             discount: 0,
-            picture: item?.picture
+            picture: item?.picture,
         }))
         const payload = {
             channel: "WEB",
