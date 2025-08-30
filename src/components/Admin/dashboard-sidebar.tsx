@@ -2,20 +2,12 @@
 import React from 'react';
 import { 
   LayoutDashboard, 
-  Send, 
-  Wallet, 
-  History, 
-  Users, 
-  TrendingUp, 
-  UserCog, 
-  CreditCard, 
-  Settings,
-  FileText,
-  Star,
   Box,
   Bus,
   ClipboardList,
-  StoreIcon
+  StoreIcon,
+  UsersRoundIcon,
+  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -26,16 +18,16 @@ import useUser from '@/store/userStore';
 
 const navigationItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { name: 'Inventories', href: '/inventories', icon: Box },
-  { name: 'Orders', href: '/orders', icon: Bus },
-  { name: 'Report', href: '/report', icon: ClipboardList },
+  { name: 'Inventories', href: '/admin/inventories', icon: Box },
+  { name: 'BNPL Customers', href: '/admin/bnpl-customers', icon: UsersRoundIcon  },
+  { name: 'Orders', href: '/admin/orders', icon: Clock },
 ];
 
 export const DashboardSidebar = () => {
     const pathname = usePathname()
     const {user} = useUser()
   return (
-    <div className="w-64 bg-accent/90 h-full flex flex-col">
+    <div className="w-full bg-accent h-full flex flex-col">
       {/* Logo */}
       <div className="p-4 lg:p-6 border-b border-white/10">
         <div className="flex items-center gap-2">

@@ -13,7 +13,8 @@ export interface MenuItem {
   unit?:string;
   code?:string;
   ccy?: string;
-  usdPrice?: number
+  usdPrice?: number,
+  
 //   bg?: string;
 //   color?: string;
 }
