@@ -60,6 +60,9 @@
   --muted-foreground: oklch(0.556 0 0);
   --accent: #0652e9;
   --accent-foreground: #76a2fc;
+  --fortitude-primary: #d8480b;
+  --fortitude-accent: #313133;
+  --fortitude-accent-foreground: #535357;
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
