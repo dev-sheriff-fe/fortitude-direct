@@ -9,12 +9,17 @@ import { useMutation } from '@tanstack/react-query'
 import axiosInstance from '@/utils/fetch-function'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
+import useCustomer from '@/store/customerStore'
+import { set } from 'zod'
+import CustomerLoginModal from './customer-login-modal'
 
 const Cart = () => {
     const {cart, decrement, increment, removeItem, mainCcy} = useCart()
     const ccy = mainCcy()
     const totalAmount = cart.reduce((total, item) => total + item.subTotal, 0)
     const router = useRouter()
+    const [isOpen,setIsOpen] = useState(false)
+    const {customer} = useCustomer()
     const rand = generateRandomNumber(15)
     const currentDate = getCurrentDate()
     const searchParams = useSearchParams()
@@ -25,7 +30,7 @@ const Cart = () => {
             url: '/store/save-cart',
             method: 'POST',
             params: {
-                entityCode: 'H2P',
+                entityCode: customer?.entityCode,
                 storeCode
             },
             data
@@ -45,6 +50,11 @@ const Cart = () => {
     })
 
     const submitOrder = () =>{
+
+        if (!customer) {
+            setIsOpen(true)
+            return
+        }
         const orderItems = cart.map(item=>({
             itemCode: item?.code,
             itemName: item?.name,
@@ -86,7 +96,8 @@ const Cart = () => {
     }
     
     return (
-        <SheetContent className='min-w-[400px] lg:min-w-[450px] '>
+        <>
+            <SheetContent className='min-w-[400px] lg:min-w-[450px] '>
             <SheetHeader className='w-full items-center border-b gap-1 text-accent text-[18px] font-semibold'>
                 <span><ShoppingBag size={20} strokeWidth={2.5} /></span> <span>{cart.length > 1 ? `${cart.length} items` : `${cart.length} item`}</span>
             </SheetHeader>
@@ -183,6 +194,12 @@ const Cart = () => {
                     </Button>
             </div>
         </SheetContent>
+
+        <CustomerLoginModal 
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+        />
+        </>
     )
 }
 

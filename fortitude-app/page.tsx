@@ -11,7 +11,7 @@ import watch from "@/components/images/watch.png";
 import { useRouter, useSearchParams } from "next/navigation";
 
 
-export default function Home() {
+export default function HomeFortitude() {
 const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();

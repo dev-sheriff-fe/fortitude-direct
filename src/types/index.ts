@@ -99,3 +99,37 @@ export interface LoggedInUser {
   walletType?: number;
   twoFaLinked?: string;
 }
+
+export interface UserProfile {
+  username?: string;
+  userRole?: string;
+  entityCode?: string;
+  entityName?: string;
+  entityLogo?: string;
+  language?: string;
+  retryNo?: number;
+  ticketID?: string;
+  deviceID?: string;
+  responseMessage?: string;
+  responseCode?: string;
+  fullname?: string;
+  appVersion?: string | null;
+  email?: string;
+  mobileNo?: string;
+  lastLoginDate?: string | null;
+  photoLink?: string;
+  firstname?: string;
+  ccy?: string;
+  country?: string;
+  forcePwdChange?: string;
+  referalCode?: string;
+  partnerLink?: string;
+  customerId?: string;
+  customerTier?: string;
+  kycStatus?: string | null;
+  kycTierStatus?: string;
+  notificationMessage?: string | null;
+  chatSessionToken?: string;
+  onboardType?: string | null;
+  pinSet?: boolean;
+}

@@ -1,7 +1,7 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Button } from '../ui/button'
-import { ArrowLeft, Copy, Wallet, CheckCircle, ExternalLink, Clock } from 'lucide-react'
+import { ArrowLeft, Copy, Wallet, CheckCircle, ExternalLink, Clock, X } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Label } from '../ui/label'
 import { useCart } from '@/store/cart'
@@ -13,6 +13,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 import { CheckoutStep } from '@/app/checkout/checkoutContent'
 import { toast } from 'sonner'
+import Image from 'next/image'
+import logoWhite from '@/assets/icon_white.png'
+import axiosCustomer from '@/utils/fetch-function-customer'
 
 type UsdtPaymentProps = {
     setCurrentStep: (step: CheckoutStep) => void;
@@ -33,778 +36,459 @@ type TransactionDetails = {
   timestamp: number;
 }
 
-const UsdtPayment = ({setCurrentStep, copyToClipboard,currentStep}: UsdtPaymentProps) => {
-    const {getCartTotal,mainCcy} = useCart()
+const chains = [
+  { symbol: "ETH", chain: "Ethereum" },
+  { symbol: "BNB", chain: "BNB Chain" },
+  { symbol: "SOL", chain: "Solana" },
+  { symbol: "MATIC", chain: "Polygon" },
+  { symbol: "AVAX", chain: "Avalanche" },
+  { symbol: "OP", chain: "Optimism" },
+  { symbol: "ARB", chain: "Arbitrum" },
+  { symbol: "FTM", chain: "Fantom" },
+  { symbol: "APT", chain: "Aptos" },
+  { symbol: "SUI", chain: "Sui" },
+  { symbol: "ATOM", chain: "Cosmos" },
+  { symbol: "NEAR", chain: "NEAR Protocol" },
+  { symbol: "TRX", chain: "TRON" },
+  { symbol: "DOT", chain: "Polkadot" },
+  { symbol: "EGLD", chain: "MultiversX (Elrond)" },
+  { symbol: "CRO", chain: "Cronos" },
+  { symbol: "XLM", chain: "Stellar" },
+  { symbol: "ADA", chain: "Cardano" },
+  { symbol: "XRP", chain: "XRP Ledger" },
+  { symbol: "BTC", chain: "Bitcoin" }
+];
+
+const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPaymentProps) => {
+    const {getCartTotal, mainCcy, cart} = useCart()
     const searchParams = useSearchParams()
     const [paymentStep, setPaymentStep] = useState<'success'|'failed'|null>(null)
     const [countdown, setCountdown] = useState<number>(0)
     const storeCode = searchParams.get('storeCode') || ''
     const ccy = mainCcy()
-  const cartTotal = getCartTotal();
-  const [status, setStatus] = useState("");
-  const [txId, setTxId] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [transactionDetails, setTransactionDetails] = useState<TransactionDetails | null>(null);
-  
-  // Contract & merchant addresses
-  const ESCROW_VAULT = "TReeAUnDQakeDSEnAUcp65EubajiQhz8YV";
-  const MERCHANT = "TXxPrefBbyktVJmtNqXvcL3xAXn4cFLfez";
-  const USDT_CONTRACT = "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf"; // Nile testnet USDT
-  const USDT_DECIMALS = 1_000_000;
+    const cartTotal = getCartTotal();
+    const [status, setStatus] = useState("");
+    const [txId, setTxId] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [transactionDetails, setTransactionDetails] = useState<TransactionDetails | null>(null);
+    const [selectedChain, setSelectedChain] = useState<any | null>(null);
+    const [chainDets, setChainDets] = useState<any>(null);
+    const [checkoutData, setCheckoutData] = useState<any>(null);
+    const [isGeneratingAddress, setIsGeneratingAddress] = useState(false);
 
-   const ESCROW_ABI = [
-    {
-      "inputs": [
-        {"name": "escrowId", "type": "bytes32"},
-        {"name": "payer", "type": "address"},
-        {"name": "payee", "type": "address"},
-        {"name": "amount", "type": "uint256"},
-        {"name": "expiry", "type": "uint256"},
-        {"name": "attestRef", "type": "bytes32"}
-      ],
-      "name": "fund",
-      "stateMutability": "Nonpayable",
-      "type": "Function"
-    },
-    {
-      "inputs": [
-        {"name": "escrowId", "type": "bytes32"},
-        {"name": "payee", "type": "address"},
-        {"name": "expiry", "type": "uint256"},
-        {"name": "attestRef", "type": "bytes32"}
-      ],
-      "name": "payWithTRX",
-      "stateMutability": "Payable",
-      "type": "Function"
-    },
-    {
-      "outputs": [
-        {"name": "payer", "type": "address"},
-        {"name": "payee", "type": "address"},
-        {"name": "amount", "type": "uint256"},
-        {"name": "released", "type": "bool"},
-        {"name": "expiry", "type": "uint256"},
-        {"name": "attestRef", "type": "bytes32"}
-      ],
-      "constant": true,
-      "inputs": [{"type": "bytes32"}],
-      "name": "escrows",
-      "stateMutability": "View",
-      "type": "Function"
-    }
-  ];
-  
-   const handleUSDTPayment = () => {
-    setCurrentStep('processing');
-    setCountdown(3);
-    
-    const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          setCurrentStep('success');
-          toast('Payment Confirmed');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const {data,error,isLoading:loading} = useQuery({
-    queryKey: ['usdtPayment',currentStep],
-    queryFn: ()=>axiosInstance.request({
-      url: '/store/wallet-details',
-      method: 'GET',
-      params: {
-        storeCode,
-        entityCode: 'H2P'
-      },
-    }).then(res => res.data),
-  })
-
-  const info = data?.coinAddresses[0]
-
-  const [checkoutData, setCheckoutData] = useState<any>(null);
-    const [tronWeb, setTronWeb] = useState<any>(null);
-    
-    // Backend API
-    // const {mutate} = useMutation({
-    //   mutationFn: (data:any)=>axiosInstance.request({
-    //     url: '/chainTransaction/save',
-    //     method: 'POST',
-    //     data: data
-    //   }),
-    //   onSuccess: (data)=>{
-    //     if (data?.data?.code !== '000') {
-    //       toast.error(data?.data?.desc)
-    //       return
-    //     }
-    //     toast.success(data?.data?.desc||'Order sent')
-    //   }
-    // })
-  
-    useEffect(() => {
-      const initTronWeb = async () => {
-        if ((window as any).tronWeb && (window as any).tronWeb.ready) {
-          const tw = (window as any).tronWeb;
-  
-          // Force fullHost to Nile testnet
-          tw.setFullNode("https://api.nileex.io");
-          tw.setSolidityNode("https://api.nileex.io");
-          tw.setEventServer("https://api.nileex.io");
-  
-          setTronWeb(tw);
-          console.log("TronWeb initialized successfully");
-        } else {
-          console.warn("TronLink not found. Please install TronLink.");
-          setStatus("⚠️ TronLink not found. Please install TronLink extension.");
-        }
-      };
-      initTronWeb();
-    }, []);
-  
+    // Load checkout data from sessionStorage
     useEffect(() => {
       const stored = sessionStorage.getItem('checkout');
       if (stored) {
-        setCheckoutData(JSON.parse(stored));
-      }
-    }, []);
-  
-    // Helper function to wait for transaction confirmation
-    const waitForTransaction = useCallback(async (tronWebInstance: any, txId: string): Promise<any> => {
-      return new Promise(async (resolve) => {
-        let receipt: any = null;
-        for (let i = 0; i < 30; i++) {
-          try {
-            receipt = await tronWebInstance.trx.getTransactionInfo(txId);
-            if (receipt && receipt.receipt) {
-              resolve(receipt);
-              return;
-            }
-          } catch (error) {
-            console.warn(`Attempt ${i + 1} failed:`, error);
-          }
-          await new Promise((r) => setTimeout(r, 1000));
+        try {
+          setCheckoutData(JSON.parse(stored));
+        } catch (error) {
+          console.error('Error parsing checkout data:', error);
+          toast.error('Error loading checkout data');
         }
-        resolve(receipt);
-      });
-    }, []);
-  
-    // Helper function to approve USDT spending - FIXED VERSION
-    const approveUSDT = async (amount: number) => {
-      try {
-        setStatus("Approving USDT spending...");
-        
-        // Get USDT contract without ABI (TronWeb will fetch it automatically)
-        const usdtContract = await tronWeb.contract().at(USDT_CONTRACT);
-        
-        // IMPORTANT: Convert amount to integer (remove decimals)
-        // The amount should already be in the correct units (multiplied by USDT_DECIMALS)
-        // but we need to ensure it's an integer
-        const amountInteger = Math.floor(amount);
-        
-        console.log("Approving USDT amount:", amountInteger, "for spender:", ESCROW_VAULT);
-        
-        const approveResult = await usdtContract.approve(
-          ESCROW_VAULT,
-          amountInteger  // Use integer amount
-        ).send({
-          feeLimit: 50_000_000,
-          shouldPollResponse: false
-        });
-        
-        console.log("USDT approval result:", approveResult);
-        setStatus("USDT approved. Proceeding with escrow funding...");
-        
-        return approveResult;
-      } catch (error: any) {
-        console.error("USDT approval failed:", error);
-        throw new Error(`USDT approval failed: ${error.message || error}`);
       }
-    };
-  
-    const fundEscrow = useCallback(async (isTRC20: boolean) => {
-      if (isLoading) return;
+    }, []);
+
+    const handleUSDTPayment = () => {
+      setCurrentStep('processing');
+      setCountdown(3);
       
-      setIsLoading(true);
-      setStatus("");
-      setTxId("");
-  
-      try {
-        // Validation checks
-        if (!tronWeb) {
-          throw new Error("TronLink is not initialized. Please make sure TronLink is installed and unlocked.");
-        }
-  
-        if (!tronWeb.defaultAddress || !tronWeb.defaultAddress.base58) {
-          throw new Error("No wallet address found. Please connect your TronLink wallet.");
-        }
-  
-        const buyer = tronWeb.defaultAddress.base58;
-        console.log("Buyer address:", buyer);
-  
-        // Check network
-        const nodeInfo = await tronWeb.trx.getNodeInfo();
-        console.log("Connected to network:", nodeInfo);
-  
-        // Generate transaction parameters
-        const orderIdStr = checkoutData?.orderNo || `ORDER_${Date.now()}`;
-        
-        if (!orderIdStr || typeof orderIdStr !== 'string') {
-          throw new Error("Invalid order ID. Please refresh and try again.");
-        }
-        
-        console.log("Order ID String:", orderIdStr);
-        
-        const orderId = tronWeb.sha3(orderIdStr);
-        console.log("Hashed Order ID:", orderId);
-        
-        // FIXED: Ensure amount calculation produces integers
-        const rawAmount = isTRC20 ? 
-          (checkoutData?.payingAmount * USDT_DECIMALS) : 
-          (checkoutData?.payingAmount * 1_000_000);
-        
-        const amount = Math.floor(rawAmount); // Ensure integer
-        
-        console.log("Raw amount:", rawAmount, "Final amount:", amount);
-        
-        const expiry = Math.floor(Date.now() / 1000) + 86400;
-        const attestRef = tronWeb.sha3("TXN_REF_" + Date.now());
-  
-        console.log("Transaction params:", { orderId, buyer, MERCHANT, amount, expiry, attestRef });
-  
-        setStatus("Connecting to contract...");
-  
-        // Verify contract exists
-        const contractInfo = await tronWeb.trx.getContract(ESCROW_VAULT);
-        if (!contractInfo || !contractInfo.contract_address) {
-          throw new Error(`Contract not found at address: ${ESCROW_VAULT}`);
-        }
-        console.log("Contract verified:", contractInfo);
-  
-        // Get contract instance - try multiple approaches
-        let contract;
-        try {
-          // Method 1: Try with ABI
-          contract = await tronWeb.contract(ESCROW_ABI, ESCROW_VAULT);
-          console.log("Contract instance created with ABI");
-        } catch (contractError) {
-          console.error("Contract creation with ABI failed:", contractError);
-          
-          try {
-            // Method 2: Try without ABI (let TronWeb fetch it)
-            contract = await tronWeb.contract().at(ESCROW_VAULT);
-            console.log("Contract instance created without ABI");
-          } catch (fallbackError) {
-            console.error("Contract creation fallback failed:", fallbackError);
-            throw new Error(`Failed to connect to contract: ${fallbackError.message || fallbackError}`);
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            setCurrentStep('success');
+            toast('Payment Confirmed');
+            return 0;
           }
-        }
-  
-        // Check account balance
-        if (isTRC20) {
-          try {
-            const usdtContract = await tronWeb.contract().at(USDT_CONTRACT);
-            const balance = await usdtContract.balanceOf(buyer).call();
-            console.log("USDT Balance:", balance.toString());
-            
-            if (balance < amount) {
-              throw new Error(`Insufficient USDT balance. Required: ${amount / USDT_DECIMALS} USDT`);
-            }
-  
-            // Approve USDT spending first
-            await approveUSDT(amount);
-          } catch (balanceError: any) {
-            console.error("Balance/approval check failed:", balanceError);
-            throw new Error(`USDT balance/approval failed: ${balanceError.message || balanceError}`);
-          }
-        } else {
-          const trxBalance = await tronWeb.trx.getBalance(buyer);
-          console.log("TRX Balance:", trxBalance);
-          
-          if (trxBalance < amount) {
-            throw new Error(`Insufficient TRX balance. Required: ${amount / 1_000_000} TRX`);
-          }
-        }
-  
-        setStatus("Sending transaction...");
-  
-        let tx: string;
-  
-        if (isTRC20) {
-          console.log("Calling fund method with params:", { orderId, buyer, MERCHANT, amount, expiry, attestRef });
-          
-          try {
-            const result = await contract.fund(
-              orderId,
-              buyer,
-              MERCHANT,
-              amount,
-              expiry,
-              attestRef
-            ).send({ 
-              feeLimit: 100_000_000,
-              shouldPollResponse: false
-            });
-            tx = result;
-            
-          } catch (fundError: any) {
-            console.error("Fund method error:", fundError);
-            throw new Error(`TRC20 payment failed: ${fundError.message || fundError}`);
-          }
-        } else {
-          console.log("Calling payWithTRX method with params:", { orderId, MERCHANT, expiry, attestRef, callValue: amount });
-          
-          try {
-            const result = await contract.payWithTRX(
-              orderId,
-              MERCHANT,
-              expiry,
-              attestRef
-            ).send({ 
-              feeLimit: 100_000_000, 
-              callValue: amount,
-              shouldPollResponse: false
-            });
-            tx = result;
-            
-          } catch (trxError: any) {
-            console.error("PayWithTRX method error:", trxError);
-            throw new Error(`TRX payment failed: ${trxError.message || trxError}`);
-          }
-        }
-        
-        console.log("Transaction result:", tx);
-  
-        if (!tx) {
-          throw new Error("Transaction failed to execute - no transaction ID returned");
-        }
-  
-        setTxId(tx);
-        setStatus(`Transaction sent: ${tx}. Waiting for confirmation...`);
+          return prev - 1;
+        });
+      }, 1000);
+    };
 
-        // Start countdown for transaction confirmation
-        setCountdown(30);
-        const countdownInterval = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev <= 1) {
-              clearInterval(countdownInterval);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-  
-        // Wait for confirmation
-        try {
-          const receipt = await waitForTransaction(tronWeb, tx);
-          clearInterval(countdownInterval);
-          const statusText = receipt && receipt.receipt && receipt.receipt.result === "SUCCESS" ? "CONFIRMED" : "PENDING";
-          console.log("Transaction receipt:", receipt);
-          
-          if (receipt && receipt.receipt && receipt.receipt.result === "REVERT") {
-            throw new Error(`Transaction reverted: ${receipt.receipt.message || "Unknown error"}`);
-          }
-          
-          setStatus(`Transaction ${statusText}. Preparing backend update...`);
-
-          // Store transaction details for success screen
-          const txDetails: TransactionDetails = {
-            txId: tx,
-            contractAddress: ESCROW_VAULT,
-            merchantAddress: MERCHANT,
-            amount,
-            symbol: isTRC20 ? 'USDT' : 'TRX',
-            status: statusText,
-            orderNo: orderIdStr,
-            fromAddress: buyer,
-            attestationRef: attestRef,
-            timestamp: Date.now()
-          };
-          
-          setTransactionDetails(txDetails);
-  
-          // Post to backend
-          const payload = {
-            txId: tx,
-            fromAddress: buyer,
-            orderId: orderIdStr,
-            amount,
-            status: statusText,
-            fee: receipt?.fee || 0,
-            symbol: isTRC20 ? 'USDT' : 'TRX',
-            merchantAddress: MERCHANT,
-            contractAddress: ESCROW_VAULT,
-            paymentType: isTRC20 ? "USDT" : "TRX",
-            attestationRef: attestRef
-          };
-  
-          console.log("Backend payload:", payload);
-          
-          // // Call backend API
-          // mutate(payload);
-
-          // Mark as successful even if pending
-          setPaymentStep('success');
-          toast.success('Payment transaction submitted successfully!');
-  
-          setStatus(
-            `✅ Transaction ${statusText} (${isTRC20 ? "USDT" : "TRX"}). Backend notified.`
-          );
-        } catch (confirmError: any) {
-          console.error("Transaction confirmation error:", confirmError);
-          setStatus(`⚠️ Transaction sent but confirmation failed: ${confirmError.message}`);
-          
-          // Still mark as success since transaction was sent
-          if (tx) {
-            const txDetails: TransactionDetails = {
-              txId: tx,
-              contractAddress: ESCROW_VAULT,
-              merchantAddress: MERCHANT,
-              amount,
-              symbol: isTRC20 ? 'USDT' : 'TRX',
-              status: 'PENDING',
-              orderNo: orderIdStr,
-              fromAddress: buyer,
-              attestationRef: attestRef,
-              timestamp: Date.now()
-            };
-            
-            setTransactionDetails(txDetails);
-            setPaymentStep('success');
-            toast.success('Payment transaction submitted successfully!');
-          }
-        }
-  
-      } catch (err: any) {
-        console.error("Transaction error:", err);
-        
-        let errorMessage = "Unknown error occurred";
-        
-        if (err && typeof err === 'object') {
-          if (err.message) {
-            errorMessage = err.message;
-          } else if (err.error) {
-            errorMessage = typeof err.error === 'string' ? err.error : JSON.stringify(err.error);
-          } else {
-            errorMessage = JSON.stringify(err);
-          }
-        } else if (typeof err === 'string') {
-          errorMessage = err;
-        }
-        
-        setStatus(`❌ Error: ${errorMessage}`);
-        toast.error(errorMessage);
-      } finally {
-        setIsLoading(false);
-        setCountdown(0);
+    const {mutate: generateChain, isPending} = useMutation({
+      mutationFn: (data: any) => axiosCustomer.request({
+        url: '/store/generate-pay-address',
+        method: 'POST',
+        data
+      }),
+      onSuccess: (data) => {
+        setIsGeneratingAddress(false);
+        // if (data?.data?.code !== '000') {
+        //   toast.error(data?.data?.desc || "An error occurred");
+        //   return;
+        // }
+        setChainDets(data?.data || null);
+        toast.success("Address generated successfully");
+      },
+      onError: (error: any) => {
+        setIsGeneratingAddress(false);
+        console.error('Chain generation error:', error);
+        toast.error(error?.message || "Failed to generate address");
       }
-    }, [isLoading, waitForTransaction, ESCROW_VAULT, MERCHANT, USDT_DECIMALS, USDT_CONTRACT, checkoutData, tronWeb, setCurrentStep]);
+    });
 
-  // Success Screen Component
-  const SuccessScreen = () => {
-    if (!transactionDetails) return null;
+    const {data:chainList} = useQuery({
+      queryKey: ['chains'],
+      queryFn: () => axiosCustomer.request({
+        url: `/coinwallet/chains`,
+        method: 'GET',
+        params: {
+          categoryCode: ''
+        }
+      })
+    })
 
-    const getTronScanUrl = (txId: string) => {
-      // Using Nile testnet TronScan
-      return `https://nile.tronscan.org/#/transaction/${txId}`;
+    console.log(chainList);
+    
+
+    const {data, error, isLoading: loading} = useQuery({
+      queryKey: ['usdtPayment', currentStep],
+      queryFn: () => axiosCustomer.request({
+        url: '/store/wallet-details',
+        method: 'GET',
+        params: {
+          storeCode,
+          entityCode: 'H2P'
+        },
+      }).then(res => res.data),
+      enabled: !!storeCode // Only run query if storeCode exists
+    });
+
+    const generateAddress = useCallback((chain: any) => {
+      console.log('generateAddress called with:', { chain, checkoutData });
+      
+      if (!chain) {
+        console.log('No chain provided');
+        return;
+      }
+
+      if (!checkoutData?.orderNo) {
+        console.log('No orderNo in checkoutData');
+        toast.error('Order information missing. Please try again.');
+        return;
+      }
+
+      setIsGeneratingAddress(true);
+      
+      const payload = {
+        symbol: chain.code === 'BASE-SEPOLIA' ? 'USDC' : 'USDT',
+        chain: chain?.code,
+        orderNo: checkoutData.orderNo,
+        storeCode,
+        entityCode: 'H2P'
+      };
+
+      console.log('Generated payload:', payload);
+      generateChain(payload);
+    }, [checkoutData, storeCode, generateChain]);
+
+    const handleChainSelection = (chain: any) => {
+      console.log('Chain selected:', chain);
+      setSelectedChain(chain);
+      generateAddress(chain);
     };
 
-    const getAddressScanUrl = (address: string) => {
-      return `https://nile.tronscan.org/#/address/${address}`;
+
+    console.log(selectedChain);
+    console.log(chainDets);
+    
+    
+    const handleBackToChainSelection = () => {
+      setSelectedChain(null);
+      setChainDets(null);
     };
+
+    console.log(chainList?.data?.list);
+    
+
+    // Show loading if checkout data is not ready
+    if (!checkoutData) {
+      return (
+        <div className="min-h-screen w-full bg-gray-50 flex flex-col lg:grid lg:grid-cols-2">
+          <div className='bg-accent w-full flex-1 lg:h-screen p-4 text-white flex items-center justify-center'>
+            <div className="text-center">
+              <Clock className="w-8 h-8 mx-auto mb-4 animate-spin" />
+              <p>Loading checkout data...</p>
+            </div>
+          </div>
+          <div className='w-full flex-1 lg:h-screen p-4 flex items-center justify-center'>
+            <p>Please wait...</p>
+          </div>
+        </div>
+      );
+    }
 
     return (
-      <div className="max-w-md mx-auto space-y-6">
-        {/* Back Button */}
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => {
-              setPaymentStep(null);
-              setTransactionDetails(null);
-              setCurrentStep('cart');
-            }}
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <h2 className="text-xl font-bold">Transaction Complete</h2>
-        </div>
-
-        <div className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-8 h-8 text-green-600" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-green-600">Payment Successful!</h2>
-            <p className="text-muted-foreground">Your TRON payment has been submitted</p>
-          </div>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Transaction Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">TRANSACTION ID</Label>
-              <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                <code className="text-xs flex-1 break-all">{transactionDetails.txId}</code>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => copyToClipboard(transactionDetails.txId)}
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground">AMOUNT</Label>
-              <p className="text-lg font-semibold">
-                {transactionDetails.amount / (transactionDetails.symbol === 'USDT' ? USDT_DECIMALS : 1_000_000)} {transactionDetails.symbol}
-              </p>
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground">STATUS</Label>
-              <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${transactionDetails.status === 'CONFIRMED' ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                <span className="text-sm font-medium">{transactionDetails.status}</span>
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground">ORDER NUMBER</Label>
-              <p className="text-sm font-mono">{transactionDetails.orderNo}</p>
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground">CONTRACT ADDRESS</Label>
-              <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                <code className="text-xs flex-1 break-all">{transactionDetails.contractAddress}</code>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => copyToClipboard(transactionDetails.contractAddress)}
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground">FROM ADDRESS</Label>
-              <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                <code className="text-xs flex-1 break-all">{transactionDetails.fromAddress}</code>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => copyToClipboard(transactionDetails.fromAddress)}
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground">TIMESTAMP</Label>
-              <p className="text-sm">{new Date(transactionDetails.timestamp).toLocaleString()}</p>
-            </div>
-
-            <div className="space-y-2">
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => window.open(getTronScanUrl(transactionDetails.txId), '_blank')}
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                View on TronScan
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => window.open(getAddressScanUrl(transactionDetails.contractAddress), '_blank')}
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                View Contract
-              </Button>
-            </div>
-
-            <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
-              <p><strong>Note:</strong> Your transaction has been submitted to the blockchain. 
-              {transactionDetails.status === 'PENDING' && ' It may take a few minutes to confirm.'}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Button 
-          onClick={() => {
-            setPaymentStep(null);
-            setTransactionDetails(null);
-            setCurrentStep('cart');
-          }}
-          className="w-full"
-          variant="outline"
-        >
-          Make Another Payment
-        </Button>
-      </div>
-    );
-  };
-
-  // Show success screen if currentStep is 'success' and we have transaction details
-  if (paymentStep === 'success' && transactionDetails) {
-    return <SuccessScreen />;
-  }
-
-  return (
-    <div className="max-w-md mx-auto space-y-6">
-          <div className="flex items-center gap-2">
+      <div className="min-h-screen w-full bg-gray-50 flex flex-col lg:fixed lg:top-0 lg:left-0 lg:right-0 lg:bottom-0 lg:w-screen lg:grid lg:grid-cols-2">
+        {/* Left Panel - Payment Summary - Mobile: Show at top, Desktop: Left side */}
+        <div className='relative bg-accent w-full p-4 text-white lg:h-screen'>
+          <div className="absolute inset-0 bg-black/30 pointer-events-none lg:block hidden"></div>
+          
+          {/* Header with back button and logo */}
+          <div className="flex items-center justify-between mb-4 relative z-10">
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => setCurrentStep('cart')}
+              className="text-white hover:bg-white/10 p-2"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h2 className="text-2xl font-bold">USDT Payment</h2>
+            
+            <div className='flex items-center gap-2'>
+              <Image
+                src={logoWhite}
+                alt="Logo"
+                className="w-6 h-6 lg:w-8 lg:h-8 object-contain"
+              />
+              <h2 className='text-lg lg:text-xl font-semibold'>Help2Pay</h2>
+            </div>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wallet className="w-5 h-5" />
-                Send USDT (TRC-20)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* QR Code Placeholder */}
-              <div className="bg-muted p-8 rounded-lg text-center flex flex-col items-center space-y-1">
-                {
-                  loading ? (<div className="animate-pulse">Loading...</div>) : (
-                    <QrCode
-                      value={info?.publicAddress || ''}
-                      className='w-40 h-30'
-                    />
-                  )
-                }
-                <p className="text-sm text-muted-foreground">Scan QR Code with your wallet</p>
+          {/* Payment info */}
+          <div className='space-y-3 lg:space-y-4 relative z-10'>
+            <p className="text-sm lg:text-lg text-white/70">Pay with Crypto</p>
+            <p className='font-semibold text-xl lg:text-3xl'>
+              {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
+            </p>
+          </div>
 
-                <div style={{ marginBottom: "1rem" }}>
-                  <button
-                    onClick={() => fundEscrow(true)}
-                    disabled={isLoading || !tronWeb}
-                    style={{ 
-                      padding: "1rem 2rem", 
-                      marginRight: "1rem",
-                      backgroundColor: (isLoading || !tronWeb) ? "#ccc" : "#007bff",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: (isLoading || !tronWeb) ? "not-allowed" : "pointer"
-                    }}
-                    className='mx-auto'
-                  >
-                    {isLoading ? "Processing..." : "Pay with TronLink"}
-                  </button>
+          {/* Cart items - Hide on mobile when chain is selected to save space */}
+          <div className={`mt-4 lg:mt-8 relative z-10 ${selectedChain ? 'hidden lg:block' : ''}`}>
+            <div className='space-y-2 lg:space-y-4 border-b border-white/20 pb-3 lg:pb-4'>
+              {cart?.map((item) => (
+                <div className='flex items-center justify-between text-sm lg:text-base' key={item.id}>
+                  <p className="text-white/70 truncate pr-2">{item.name}</p>
+                  <p className='font-semibold flex-shrink-0'>
+                    {formatPrice(item?.salePrice, item?.ccy as CurrencyCode)}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className='flex items-center justify-between mt-3 lg:mt-4 pt-3 lg:pt-4'>
+              <p className="text-sm lg:text-lg text-white/70">Total</p>
+              <p className='font-semibold text-sm lg:text-lg'>
+                {formatPrice(cartTotal, ccy as CurrencyCode)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel - Chain Selection or Payment Details */}
+        <div className='flex-1 w-full p-4 lg:h-screen overflow-y-auto'>
+          {selectedChain ? (
+            // Payment Details View
+            <div className='flex flex-col justify-start lg:justify-center items-center h-full'>
+              <div className="w-full max-w-md space-y-4 lg:space-y-6">
+                {/* Back Button */}
+                <Button 
+                  onClick={handleBackToChainSelection}
+                  variant="ghost"
+                  className="w-full lg:w-auto mb-2 lg:mb-4"
+                >
+                  <X className='w-4 h-4 mr-2'/>
+                  Back to Chain Selection
+                </Button>
+
+                {/* Chain Info */}
+                <div className="text-center">
+                  <h2 className="text-xl lg:text-2xl font-bold mb-2">Payment Details</h2>
+                  <p className="text-gray-600 text-sm lg:text-base">Selected Chain: <span className="font-semibold">{selectedChain.chain}</span></p>
                 </div>
 
-                {/* Enhanced Status Display with Countdown */}
-                {status && (
-                  <Card className="w-full mt-4">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        {isLoading && (
-                          <div className="flex-shrink-0 mt-1">
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm break-words">{status}</p>
-                          {countdown > 0 && (
-                            <div className="flex items-center gap-2 mt-2">
-                              <Clock className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-sm text-muted-foreground">
-                                Waiting for confirmation... {countdown}s
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      {txId && (
-                        <div className="mt-3 p-2 bg-muted rounded">
-                          <Label className="text-xs text-muted-foreground">TRANSACTION ID</Label>
-                          <div className="flex items-center gap-2 mt-1">
-                            <code className="text-xs flex-1 break-all">{txId}</code>
-                            <Button 
-                              size="sm" 
-                              variant="ghost"
-                              onClick={() => copyToClipboard(txId)}
-                            >
-                              <Copy className="w-3 h-3" />
-                            </Button>
+                {/* Loading State */}
+                {(isGeneratingAddress || isPending) && (
+                  <Card>
+                    <CardContent className="p-4 lg:p-6 text-center">
+                      <Clock className="w-6 h-6 lg:w-8 lg:h-8 mx-auto mb-4 animate-spin text-blue-500" />
+                      <p className="text-sm lg:text-base">Generating payment address...</p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Error State */}
+                {!isGeneratingAddress && !isPending && !chainDets && (
+                  <Card className="border-red-200">
+                    <CardContent className="p-4 lg:p-6 text-center">
+                      <p className="text-red-600 mb-4 text-sm lg:text-base">Failed to generate payment address</p>
+                      <Button 
+                        onClick={() => generateAddress(selectedChain)}
+                        className="w-full"
+                        size="sm"
+                      >
+                        Retry
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Success State - Payment Address Generated */}
+                {chainDets && (
+                  <Card className='w-full'>
+                    <CardHeader className="pb-3 lg:pb-4">
+                      <CardTitle className="text-center text-lg lg:text-xl">
+                        Send {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 p-4 lg:p-6">
+                      {/* QR Code */}
+                      {chainDets.publicAddress && (
+                        <div className="flex justify-center mb-4">
+                          <div className="bg-white p-2 lg:p-4 rounded-lg">
+                            <QrCode
+                              value={chainDets.publicAddress}
+                              size={150}
+                              className="lg:w-[200px] lg:h-[200px]"
+                            />
                           </div>
                         </div>
                       )}
+
+                      {/* Payment Address */}
+                      <div>
+                        <Label className="text-xs lg:text-sm font-medium">Payment Address</Label>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
+                          <code className="flex-1 p-2 bg-gray-100 rounded text-xs lg:text-sm break-all w-full sm:w-auto">
+                            {chainDets.publicAddress || 'Address not available'}
+                          </code>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (chainDets.address) {
+                                copyToClipboard(chainDets.publicAddress);
+                                toast.success('Address copied to clipboard');
+                              }
+                            }}
+                            disabled={!chainDets.publicAddress}
+                            className="w-full sm:w-auto flex-shrink-0"
+                          >
+                            <Copy className="w-4 h-4 mr-1 sm:mr-0" />
+                            <span className="sm:hidden">Copy Address</span>
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Network and Amount - Side by side on larger screens */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-xs lg:text-sm font-medium">Network</Label>
+                          <p className="text-xs lg:text-sm text-gray-600 mt-1">{chainDets?.chain}</p>
+                        </div>
+                        <div>
+                          <Label className="text-xs lg:text-sm font-medium">Amount</Label>
+                          <p className="text-xs lg:text-sm text-gray-600 mt-1">
+                            {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Order Number */}
+                      {checkoutData?.orderNo && (
+                        <div>
+                          <Label className="text-xs lg:text-sm font-medium">Order Number</Label>
+                          <p className="text-xs lg:text-sm text-gray-600 mt-1 break-all">{checkoutData.orderNo}</p>
+                        </div>
+                      )}
+
+                      {/* Instructions */}
+                      <div className="bg-blue-50 p-3 lg:p-4 rounded-lg">
+                        <h4 className="font-medium text-blue-900 mb-2 text-sm lg:text-base">Payment Instructions:</h4>
+                        <ol className="text-xs lg:text-sm text-blue-800 space-y-1">
+                          <li>1. Copy the payment address above</li>
+                          <li>2. Send exactly {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT to this address</li>
+                          <li>3. Make sure you're using the {selectedChain.chain} network</li>
+                          <li>4. Wait for transaction confirmation</li>
+                        </ol>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
+                        <Button 
+                          onClick={handleUSDTPayment}
+                          className="w-full"
+                          disabled={!chainDets.address}
+                          size="sm"
+                        >
+                          <Wallet className="w-4 h-4 mr-2" />
+                          I've Sent the Payment
+                        </Button>
+                        
+                        <Button 
+                          variant="outline" 
+                          onClick={handleBackToChainSelection}
+                          className="w-full"
+                          size="sm"
+                        >
+                          Choose Different Chain
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 )}
               </div>
-
-              {/* Payment Details */}
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-xs text-muted-foreground">AMOUNT</Label>
-                  <p className="text-2xl font-bold">{loading?<div className='w-full bg-gray-100 h-6 rounded-sm animate-pulse'/>: `USDT ${checkoutData?.payingAmount?.toFixed(2)||0}`}</p>
-                  <p className="text-sm text-muted-foreground">≈ {formatPrice(cartTotal,ccy as CurrencyCode)}</p>
-                </div>
-
-                <div>
-                  <Label className="text-xs text-muted-foreground">USDT ADDRESS</Label>
-                  <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                    <code className="text-xs flex-1 break-all">
-                      {loading? <div className='animate-pulse'>loading..</div>:info?.publicAddress}
-                    </code>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={() => copyToClipboard(info?.publicAddress || '')}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
+            </div>
+          ) : (
+            // Chain Selection View
+            <div className='flex flex-col justify-start lg:justify-center items-center w-full h-full py-4 lg:py-0'>
+              <div className="w-full max-w-md">
+                <h2 className="text-xl lg:text-2xl font-bold text-center mb-4 lg:mb-6">Select a Chain</h2>
+                
+                {/* Loading wallet details */}
+                {/* {loading && (
+                  <div className="text-center mb-4 lg:mb-6">
+                    <Clock className="w-5 h-5 lg:w-6 lg:h-6 mx-auto mb-2 animate-spin" />
+                    <p className="text-gray-600 text-sm lg:text-base">Loading wallet details...</p>
                   </div>
-                </div>
+                )} */}
 
-                <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
-                  <strong>Gas Fee:</strong> {info?.message}
-                </div>
-              </div>
-
-              <Button 
-                onClick={handleUSDTPayment}
-                className="w-full bg-accent"
-                size="lg"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                    Processing...
+                {/* Error loading wallet details */}
+                {error && (
+                  <div className="text-center mb-4 lg:mb-6 p-3 lg:p-4 bg-red-50 rounded-lg">
+                    <p className="text-red-600 text-sm lg:text-base">Error loading wallet details</p>
                   </div>
-                ) : (
-                  "I've Sent the Payment Manually"
                 )}
-              </Button>
-            </CardContent>
-          </Card>
+
+                {/* Chain Selection Grid */}
+                <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 lg:gap-3 max-h-80 lg:max-h-96 overflow-y-auto'>
+                  {chainList?.data?.list?.map((chain:any, index:number) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      className="h-auto p-3 lg:p-4 flex flex-col items-center gap-1 lg:gap-2 hover:border-accent hover:bg-accent/5 text-center"
+                      onClick={() => handleChainSelection(chain)}
+                      disabled={isGeneratingAddress || !checkoutData?.orderNo}
+                    >
+                      <Image
+                        src={chain?.otherInfo || ''}
+                        alt={chain?.name || 'Chain Image'}
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                        unoptimized
+                      />
+                      <span className="font-medium text-xs lg:text-sm">{chain.code}</span>
+                      <span className="text-xs text-gray-500 leading-tight">{chain.name}</span>
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Warning if checkout data not ready */}
+                {!checkoutData?.orderNo && (
+                  <div className="mt-4 p-3 lg:p-4 bg-yellow-50 rounded-lg">
+                    <p className="text-yellow-800 text-xs lg:text-sm text-center">
+                      Waiting for order information to load...
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-  )
+      </div>
+    )
 }
 
 export default UsdtPayment

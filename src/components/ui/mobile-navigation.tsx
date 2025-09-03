@@ -7,11 +7,13 @@ import CartWrappper from "./cart-wrapper"
 import { SheetTrigger } from "./sheet"
 import Cart from "./cart"
 import SearchInput from "./search-input"
+import useCustomer from "@/store/customerStore"
 
 export function MobileNavigation() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const { cart } = useCart()
     const [openSearch,setOpenSearch] = useState(false)
+    const { customer } = useCustomer()
 
   return (
     <div className="sticky bottom-0 left-0 right-0 bg-white border-t z-50 border-gray-200 md:hidden">
@@ -38,9 +40,9 @@ export function MobileNavigation() {
         <Cart/>
         </CartWrappper>
 
-        <button className="flex flex-col items-center gap-1 p-2">
+        {/* <button className="flex flex-col items-center gap-1 p-2">
           <User className="h-6 w-6 text-gray-600" />
-        </button>
+        </button> */}
       </div>
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       {/* Mobile Search Input */}

@@ -19,7 +19,7 @@ export const Product = ({ product, onClick }: { product: ProductProps, onClick: 
         )}
         <div className='relative w-[200px] h-[200px] mx-auto flex justify-center'>
             <Image
-                src={product.picture!}
+                src={product.picture || ''}
                 alt={product.name!}
                 fill
                 className='object-contain'

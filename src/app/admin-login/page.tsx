@@ -4,11 +4,16 @@ import Loader from '@/components/ui/loader';
 import { getAuthCredentials } from '@/utils/auth-utils';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
+import useUser from '../hooks/userStore';
 
 const AdminLogin = () => {
   const router = useRouter();
     const [isChecking, setIsChecking] = useState(true);
 
+    const {user} = useUser()
+
+    console.log(user);
+    
     useEffect(() => {
         // Check authentication status after component mounts
         const { token, permissions } = getAuthCredentials();

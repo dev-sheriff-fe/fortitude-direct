@@ -33,11 +33,11 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <h2 className="text-2xl font-bold">Your Cart</h2>
+        <h2 className="text-2xl font-bold">Checkout</h2>
       </div>
 
       {/* AI Recommendation Banner */}
-      <Card className="border-accent bg-accent/5">
+      {/* <Card className="border-accent bg-accent/5">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <Bot className="w-6 h-6 text-accent flex-shrink-0 mt-1" />
@@ -58,10 +58,10 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Cart Items */}
-      {cart.map((item) => (
+      {/* {cart.map((item) => (
         <Card key={item.id}>
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
@@ -87,7 +87,7 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
             </div>
           </CardContent>
         </Card>
-      ))}
+      ))} */}
 
       {/* Payment Method Selection */}
       <div className="space-y-4">

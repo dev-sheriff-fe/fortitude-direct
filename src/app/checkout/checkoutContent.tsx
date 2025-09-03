@@ -19,6 +19,7 @@ import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/utils/fetch-function';
 import EscrowCheckout from '@/components/checkout/tron-payment';
+import axiosCustomer from '@/utils/fetch-function-customer';
 
 export type PaymentMethod = 'card' | 'usdt' | 'bnpl' | 'bank' | 'tron' | null;
 export type CheckoutStep = 'cart' | 'payment' | 'processing' | 'success';
@@ -101,7 +102,7 @@ const CheckoutContent = () => {
 
   const {data} = useQuery({
     queryKey: ['fetch-details'],
-    queryFn: () =>axiosInstance.request({
+    queryFn: () =>axiosCustomer.request({
       url:'/payment-methods/fetch',
       method:'GET'
     })

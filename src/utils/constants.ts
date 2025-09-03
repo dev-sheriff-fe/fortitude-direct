@@ -5,11 +5,11 @@ export const STAFF = 'staff';
 export const CUSTOMER = 'CUSTOMER'
 export const BUSINESS_MANAGER = 'BUSINESS_MANAGER'
 export const TOKEN = 'token';
-export const TOKEN_MONEY_TRANSFER = 'token_money_transfer'
+export const TOKEN_CUSTOMER = 'token_customer'
 export const PERMISSIONS = 'permissions';
-export const PERMISSIONS_MONEY_TRANSFER = 'permissions_money_transfer'
+export const PERMISSIONS_CUSTOMER = 'permissions_customer'
 export const AUTH_CRED = 'AUTH_CRED_POS';
-export const AUTH_CRED_TRANSFER = 'AUTH_CRED_TRANSFER'
+export const AUTH_CRED_CUSTOMER = 'AUTH_CRED_CUSTOMER'
 export const CART_KEY = 'pick-cart';
 export const CHECKOUT = 'pickbazar-checkout';
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types

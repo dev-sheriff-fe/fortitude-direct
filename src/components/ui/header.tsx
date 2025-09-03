@@ -2,16 +2,25 @@
 
 import { Suspense, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ChevronDown, Search, Menu, X } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ChevronDown, Search, Menu, X, User, LogIn } from "lucide-react"
 import { Input } from "./input"
 import SearchInput from "./search-input"
 import Image from "next/image"
 import h2p_logo from '@/assets/farham_logo.png'
 import Link from "next/link"
+import CustomerLoginModal from "./customer-login-modal"
+
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
+import { logout } from "@/utils/auth-utils-customer"
+import useCustomer from "@/store/customerStore"
 
 export function Header() {
   const [openSearch,setOpenSearch] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const {customer} = useCustomer()
+  console.log(customer);
+  
   return (
     <>
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
@@ -28,7 +37,37 @@ export function Header() {
               </div>
             
           </div>
-          <div className="w-10"></div>
+          <div className="">
+            {
+              customer ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                      <Avatar className="w-8 h-8 lg:w-10 lg:h-10">
+                          <AvatarImage src="/lovable-uploads/02ad6048-41c8-4298-9103-f9760c690183.png" />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                          <User className="w-4 h-4 lg:w-5 lg:h-5" />
+                          </AvatarFallback>
+                      </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                      <DropdownMenuItem>My profile</DropdownMenuItem>
+                      <DropdownMenuItem onClick={()=>logout()}>Log out</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ):
+
+              (
+                <>
+                <Button 
+                className="bg-accent hover:bg-accent-foreground text-white p-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200"
+                onClick={() => setIsOpen(true)}
+              >
+                <LogIn className="w-5 h-5" />
+              </Button>
+                </>
+              )
+            }
+          </div>
         </div>
 
         {/* Desktop Header */}
@@ -73,17 +112,6 @@ export function Header() {
             <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
               Contact
             </a>
-            {/* <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium">
-                  Pages
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <div className="p-2">Page options...</div>
-              </DropdownMenuContent>
-            </DropdownMenu> */}
           </nav>
 
           {/* Right Side Actions */}
@@ -91,14 +119,40 @@ export function Header() {
             <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900" onClick={() => setOpenSearch(true)}>
               <Search className="h-5 w-5" />
             </Button>
-            <Button className="bg-accent hover:bg-accent-foreground text-white px-6 py-2 rounded-md font-medium">
-              Join
-            </Button>
             <Link href={`/admin-login`} target="_blank">
               <Button className="bg-accent hover:bg-accent-foreground text-white px-4 py-2 rounded-md font-medium">
               Become a Seller
             </Button>
             </Link>
+            {
+              customer ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                      <Avatar className="w-8 h-8 lg:w-10 lg:h-10">
+                          <AvatarImage src="/lovable-uploads/02ad6048-41c8-4298-9103-f9760c690183.png" />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                          <User className="w-4 h-4 lg:w-5 lg:h-5" />
+                          </AvatarFallback>
+                      </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                      <DropdownMenuItem>My profile</DropdownMenuItem>
+                      <DropdownMenuItem onClick={()=>logout()}>Log out</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ):
+
+              (
+                <>
+                <Button 
+                  className="bg-accent hover:bg-accent-foreground text-white px-6 py-2 rounded-md font-medium"
+                  onClick={() => setIsOpen(true)}
+                  >
+                    Join
+                  </Button>
+                </>
+              )
+            }
           </div>
         </div>
         {/* Mobile Search Input */}
@@ -110,6 +164,8 @@ export function Header() {
           </Suspense>
         }
       </header>
+      <CustomerLoginModal isOpen={isOpen} setIsOpen={setIsOpen} />
     </>
   )
 }
+

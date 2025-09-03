@@ -1,18 +1,18 @@
 import Cookie from 'js-cookie';
 import { parse } from 'cookie';
 import {
-  AUTH_CRED,
-  BUSINESS_MANAGER,
-  PERMISSIONS,
-  STORE_OWNER,
+  AUTH_CRED_CUSTOMER,
+  CUSTOMER,
+  PERMISSIONS_CUSTOMER,
   TOKEN,
+  TOKEN_CUSTOMER
 } from './constants';
 import { toast } from 'sonner';
 
-export const allowedRoles = [BUSINESS_MANAGER];
+export const allowedRoles = [CUSTOMER];
 
 export function setAuthCredentials(token: string, permissions: any) {
-  Cookie.set(AUTH_CRED, JSON.stringify({ token, permissions }));
+  Cookie.set(AUTH_CRED_CUSTOMER, JSON.stringify({ token, permissions }));
 }
 
 export function getAuthCredentials(context?: any): {
@@ -21,9 +21,9 @@ export function getAuthCredentials(context?: any): {
 } {
   let authCred;
   if (context) {
-    authCred = parseSSRCookie(context)[AUTH_CRED];
+    authCred = parseSSRCookie(context)[AUTH_CRED_CUSTOMER];
   } else {
-    authCred = Cookie.get(AUTH_CRED);
+    authCred = Cookie.get(AUTH_CRED_CUSTOMER);
   }
   if (authCred) {
     return JSON.parse(authCred);
@@ -49,23 +49,23 @@ export function hasAccess(
 
 export function isAuthenticated(_cookies: any) {
   console.log(_cookies[TOKEN]);
-  console.log(_cookies[PERMISSIONS]);
+  console.log(_cookies[PERMISSIONS_CUSTOMER]);
   return (
     !!_cookies[TOKEN] &&
-    Array.isArray(_cookies[PERMISSIONS]) &&
-    !!_cookies[PERMISSIONS].length
+    Array.isArray(_cookies[PERMISSIONS_CUSTOMER]) &&
+    !!_cookies[PERMISSIONS_CUSTOMER].length
   );
 }
 
 export const logout = () => {
   console.log('logout called');
 
-  Cookie.remove(AUTH_CRED);
+  Cookie.remove(AUTH_CRED_CUSTOMER);
   if (typeof window !== 'undefined') {
-    window.location.href = `/admin-login`;
-    window.localStorage.removeItem('token_store_admin');
-    window.localStorage.removeItem('store_admin');
-    window.localStorage.removeItem('user_store');
+    // window.location.href = `/admin-login`;
+    window.localStorage.removeItem('customer_store');
+    window.localStorage.removeItem(TOKEN_CUSTOMER);
+    window.location.reload();
   }
   toast.success('Logout successfully');
 };
