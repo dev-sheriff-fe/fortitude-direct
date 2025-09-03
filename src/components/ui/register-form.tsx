@@ -164,7 +164,7 @@ type OTPForm = z.infer<typeof otpSchema>;
             </div>
 
             <div className='space-y-3'>
-                <Label>Last Name</Label>
+                <Label>Email Address</Label>
             
                 <Input
                     type="email"

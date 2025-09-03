@@ -14,13 +14,14 @@ import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 import { CheckoutStep } from '@/app/checkout/checkoutContent'
 import { toast } from 'sonner'
 import Image from 'next/image'
-import logoWhite from '@/assets/icon_white.png'
+// import logoWhite from '@/assets/icon_white.png'
+import logo from "@/components/images/LogoWhite.png"
 import axiosCustomer from '@/utils/fetch-function-customer'
 
 type UsdtPaymentProps = {
-    setCurrentStep: (step: CheckoutStep) => void;
-    copyToClipboard: (text: string) => void;
-    currentStep: CheckoutStep
+  setCurrentStep: (step: CheckoutStep) => void;
+  copyToClipboard: (text: string) => void;
+  currentStep: CheckoutStep
 }
 
 type TransactionDetails = {
@@ -59,436 +60,444 @@ const chains = [
   { symbol: "BTC", chain: "Bitcoin" }
 ];
 
-const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPaymentProps) => {
-    const {getCartTotal, mainCcy, cart} = useCart()
-    const searchParams = useSearchParams()
-    const [paymentStep, setPaymentStep] = useState<'success'|'failed'|null>(null)
-    const [countdown, setCountdown] = useState<number>(0)
-    const storeCode = searchParams.get('storeCode') || ''
-    const ccy = mainCcy()
-    const cartTotal = getCartTotal();
-    const [status, setStatus] = useState("");
-    const [txId, setTxId] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [transactionDetails, setTransactionDetails] = useState<TransactionDetails | null>(null);
-    const [selectedChain, setSelectedChain] = useState<any | null>(null);
-    const [chainDets, setChainDets] = useState<any>(null);
-    const [checkoutData, setCheckoutData] = useState<any>(null);
-    const [isGeneratingAddress, setIsGeneratingAddress] = useState(false);
+const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPaymentProps) => {
+  const { getCartTotal, mainCcy, cart } = useCart()
+  const searchParams = useSearchParams()
+  const [paymentStep, setPaymentStep] = useState<'success' | 'failed' | null>(null)
+  const [countdown, setCountdown] = useState<number>(0)
+  const storeCode = searchParams.get('storeCode') || ''
+  const ccy = mainCcy()
+  const cartTotal = getCartTotal();
+  const [status, setStatus] = useState("");
+  const [txId, setTxId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [transactionDetails, setTransactionDetails] = useState<TransactionDetails | null>(null);
+  const [selectedChain, setSelectedChain] = useState<any | null>(null);
+  const [chainDets, setChainDets] = useState<any>(null);
+  const [checkoutData, setCheckoutData] = useState<any>(null);
+  const [isGeneratingAddress, setIsGeneratingAddress] = useState(false);
 
-    // Load checkout data from sessionStorage
-    useEffect(() => {
-      const stored = sessionStorage.getItem('checkout');
-      if (stored) {
-        try {
-          setCheckoutData(JSON.parse(stored));
-        } catch (error) {
-          console.error('Error parsing checkout data:', error);
-          toast.error('Error loading checkout data');
-        }
+  // Load checkout data from sessionStorage
+  useEffect(() => {
+    const stored = sessionStorage.getItem('checkout');
+    if (stored) {
+      try {
+        setCheckoutData(JSON.parse(stored));
+      } catch (error) {
+        console.error('Error parsing checkout data:', error);
+        toast.error('Error loading checkout data');
       }
-    }, []);
+    }
+  }, []);
 
-    const handleUSDTPayment = () => {
-      setCurrentStep('processing');
-      setCountdown(3);
-      
-      const countdownInterval = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownInterval);
-            setCurrentStep('success');
-            toast('Payment Confirmed');
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    };
+  const handleUSDTPayment = () => {
+    setCurrentStep('processing');
+    setCountdown(3);
 
-    const {mutate: generateChain, isPending} = useMutation({
-      mutationFn: (data: any) => axiosCustomer.request({
-        url: '/store/generate-pay-address',
-        method: 'POST',
-        data
-      }),
-      onSuccess: (data) => {
-        setIsGeneratingAddress(false);
-        // if (data?.data?.code !== '000') {
-        //   toast.error(data?.data?.desc || "An error occurred");
-        //   return;
-        // }
-        setChainDets(data?.data || null);
-        toast.success("Address generated successfully");
-      },
-      onError: (error: any) => {
-        setIsGeneratingAddress(false);
-        console.error('Chain generation error:', error);
-        toast.error(error?.message || "Failed to generate address");
-      }
-    });
-
-    const {data:chainList} = useQuery({
-      queryKey: ['chains'],
-      queryFn: () => axiosCustomer.request({
-        url: `/coinwallet/chains`,
-        method: 'GET',
-        params: {
-          categoryCode: ''
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          setCurrentStep('success');
+          toast('Payment Confirmed');
+          return 0;
         }
-      })
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const { mutate: generateChain, isPending } = useMutation({
+    mutationFn: (data: any) => axiosCustomer.request({
+      url: '/store/generate-pay-address',
+      method: 'POST',
+      data
+    }),
+    onSuccess: (data) => {
+      setIsGeneratingAddress(false);
+      // if (data?.data?.code !== '000') {
+      //   toast.error(data?.data?.desc || "An error occurred");
+      //   return;
+      // }
+      setChainDets(data?.data || null);
+      toast.success("Address generated successfully");
+    },
+    onError: (error: any) => {
+      setIsGeneratingAddress(false);
+      console.error('Chain generation error:', error);
+      toast.error(error?.message || "Failed to generate address");
+    }
+  });
+
+  const { data: chainList } = useQuery({
+    queryKey: ['chains'],
+    queryFn: () => axiosCustomer.request({
+      url: `/coinwallet/chains`,
+      method: 'GET',
+      params: {
+        categoryCode: ''
+      }
     })
+  })
 
-    console.log(chainList);
-    
+  console.log(chainList);
 
-    const {data, error, isLoading: loading} = useQuery({
-      queryKey: ['usdtPayment', currentStep],
-      queryFn: () => axiosCustomer.request({
-        url: '/store/wallet-details',
-        method: 'GET',
-        params: {
-          storeCode,
-          entityCode: 'H2P'
-        },
-      }).then(res => res.data),
-      enabled: !!storeCode // Only run query if storeCode exists
-    });
 
-    const generateAddress = useCallback((chain: any) => {
-      console.log('generateAddress called with:', { chain, checkoutData });
-      
-      if (!chain) {
-        console.log('No chain provided');
-        return;
-      }
-
-      if (!checkoutData?.orderNo) {
-        console.log('No orderNo in checkoutData');
-        toast.error('Order information missing. Please try again.');
-        return;
-      }
-
-      setIsGeneratingAddress(true);
-      
-      const payload = {
-        symbol: chain.code === 'BASE-SEPOLIA' ? 'USDC' : 'USDT',
-        chain: chain?.code,
-        orderNo: checkoutData.orderNo,
+  const { data, error, isLoading: loading } = useQuery({
+    queryKey: ['usdtPayment', currentStep],
+    queryFn: () => axiosCustomer.request({
+      url: '/store/wallet-details',
+      method: 'GET',
+      params: {
         storeCode,
         entityCode: 'H2P'
-      };
+      },
+    }).then(res => res.data),
+    enabled: !!storeCode // Only run query if storeCode exists
+  });
 
-      console.log('Generated payload:', payload);
-      generateChain(payload);
-    }, [checkoutData, storeCode, generateChain]);
+  const generateAddress = useCallback((chain: any) => {
+    console.log('generateAddress called with:', { chain, checkoutData });
 
-    const handleChainSelection = (chain: any) => {
-      console.log('Chain selected:', chain);
-      setSelectedChain(chain);
-      generateAddress(chain);
-    };
-
-
-    console.log(selectedChain);
-    console.log(chainDets);
-    
-    
-    const handleBackToChainSelection = () => {
-      setSelectedChain(null);
-      setChainDets(null);
-    };
-
-    console.log(chainList?.data?.list);
-    
-
-    // Show loading if checkout data is not ready
-    if (!checkoutData) {
-      return (
-        <div className="min-h-screen w-full bg-gray-50 flex flex-col lg:grid lg:grid-cols-2">
-          <div className='bg-accent w-full flex-1 lg:h-screen p-4 text-white flex items-center justify-center'>
-            <div className="text-center">
-              <Clock className="w-8 h-8 mx-auto mb-4 animate-spin" />
-              <p>Loading checkout data...</p>
-            </div>
-          </div>
-          <div className='w-full flex-1 lg:h-screen p-4 flex items-center justify-center'>
-            <p>Please wait...</p>
-          </div>
-        </div>
-      );
+    if (!chain) {
+      console.log('No chain provided');
+      return;
     }
 
+    if (!checkoutData?.orderNo) {
+      console.log('No orderNo in checkoutData');
+      toast.error('Order information missing. Please try again.');
+      return;
+    }
+
+    setIsGeneratingAddress(true);
+
+    const payload = {
+      symbol: chain.code === 'BASE-SEPOLIA' ? 'USDC' : 'USDT',
+      chain: chain?.code,
+      orderNo: checkoutData.orderNo,
+      storeCode,
+      entityCode: 'H2P'
+    };
+
+    console.log('Generated payload:', payload);
+    generateChain(payload);
+  }, [checkoutData, storeCode, generateChain]);
+
+  const handleChainSelection = (chain: any) => {
+    console.log('Chain selected:', chain);
+    setSelectedChain(chain);
+    generateAddress(chain);
+  };
+
+
+  console.log(selectedChain);
+  console.log(chainDets);
+
+
+  const handleBackToChainSelection = () => {
+    setSelectedChain(null);
+    setChainDets(null);
+  };
+
+  console.log(chainList?.data?.list);
+
+
+  // Show loading if checkout data is not ready
+  if (!checkoutData) {
     return (
-      <div className="min-h-screen w-full bg-gray-50 flex flex-col lg:fixed lg:top-0 lg:left-0 lg:right-0 lg:bottom-0 lg:w-screen lg:grid lg:grid-cols-2">
-        {/* Left Panel - Payment Summary - Mobile: Show at top, Desktop: Left side */}
-        <div className='relative bg-accent w-full p-4 text-white lg:h-screen'>
-          <div className="absolute inset-0 bg-black/30 pointer-events-none lg:block hidden"></div>
-          
-          {/* Header with back button and logo */}
-          <div className="flex items-center justify-between mb-4 relative z-10">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setCurrentStep('cart')}
-              className="text-white hover:bg-white/10 p-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            
-            <div className='flex items-center gap-2'>
+      <div className="min-h-screen w-full bg-gray-50 flex flex-col lg:grid lg:grid-cols-2">
+        <div className='bg-accent w-full flex-1 lg:h-screen p-4 text-white flex items-center justify-center'>
+          <div className="text-center">
+            <Clock className="w-8 h-8 mx-auto mb-4 animate-spin" />
+            <p>Loading checkout data...</p>
+          </div>
+        </div>
+        <div className='w-full flex-1 lg:h-screen p-4 flex items-center justify-center'>
+          <p>Please wait...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-gray-50 flex flex-col lg:fixed lg:top-0 lg:left-0 lg:right-0 lg:bottom-0 lg:w-screen lg:grid lg:grid-cols-2">
+      {/* Left Panel - Payment Summary - Mobile: Show at top, Desktop: Left side */}
+      <div className='relative bg-accent w-full p-4 text-white lg:h-screen'>
+        <div className="absolute inset-0 bg-black/30 pointer-events-none lg:block hidden"></div>
+
+        {/* Header with back button and logo */}
+        <div className="flex items-center justify-between mb-4 relative z-10">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCurrentStep('cart')}
+            className="text-white hover:bg-white/10 p-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+
+          {/* <div className='flex items-center gap-2'>
               <Image
                 src={logoWhite}
                 alt="Logo"
                 className="w-6 h-6 lg:w-8 lg:h-8 object-contain"
               />
               <h2 className='text-lg lg:text-xl font-semibold'>Help2Pay</h2>
-            </div>
-          </div>
+            </div> */}
 
-          {/* Payment info */}
-          <div className='space-y-3 lg:space-y-4 relative z-10'>
-            <p className="text-sm lg:text-lg text-white/70">Pay with Crypto</p>
-            <p className='font-semibold text-xl lg:text-3xl'>
-              {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
-            </p>
-          </div>
-
-          {/* Cart items - Hide on mobile when chain is selected to save space */}
-          <div className={`mt-4 lg:mt-8 relative z-10 ${selectedChain ? 'hidden lg:block' : ''}`}>
-            <div className='space-y-2 lg:space-y-4 border-b border-white/20 pb-3 lg:pb-4'>
-              {cart?.map((item) => (
-                <div className='flex items-center justify-between text-sm lg:text-base' key={item.id}>
-                  <p className="text-white/70 truncate pr-2">{item.name}</p>
-                  <p className='font-semibold flex-shrink-0'>
-                    {formatPrice(item?.salePrice, item?.ccy as CurrencyCode)}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className='flex items-center justify-between mt-3 lg:mt-4 pt-3 lg:pt-4'>
-              <p className="text-sm lg:text-lg text-white/70">Total</p>
-              <p className='font-semibold text-sm lg:text-lg'>
-                {formatPrice(cartTotal, ccy as CurrencyCode)}
-              </p>
-            </div>
+          <div className='w-32 lg:w-40 h-auto relative flex items-center justify-center'>
+            <Image
+              src={logo}
+              alt='logo'
+              className='w-full h-auto object-contain'
+            />
           </div>
         </div>
 
-        {/* Right Panel - Chain Selection or Payment Details */}
-        <div className='flex-1 w-full p-4 lg:h-screen overflow-y-auto'>
-          {selectedChain ? (
-            // Payment Details View
-            <div className='flex flex-col justify-start lg:justify-center items-center h-full'>
-              <div className="w-full max-w-md space-y-4 lg:space-y-6">
-                {/* Back Button */}
-                <Button 
-                  onClick={handleBackToChainSelection}
-                  variant="ghost"
-                  className="w-full lg:w-auto mb-2 lg:mb-4"
-                >
-                  <X className='w-4 h-4 mr-2'/>
-                  Back to Chain Selection
-                </Button>
+        {/* Payment info */}
+        <div className='space-y-3 lg:space-y-4 relative z-10'>
+          <p className="text-sm lg:text-lg text-white/70">Pay with Crypto</p>
+          <p className='font-semibold text-xl lg:text-3xl'>
+            {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
+          </p>
+        </div>
 
-                {/* Chain Info */}
-                <div className="text-center">
-                  <h2 className="text-xl lg:text-2xl font-bold mb-2">Payment Details</h2>
-                  <p className="text-gray-600 text-sm lg:text-base">Selected Chain: <span className="font-semibold">{selectedChain.chain}</span></p>
-                </div>
+        {/* Cart items - Hide on mobile when chain is selected to save space */}
+        <div className={`mt-4 lg:mt-8 relative z-10 ${selectedChain ? 'hidden lg:block' : ''}`}>
+          <div className='space-y-2 lg:space-y-4 border-b border-white/20 pb-3 lg:pb-4'>
+            {cart?.map((item) => (
+              <div className='flex items-center justify-between text-sm lg:text-base' key={item.id}>
+                <p className="text-white/70 truncate pr-2">{item.name}</p>
+                <p className='font-semibold flex-shrink-0'>
+                  {formatPrice(item?.salePrice, item?.ccy as CurrencyCode)}
+                </p>
+              </div>
+            ))}
+          </div>
 
-                {/* Loading State */}
-                {(isGeneratingAddress || isPending) && (
-                  <Card>
-                    <CardContent className="p-4 lg:p-6 text-center">
-                      <Clock className="w-6 h-6 lg:w-8 lg:h-8 mx-auto mb-4 animate-spin text-blue-500" />
-                      <p className="text-sm lg:text-base">Generating payment address...</p>
-                    </CardContent>
-                  </Card>
-                )}
+          <div className='flex items-center justify-between mt-3 lg:mt-4 pt-3 lg:pt-4'>
+            <p className="text-sm lg:text-lg text-white/70">Total</p>
+            <p className='font-semibold text-sm lg:text-lg'>
+              {formatPrice(cartTotal, ccy as CurrencyCode)}
+            </p>
+          </div>
+        </div>
+      </div>
 
-                {/* Error State */}
-                {!isGeneratingAddress && !isPending && !chainDets && (
-                  <Card className="border-red-200">
-                    <CardContent className="p-4 lg:p-6 text-center">
-                      <p className="text-red-600 mb-4 text-sm lg:text-base">Failed to generate payment address</p>
-                      <Button 
-                        onClick={() => generateAddress(selectedChain)}
+      {/* Right Panel - Chain Selection or Payment Details */}
+      <div className='flex-1 w-full p-4 lg:h-screen overflow-y-auto'>
+        {selectedChain ? (
+          // Payment Details View
+          <div className='flex flex-col justify-start lg:justify-center items-center h-full'>
+            <div className="w-full max-w-md space-y-4 lg:space-y-6">
+              {/* Back Button */}
+              <Button
+                onClick={handleBackToChainSelection}
+                variant="ghost"
+                className="w-full lg:w-auto mb-2 lg:mb-4"
+              >
+                <X className='w-4 h-4 mr-2' />
+                Back to Chain Selection
+              </Button>
+
+              {/* Chain Info */}
+              <div className="text-center">
+                <h2 className="text-xl lg:text-2xl font-bold mb-2">Payment Details</h2>
+                <p className="text-gray-600 text-sm lg:text-base">Selected Chain: <span className="font-semibold">{selectedChain.chain}</span></p>
+              </div>
+
+              {/* Loading State */}
+              {(isGeneratingAddress || isPending) && (
+                <Card>
+                  <CardContent className="p-4 lg:p-6 text-center">
+                    <Clock className="w-6 h-6 lg:w-8 lg:h-8 mx-auto mb-4 animate-spin text-blue-500" />
+                    <p className="text-sm lg:text-base">Generating payment address...</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Error State */}
+              {!isGeneratingAddress && !isPending && !chainDets && (
+                <Card className="border-red-200">
+                  <CardContent className="p-4 lg:p-6 text-center">
+                    <p className="text-red-600 mb-4 text-sm lg:text-base">Failed to generate payment address</p>
+                    <Button
+                      onClick={() => generateAddress(selectedChain)}
+                      className="w-full"
+                      size="sm"
+                    >
+                      Retry
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Success State - Payment Address Generated */}
+              {chainDets && (
+                <Card className='w-full'>
+                  <CardHeader className="pb-3 lg:pb-4">
+                    <CardTitle className="text-center text-lg lg:text-xl">
+                      Send {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 p-4 lg:p-6">
+                    {/* QR Code */}
+                    {chainDets.publicAddress && (
+                      <div className="flex justify-center mb-4">
+                        <div className="bg-white p-2 lg:p-4 rounded-lg">
+                          <QrCode
+                            value={chainDets.publicAddress}
+                            size={150}
+                            className="lg:w-[200px] lg:h-[200px]"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Payment Address */}
+                    <div>
+                      <Label className="text-xs lg:text-sm font-medium">Payment Address</Label>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
+                        <code className="flex-1 p-2 bg-gray-100 rounded text-xs lg:text-sm break-all w-full sm:w-auto">
+                          {chainDets.publicAddress || 'Address not available'}
+                        </code>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (chainDets.address) {
+                              copyToClipboard(chainDets.publicAddress);
+                              toast.success('Address copied to clipboard');
+                            }
+                          }}
+                          disabled={!chainDets.publicAddress}
+                          className="w-full sm:w-auto flex-shrink-0"
+                        >
+                          <Copy className="w-4 h-4 mr-1 sm:mr-0" />
+                          <span className="sm:hidden">Copy Address</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Network and Amount - Side by side on larger screens */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-xs lg:text-sm font-medium">Network</Label>
+                        <p className="text-xs lg:text-sm text-gray-600 mt-1">{chainDets?.chain}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs lg:text-sm font-medium">Amount</Label>
+                        <p className="text-xs lg:text-sm text-gray-600 mt-1">
+                          {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Order Number */}
+                    {checkoutData?.orderNo && (
+                      <div>
+                        <Label className="text-xs lg:text-sm font-medium">Order Number</Label>
+                        <p className="text-xs lg:text-sm text-gray-600 mt-1 break-all">{checkoutData.orderNo}</p>
+                      </div>
+                    )}
+
+                    {/* Instructions */}
+                    <div className="bg-blue-50 p-3 lg:p-4 rounded-lg">
+                      <h4 className="font-medium text-blue-900 mb-2 text-sm lg:text-base">Payment Instructions:</h4>
+                      <ol className="text-xs lg:text-sm text-blue-800 space-y-1">
+                        <li>1. Copy the payment address above</li>
+                        <li>2. Send exactly {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT to this address</li>
+                        <li>3. Make sure you're using the {selectedChain.chain} network</li>
+                        <li>4. Wait for transaction confirmation</li>
+                      </ol>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="space-y-2">
+                      <Button
+                        onClick={handleUSDTPayment}
+                        className="w-full"
+                        disabled={!chainDets.address}
+                        size="sm"
+                      >
+                        <Wallet className="w-4 h-4 mr-2" />
+                        I've Sent the Payment
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        onClick={handleBackToChainSelection}
                         className="w-full"
                         size="sm"
                       >
-                        Retry
+                        Choose Different Chain
                       </Button>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Success State - Payment Address Generated */}
-                {chainDets && (
-                  <Card className='w-full'>
-                    <CardHeader className="pb-3 lg:pb-4">
-                      <CardTitle className="text-center text-lg lg:text-xl">
-                        Send {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 p-4 lg:p-6">
-                      {/* QR Code */}
-                      {chainDets.publicAddress && (
-                        <div className="flex justify-center mb-4">
-                          <div className="bg-white p-2 lg:p-4 rounded-lg">
-                            <QrCode
-                              value={chainDets.publicAddress}
-                              size={150}
-                              className="lg:w-[200px] lg:h-[200px]"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Payment Address */}
-                      <div>
-                        <Label className="text-xs lg:text-sm font-medium">Payment Address</Label>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
-                          <code className="flex-1 p-2 bg-gray-100 rounded text-xs lg:text-sm break-all w-full sm:w-auto">
-                            {chainDets.publicAddress || 'Address not available'}
-                          </code>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              if (chainDets.address) {
-                                copyToClipboard(chainDets.publicAddress);
-                                toast.success('Address copied to clipboard');
-                              }
-                            }}
-                            disabled={!chainDets.publicAddress}
-                            className="w-full sm:w-auto flex-shrink-0"
-                          >
-                            <Copy className="w-4 h-4 mr-1 sm:mr-0" />
-                            <span className="sm:hidden">Copy Address</span>
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Network and Amount - Side by side on larger screens */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-xs lg:text-sm font-medium">Network</Label>
-                          <p className="text-xs lg:text-sm text-gray-600 mt-1">{chainDets?.chain}</p>
-                        </div>
-                        <div>
-                          <Label className="text-xs lg:text-sm font-medium">Amount</Label>
-                          <p className="text-xs lg:text-sm text-gray-600 mt-1">
-                            {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Order Number */}
-                      {checkoutData?.orderNo && (
-                        <div>
-                          <Label className="text-xs lg:text-sm font-medium">Order Number</Label>
-                          <p className="text-xs lg:text-sm text-gray-600 mt-1 break-all">{checkoutData.orderNo}</p>
-                        </div>
-                      )}
-
-                      {/* Instructions */}
-                      <div className="bg-blue-50 p-3 lg:p-4 rounded-lg">
-                        <h4 className="font-medium text-blue-900 mb-2 text-sm lg:text-base">Payment Instructions:</h4>
-                        <ol className="text-xs lg:text-sm text-blue-800 space-y-1">
-                          <li>1. Copy the payment address above</li>
-                          <li>2. Send exactly {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT to this address</li>
-                          <li>3. Make sure you're using the {selectedChain.chain} network</li>
-                          <li>4. Wait for transaction confirmation</li>
-                        </ol>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="space-y-2">
-                        <Button 
-                          onClick={handleUSDTPayment}
-                          className="w-full"
-                          disabled={!chainDets.address}
-                          size="sm"
-                        >
-                          <Wallet className="w-4 h-4 mr-2" />
-                          I've Sent the Payment
-                        </Button>
-                        
-                        <Button 
-                          variant="outline" 
-                          onClick={handleBackToChainSelection}
-                          className="w-full"
-                          size="sm"
-                        >
-                          Choose Different Chain
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
-          ) : (
-            // Chain Selection View
-            <div className='flex flex-col justify-start lg:justify-center items-center w-full h-full py-4 lg:py-0'>
-              <div className="w-full max-w-md">
-                <h2 className="text-xl lg:text-2xl font-bold text-center mb-4 lg:mb-6">Select a Chain</h2>
-                
-                {/* Loading wallet details */}
-                {/* {loading && (
+          </div>
+        ) : (
+          // Chain Selection View
+          <div className='flex flex-col justify-start lg:justify-center items-center w-full h-full py-4 lg:py-0'>
+            <div className="w-full max-w-md">
+              <h2 className="text-xl lg:text-2xl font-bold text-center mb-4 lg:mb-6">Select a Chain</h2>
+
+              {/* Loading wallet details */}
+              {/* {loading && (
                   <div className="text-center mb-4 lg:mb-6">
                     <Clock className="w-5 h-5 lg:w-6 lg:h-6 mx-auto mb-2 animate-spin" />
                     <p className="text-gray-600 text-sm lg:text-base">Loading wallet details...</p>
                   </div>
                 )} */}
 
-                {/* Error loading wallet details */}
-                {error && (
-                  <div className="text-center mb-4 lg:mb-6 p-3 lg:p-4 bg-red-50 rounded-lg">
-                    <p className="text-red-600 text-sm lg:text-base">Error loading wallet details</p>
-                  </div>
-                )}
-
-                {/* Chain Selection Grid */}
-                <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 lg:gap-3 max-h-80 lg:max-h-96 overflow-y-auto'>
-                  {chainList?.data?.list?.map((chain:any, index:number) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      className="h-auto p-3 lg:p-4 flex flex-col items-center gap-1 lg:gap-2 hover:border-accent hover:bg-accent/5 text-center"
-                      onClick={() => handleChainSelection(chain)}
-                      disabled={isGeneratingAddress || !checkoutData?.orderNo}
-                    >
-                      <Image
-                        src={chain?.otherInfo || ''}
-                        alt={chain?.name || 'Chain Image'}
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                        unoptimized
-                      />
-                      <span className="font-medium text-xs lg:text-sm">{chain.code}</span>
-                      <span className="text-xs text-gray-500 leading-tight">{chain.name}</span>
-                    </Button>
-                  ))}
+              {/* Error loading wallet details */}
+              {error && (
+                <div className="text-center mb-4 lg:mb-6 p-3 lg:p-4 bg-red-50 rounded-lg">
+                  <p className="text-red-600 text-sm lg:text-base">Error loading wallet details</p>
                 </div>
+              )}
 
-                {/* Warning if checkout data not ready */}
-                {!checkoutData?.orderNo && (
-                  <div className="mt-4 p-3 lg:p-4 bg-yellow-50 rounded-lg">
-                    <p className="text-yellow-800 text-xs lg:text-sm text-center">
-                      Waiting for order information to load...
-                    </p>
-                  </div>
-                )}
+              {/* Chain Selection Grid */}
+              <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 lg:gap-3 max-h-80 lg:max-h-96 overflow-y-auto'>
+                {chainList?.data?.list?.map((chain: any, index: number) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className="h-auto p-3 lg:p-4 flex flex-col items-center gap-1 lg:gap-2 hover:border-accent hover:bg-accent/5 text-center"
+                    onClick={() => handleChainSelection(chain)}
+                    disabled={isGeneratingAddress || !checkoutData?.orderNo}
+                  >
+                    <Image
+                      src={chain?.otherInfo || ''}
+                      alt={chain?.name || 'Chain Image'}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                      unoptimized
+                    />
+                    <span className="font-medium text-xs lg:text-sm">{chain.code}</span>
+                    <span className="text-xs text-gray-500 leading-tight">{chain.name}</span>
+                  </Button>
+                ))}
               </div>
+
+              {/* Warning if checkout data not ready */}
+              {!checkoutData?.orderNo && (
+                <div className="mt-4 p-3 lg:p-4 bg-yellow-50 rounded-lg">
+                  <p className="text-yellow-800 text-xs lg:text-sm text-center">
+                    Waiting for order information to load...
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-    )
+    </div>
+  )
 }
 
 export default UsdtPayment

@@ -11,6 +11,7 @@ import { useCategories } from '@/app/hooks/useCategories'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CartIconWithBadge } from '@/utils/cart-with-badge'
 import CartTriggerDesktop from '@/utils/cart-trigger'
+import CustomerLoginModal from "../../src/components/ui/customer-login-modal";
 
 const mainNavItems = [
   {
@@ -41,6 +42,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   const { data, isLoading, error } = useCategories()
   const searchParams = useSearchParams()
@@ -87,7 +89,7 @@ export default function Header() {
   }
 
   return (
-    <header
+    <><header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         isScrolled ? "bg-white shadow-md" : "bg-white"
@@ -111,7 +113,7 @@ export default function Header() {
             </div>
           </div>
 
-          <Link href="/privacy" className="text-sm md:text-base hover:underline">
+          <Link href='/privacy' className="text-sm md:text-base hover:underline">
             <div className="text-sm md:text-base">
               Privacy Policy
             </div>
@@ -131,8 +133,7 @@ export default function Header() {
               width={150}
               height={50}
               className="h-12 w-auto"
-              priority
-            />
+              priority />
           </Link>
 
           {/* Search bar - hidden on mobile */}
@@ -141,8 +142,7 @@ export default function Header() {
               <input
                 type="text"
                 placeholder="What are you looking for?"
-                className="w-full md:w-[500px] lg:w-[700px] py-3 md:py-4 pl-12 pr-4 border border-gray-300 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#d8480b]"
-              />
+                className="w-full md:w-[500px] lg:w-[700px] py-3 md:py-4 pl-12 pr-4 border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-[#d8480b]" />
               <div className="absolute inset-y-0 right-0 flex items-center p-4 pointer-events-none bg-[#d8480b] rounded-r-full">
                 <Search className="h-5 w-10 text-white" />
               </div>
@@ -157,7 +157,12 @@ export default function Header() {
                 <path d="M12.79 14.3889C10.4039 14.3915 8.11626 15.3331 6.429 17.0069C4.74175 18.6808 3.79269 20.9503 3.79004 23.3175C3.79004 23.5806 3.8954 23.8329 4.08293 24.019C4.27047 24.205 4.52482 24.3096 4.79004 24.3096C5.05526 24.3096 5.30961 24.205 5.49715 24.019C5.68468 23.8329 5.79004 23.5806 5.79004 23.3175C5.79004 21.4757 6.52754 19.7094 7.84029 18.407C9.15305 17.1047 10.9335 16.373 12.79 16.373C14.6465 16.373 16.427 17.1047 17.7397 18.407C19.0525 19.7094 19.79 21.4757 19.79 23.3175C19.79 23.5806 19.8954 23.8329 20.0829 24.019C20.2704 24.205 20.5248 24.3096 20.79 24.3096C21.0552 24.3096 21.3096 24.205 21.4971 24.019C21.6846 23.8329 21.79 23.5806 21.79 23.3175C21.7874 20.9503 20.8383 18.6808 19.151 17.0069C17.4638 15.3331 15.1761 14.3915 12.79 14.3889Z" fill="#313133" />
               </svg>
               <div className="flex flex-col items-start">
-                <span className="text-sm">Login</span>
+                <span
+                  className="text-sm pointer cursor-pointer font-medium underline"
+                  onClick={() => setIsOpen(true)}
+                >
+                  Login
+                </span>
                 <span className="text-sm font-medium">Account</span>
               </div>
             </div>
@@ -171,8 +176,7 @@ export default function Header() {
               {/* The actual sheet component */}
               <CartTriggerDesktop
                 isOpen={isCartOpen}
-                onOpenChange={setIsCartOpen}
-              />
+                onOpenChange={setIsCartOpen} />
 
               <div className="hidden md:block">
                 <span className="text-sm">Your cart</span>
@@ -218,45 +222,42 @@ export default function Header() {
             </button>
 
             {/* Categories dropdown content */}
-        {isCategoriesOpen && (
-          <div className="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-md border border-gray-200 z-50">
-            {isLoading && (
-              <div className="p-4 text-center text-gray-500">Loading categories...</div>
-            )}
+            {isCategoriesOpen && (
+              <div className="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-md border border-gray-200 z-50">
+                {isLoading && (
+                  <div className="p-4 text-center text-gray-500">Loading categories...</div>
+                )}
 
-            {error && (
-              <div className="p-4 text-center text-red-500">Error loading categories</div>
-            )}
+                {error && (
+                  <div className="p-4 text-center text-red-500">Error loading categories</div>
+                )}
 
-            {data?.categories && (
-              <ul className="py-2 max-h-80 overflow-y-auto">
-                {data.categories.map((category: { id: string; name: string; logo?: string }) => (
-                  <li key={category.id} className="hover:bg-gray-100">
-                    <button
-                      onClick={() => handleCategorySelect(category.name)}
-                      className={`flex items-center gap-x-3 px-4 py-3 w-full text-left ${
-                        selectedCategory === category.name ? 'bg-gray-100 font-semibold' : ''
-                      }`}
-                    >
-                      {category.logo && (
-                        <div className="w-5 h-5 relative flex-shrink-0">
-                          <Image
-                            src={category.logo}
-                            alt={category.name || 'Category'}
-                            fill
-                            className="object-contain"
-                          />
-                        </div>
-                      )}
-                      <span className="text-sm">{category.name}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                {data?.categories && (
+                  <ul className="py-2 max-h-80 overflow-y-auto">
+                    {data.categories.map((category: { id: string; name: string; logo?: string; }) => (
+                      <li key={category.id} className="hover:bg-gray-100">
+                        <button
+                          onClick={() => handleCategorySelect(category.name)}
+                          className={`flex items-center gap-x-3 px-4 py-3 w-full text-left ${selectedCategory === category.name ? 'bg-gray-100 font-semibold' : ''}`}
+                        >
+                          {category.logo && (
+                            <div className="w-5 h-5 relative flex-shrink-0">
+                              <Image
+                                src={category.logo}
+                                alt={category.name || 'Category'}
+                                fill
+                                className="object-contain" />
+                            </div>
+                          )}
+                          <span className="text-sm">{category.name}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
           <div className="hidden md:block">|</div>
 
@@ -299,7 +300,7 @@ export default function Header() {
       <div
         className={cn(
           "fixed inset-0 bg-white z-10 md:hidden overflow-y-auto transition-transform duration-300 ease-in-out pt-32 px-6",
-          isMenuOpen ? "translate-x-0" : "translate-x-full",
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         {/* Mobile search bar */}
@@ -307,42 +308,38 @@ export default function Header() {
           <input
             type="text"
             placeholder="Search..."
-            className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d8480b]"
-          />
+            className="w-full py-3 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d8480b]" />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
         </div>
 
-      <div className="mb-6 border-b border-gray-200 pb-4">
-        <h3 className="text-lg font-medium mb-3">Categories</h3>
-        {isLoading && <div className="text-gray-500">Loading categories...</div>}
-        {error && <div className="text-red-500">Error loading categories</div>}
-        {data?.categories && (
-          <ul className="space-y-2">
-            {data.categories.map((category: { id: string; name: string; logo?: string }) => (
-              <li key={category.id}>
-                <button
-                  onClick={() => handleCategorySelect(category.name)}
-                  className={`flex items-center gap-x-3 py-2 w-full text-left ${
-                    selectedCategory === category.name ? 'font-semibold text-[#d8480b]' : ''
-                  }`}
-                >
-                  {category.logo && (
-                    <div className="w-5 h-5 relative flex-shrink-0">
-                      <Image
-                        src={category.logo}
-                        alt={category.name || 'Category'}
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                  )}
-                  <span>{category.name}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+        <div className="mb-6 border-b border-gray-200 pb-4">
+          <h3 className="text-lg font-medium mb-3">Categories</h3>
+          {isLoading && <div className="text-gray-500">Loading categories...</div>}
+          {error && <div className="text-red-500">Error loading categories</div>}
+          {data?.categories && (
+            <ul className="space-y-2">
+              {data.categories.map((category: { id: string; name: string; logo?: string; }) => (
+                <li key={category.id}>
+                  <button
+                    onClick={() => handleCategorySelect(category.name)}
+                    className={`flex items-center gap-x-3 py-2 w-full text-left ${selectedCategory === category.name ? 'font-semibold text-[#d8480b]' : ''}`}
+                  >
+                    {category.logo && (
+                      <div className="w-5 h-5 relative flex-shrink-0">
+                        <Image
+                          src={category.logo}
+                          alt={category.name || 'Category'}
+                          fill
+                          className="object-contain" />
+                      </div>
+                    )}
+                    <span>{category.name}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         {/* Mobile navigation */}
         <nav className="flex flex-col space-y-4">
@@ -413,5 +410,8 @@ export default function Header() {
         </div>
       )}
     </header>
+      <CustomerLoginModal isOpen={isOpen} setIsOpen={setIsOpen} />
+    </>
+
   )
 }
