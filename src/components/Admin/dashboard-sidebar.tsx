@@ -12,8 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-// import logo from '@/assets/farham_logo.png'
-import logo from "@/components/images/LogoWhite.png"
+import logo from '@/assets/farham_logo.png'
 import Image from 'next/image';
 import useUser from '@/store/userStore';
 
@@ -32,23 +31,14 @@ export const DashboardSidebar = () => {
       {/* Logo */}
       <div className="p-4 lg:p-6 border-b border-white/10">
         <div className="flex items-center gap-2">
-          {/* <div className="w-6 h-6 lg:w-6 lg:h-6 rounded-lg flex items-center justify-center">
+          <div className="w-6 h-6 lg:w-6 lg:h-6 rounded-lg flex items-center justify-center">
             <Image
-            src={logo}
-            alt='logo'
-            className='w-full h-auto object-contain'
-            />
-          </div>
-          <span className="text-white font-semibold text-base lg:text-lg">Help2Pay</span>
-        </div> */}
-
-        <div className='w-32 lg:w-40 h-auto relative flex items-center justify-center'>
-                      <Image
               src={logo}
               alt='logo'
               className='w-full h-auto object-contain'
             />
-        </div>
+          </div>
+          <span className="text-white font-semibold text-base lg:text-lg">Help2Pay</span>
         </div>
       </div>
 

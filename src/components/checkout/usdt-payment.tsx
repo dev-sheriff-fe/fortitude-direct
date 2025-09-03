@@ -14,8 +14,7 @@ import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 import { CheckoutStep } from '@/app/checkout/checkoutContent'
 import { toast } from 'sonner'
 import Image from 'next/image'
-// import logoWhite from '@/assets/icon_white.png'
-import logo from "@/components/images/LogoWhite.png"
+import logoWhite from '@/assets/icon_white.png'
 import axiosCustomer from '@/utils/fetch-function-customer'
 
 type UsdtPaymentProps = {
@@ -237,22 +236,14 @@ const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPayme
             <ArrowLeft className="w-4 h-4" />
           </Button>
 
-          {/* <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-2'>
               <Image
                 src={logoWhite}
                 alt="Logo"
                 className="w-6 h-6 lg:w-8 lg:h-8 object-contain"
               />
               <h2 className='text-lg lg:text-xl font-semibold'>Help2Pay</h2>
-            </div> */}
-
-          <div className='w-32 lg:w-40 h-auto relative flex items-center justify-center'>
-            <Image
-              src={logo}
-              alt='logo'
-              className='w-full h-auto object-contain'
-            />
-          </div>
+            </div>
         </div>
 
         {/* Payment info */}
