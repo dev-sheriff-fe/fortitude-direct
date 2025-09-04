@@ -38,7 +38,7 @@ export const DashboardSidebar = () => {
               alt='logo'
               width={24}
               height={24}
-              className='w-full h-auto object-contain'
+              className='w-full max-w-[150px] h-auto object-contain'
             />
           </div>
         </div>

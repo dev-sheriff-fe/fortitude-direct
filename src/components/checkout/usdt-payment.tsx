@@ -243,7 +243,7 @@ const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPayme
                 alt="Logo"
                 width={34}
                 height={34}
-                className="w-full object-contain"
+                className="w-full max-w-[150px] object-contain"
               />
             </div>
         </div>
