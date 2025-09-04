@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import useCustomer from '@/store/customerStore'
 import { set } from 'zod'
 import CustomerLoginModal from './customer-login-modal'
+import { getAuthCredentials } from '@/utils/auth-utils-customer'
 
 const Cart = () => {
     const {cart, decrement, increment, removeItem, mainCcy} = useCart()
@@ -21,6 +22,8 @@ const Cart = () => {
     const [isOpen,setIsOpen] = useState(false)
     const {customer} = useCustomer()
     const rand = generateRandomNumber(15)
+    const { token, permissions } = getAuthCredentials();
+    const isUserAuthenticated = !!token && Array.isArray(permissions) && permissions.length > 0;
     const currentDate = getCurrentDate()
     const searchParams = useSearchParams()
     const storeCode = searchParams.get('storeCode') || ''
@@ -51,7 +54,7 @@ const Cart = () => {
 
     const submitOrder = () =>{
 
-        if (!customer) {
+        if (!isUserAuthenticated) {
             setIsOpen(true)
             return
         }
