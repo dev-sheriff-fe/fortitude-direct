@@ -47,12 +47,6 @@ export const CreditCard: React.FC<CreditCardProps> = ({
               <p className="text-xs text-white/60">Available Balance</p>
             </div>
           </div>
-          <Badge 
-            variant={change.startsWith('+') ? 'secondary' : 'destructive'} 
-            className="bg-white/20 text-white border-white/30 hover:bg-white/30"
-          >
-            {change}
-          </Badge>
         </div>
 
         {/* Amount */}

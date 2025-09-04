@@ -8,9 +8,9 @@ const DashboardLayout = ({children}:{children:ReactNode}) => {
   return (
     <PrivateRoute requiredPermissions={[BUSINESS_MANAGER]}>
       <div className="min-h-screen bg-background">
-        <div className="lg:grid lg:grid-cols-[1fr_3fr]">
+        <div className="lg:grid lg:grid-cols-[1fr_5.5fr]">
             {/* Sidebar - hidden on mobile, sticky on desktop */}
-            <div className="hidden lg:sticky lg:bottom-0 lg:block lg:left-0 lg:top-0 lg:h-screen">
+            <div className="hidden lg:sticky lg:bottom-0 lg:block lg:left-0 lg:top-0 lg:h-screen max-w-[300px]">
                 <DashboardSidebar />
             </div>
         {/* Main Content */}

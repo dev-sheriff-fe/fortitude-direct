@@ -14,14 +14,13 @@ import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 import { CheckoutStep } from '@/app/checkout/checkoutContent'
 import { toast } from 'sonner'
 import Image from 'next/image'
-import logoWhite from '@/assets/icon_white.png'
 import axiosCustomer from '@/utils/fetch-function-customer'
 import useCustomer from '@/store/customerStore'
 
 type UsdtPaymentProps = {
-    setCurrentStep: (step: CheckoutStep) => void;
-    copyToClipboard: (text: string) => void;
-    currentStep: CheckoutStep
+  setCurrentStep: (step: CheckoutStep) => void;
+  copyToClipboard: (text: string) => void;
+  currentStep: CheckoutStep
 }
 type PaymentVerificationStatus = 'idle' | 'checking' | 'success' | 'error';
 type TransactionDetails = {
