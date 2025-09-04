@@ -37,6 +37,8 @@ type TransactionDetails = {
 }
 
 
+const logoWhite = process.env.NEXT_PUBLIC_LOGO_WHITE!;
+
 const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPaymentProps) => {
     const {getCartTotal, mainCcy, cart} = useCart()
     const searchParams = useSearchParams()
