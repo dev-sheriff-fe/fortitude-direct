@@ -25,8 +25,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const accentColor = process.env.NEXT_PUBLIC_ACCENT_COLOR || '#0652e9';
+  const accentForegroundColor = process.env.NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR || '#76a2fc';
+
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  document.documentElement.style.setProperty('--accent-env', '#${accentColor}');
+                  document.documentElement.style.setProperty('--accent-foreground-env', '#${accentForegroundColor}');
+                } catch (e) {
+                  console.error('Error setting CSS variables from env:', e);
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#f3f4f6]`}
       >

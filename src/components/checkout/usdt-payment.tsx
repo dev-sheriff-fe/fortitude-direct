@@ -14,7 +14,6 @@ import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 import { CheckoutStep } from '@/app/checkout/checkoutContent'
 import { toast } from 'sonner'
 import Image from 'next/image'
-import logoWhite from '@/assets/icon_white.png'
 import axiosCustomer from '@/utils/fetch-function-customer'
 
 type UsdtPaymentProps = {
@@ -58,6 +57,8 @@ const chains = [
   { symbol: "XRP", chain: "XRP Ledger" },
   { symbol: "BTC", chain: "Bitcoin" }
 ];
+
+const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL;
 
 const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPaymentProps) => {
   const { getCartTotal, mainCcy, cart } = useCart()
@@ -238,11 +239,12 @@ const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPayme
 
           <div className='flex items-center gap-2'>
               <Image
-                src={logoWhite}
+                src={logoUrl || 'logo.png'}
                 alt="Logo"
-                className="w-6 h-6 lg:w-8 lg:h-8 object-contain"
+                width={34}
+                height={34}
+                className="w-full object-contain"
               />
-              <h2 className='text-lg lg:text-xl font-semibold'>Help2Pay</h2>
             </div>
         </div>
 
