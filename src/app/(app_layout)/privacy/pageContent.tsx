@@ -1,16 +1,8 @@
-import { Metadata } from "next";
-import Footer from "../../../fortitude-app/layout/footer";
-import Header from "../../../fortitude-app/layout/header";
-
-export const metadata: Metadata = {
-  title: "Privacy Policy | Fortitude Direct",
-  description: "Privacy Policy for Fortitude Direct ecommerce app and website",
-};
 
 export default function PrivacyPolicy() {
   return (
-    <><Header />
-    <div className="my-50 container mx-auto py-12 px-4 md:px-6">
+    <>
+    <div className="container py-4 mx-auto px-4 md:px-6">
       <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
 
       <div className="prose max-w-none">
@@ -228,7 +220,6 @@ export default function PrivacyPolicy() {
         </p>
       </div>
     </div>
-    <Footer />
     </>
   );
 }
