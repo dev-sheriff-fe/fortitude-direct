@@ -100,15 +100,15 @@ const CheckoutContent = () => {
   };
 
 
-  const {data} = useQuery({
-    queryKey: ['fetch-details'],
-    queryFn: () =>axiosCustomer.request({
-      url:'/payment-methods/fetch',
-      method:'GET'
-    })
-  })
+  // const {data} = useQuery({
+  //   queryKey: ['fetch-details'],
+  //   queryFn: () =>axiosCustomer.request({
+  //     url:'/payment-methods/fetch',
+  //     method:'GET'
+  //   })
+  // })
 
-console.log(data);
+// console.log(data);
 
 // console.log(usdTotal());
 

@@ -13,7 +13,8 @@ import useCustomer from '@/store/customerStore'
 import { hasAccess, setAuthCredentials } from '@/utils/auth-utils-customer'
 import { Label } from '@radix-ui/react-dropdown-menu'
 export type LoginProps = {
-    setState: React.Dispatch<React.SetStateAction<'login' | 'register'>>
+    setState: React.Dispatch<React.SetStateAction<'login' | 'register'>>,
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 type FormData = {
     username: string,
@@ -27,7 +28,7 @@ const otpSchema = z.object({
 });
 
 type OTPForm = z.infer<typeof otpSchema>;
-const LoginForm = ({ setState }: LoginProps) => {
+const LoginForm = ({ setState, setIsOpen }: LoginProps) => {
     const { register, handleSubmit } = useForm<FormData>()
     const { setCustomer } = useCustomer()
     const {
@@ -54,7 +55,7 @@ const LoginForm = ({ setState }: LoginProps) => {
             if (data?.data?.ticketID) {
                 if (hasAccess([data?.data.userRole], ["CUSTOMER"])) {
                     setAuthCredentials(data?.data.ticketID, ['CUSTOMER'])
-                    window.location.reload();
+                    setIsOpen(false)
                     return
                 }
                 toast.error("Not enough permission")

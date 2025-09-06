@@ -23,11 +23,13 @@ import {
   XCircle,
   Clock,
   Star,
-  Link
 } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
+import Link from "next/link";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import Image from "next/image";
 
 interface CreditAssessment {
   score: number;
@@ -158,7 +160,7 @@ const CustomerDetailScreen = () => {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-muted">
+        <TabsList className="grid w-full grid-cols-3 bg-muted">
           <TabsTrigger value="overview" className="data-[state=active]:bg-card">
             <User className="h-4 w-4 mr-2" />
             Overview
@@ -171,10 +173,10 @@ const CustomerDetailScreen = () => {
             <Shield className="h-4 w-4 mr-2" />
             KYC
           </TabsTrigger>
-          <TabsTrigger value="credit" className="data-[state=active]:bg-card">
+          {/* <TabsTrigger value="credit" className="data-[state=active]:bg-card">
             <TrendingUp className="h-4 w-4 mr-2" />
             Credit
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         {/* Overview Tab */}
@@ -273,10 +275,34 @@ const CustomerDetailScreen = () => {
                         {doc.verifyStatus}
                       </Badge>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Link href={doc?.link} target="_blank">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+                            <DialogHeader>
+                              <DialogTitle className="text-lg font-semibold mb-4">
+                                {doc?.title}
+                              </DialogTitle>
+                            </DialogHeader>
+                            
+                            <div className="flex items-center justify-center p-4 overflow-hidden">
+                              <div className="relative w-full max-w-3xl">
+                                <Image 
+                                  src={doc?.link} 
+                                  alt={doc?.title}
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto object-contain rounded-lg border border-border shadow-sm max-h-[70vh]"
+                                  priority={false}
+                                />
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        <Link href={doc?.link} target="_blank" download={true}>
                           <Button variant="outline" size="sm">
                           <Download className="h-4 w-4" />
                         </Button>
@@ -332,58 +358,6 @@ const CustomerDetailScreen = () => {
           </Card>
         </TabsContent>
 
-        {/* Credit Assessment Tab */}
-        <TabsContent value="credit" className="space-y-6 mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="shadow-[var(--shadow-card)]">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Credit Score Overview
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-card-foreground mb-2">{creditAssessment.score}</div>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="text-2xl font-semibold text-card-foreground">Grade {creditAssessment.grade}</span>
-                    <Star className="h-6 w-6 text-warning fill-current" />
-                  </div>
-                  <span className={`text-sm font-medium ${getRiskLevelColor(creditAssessment.riskLevel)}`}>
-                    {creditAssessment.riskLevel} Risk
-                  </span>
-                </div>
-                
-                <Separator />
-                
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Last updated: {new Date(creditAssessment.lastUpdated).toLocaleDateString()}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-[var(--shadow-card)]">
-              <CardHeader>
-                <CardTitle>Credit Factors</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {Object.entries(creditAssessment.factors).map(([factor, score]) => (
-                  <div key={factor} className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-card-foreground capitalize">
-                        {factor.replace(/([A-Z])/g, ' $1').trim()}
-                      </span>
-                      <span className="font-medium text-card-foreground">{score}%</span>
-                    </div>
-                    <Progress value={score} className="h-2" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
     </div>
   );
