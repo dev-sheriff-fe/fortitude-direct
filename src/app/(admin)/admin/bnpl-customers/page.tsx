@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/utils/fetch-function';
 import Link from 'next/link';
+import Loader from '@/components/ui/loader';
 
 interface CreditRecord {
   id: string;
@@ -120,7 +121,7 @@ const CreditAssessment = () => {
       width: 130,
       render: (record: CreditRecord) => (
         <div className="space-y-1">
-          <div className="font-semibold text-foreground">Score: {record.creditScore}</div>
+          <div className="font-semibold text-foreground">Score: {record.creditScore?.toFixed(2)}</div>
           <div className="font-semibold text-foreground">
             Limit: ${record.creditLimit.toLocaleString()}
           </div>
@@ -188,6 +189,10 @@ const CreditAssessment = () => {
     },
   ];
 
+  if (isLoading) {
+    return <Loader text='Loading list..'/>
+  }
+
   return (
     <div className="min-h-screen bg-background p-4 lg:p-6">
       <div className="max-w-full mx-auto space-y-6">
@@ -223,42 +228,14 @@ const CreditAssessment = () => {
                 columns={columns}
                 data={data?.data?.creditAssessmentList}
                 rowKey="id"
-                className="min-w-full"
+                className="min-w-full rc-table"
                 scroll={{ x: 860 }}
                 emptyText={
                   <div className="text-center py-8 text-muted-foreground">
                     No records found
                   </div>
                 }
-                components={{
-                  table: (props: any) => (
-                    <table {...props} className="min-w-full border-collapse" />
-                  ),
-                  header: {
-                    wrapper: (props: any) => <thead {...props} />,
-                    row: (props: any) => (
-                      <tr {...props} className="border-b border-border" />
-                    ),
-                    cell: (props: any) => (
-                      <th
-                        {...props}
-                        className="px-3 py-3 text-left text-xs font-medium text-muted-foreground bg-muted/50 whitespace-nowrap"
-                      />
-                    ),
-                  },
-                  body: {
-                    wrapper: (props: any) => <tbody {...props} />,
-                    row: (props: any) => (
-                      <tr
-                        {...props}
-                        className="border-b border-border hover:bg-muted/50 transition-colors"
-                      />
-                    ),
-                    cell: (props: any) => (
-                      <td {...props} className="px-3 py-3 text-sm align-top" />
-                    ),
-                  },
-                }}
+                
               />
             </div>
           </CardContent>

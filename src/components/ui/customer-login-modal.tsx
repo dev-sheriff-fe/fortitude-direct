@@ -13,9 +13,9 @@ const CustomerLoginModal = ({ isOpen, setIsOpen }:{isOpen:boolean, setIsOpen: Re
         <DialogContent className='max-h-screen overflow-y-auto'>
             <>
                 {state === 'login' ? (
-                    <LoginForm setState={setState} />
+                    <LoginForm setState={setState} setIsOpen={setIsOpen} />
                 ) : (
-                    <RegisterForm setState={setState}/>
+                    <RegisterForm setState={setState} />
                 )}
             </>
         </DialogContent>

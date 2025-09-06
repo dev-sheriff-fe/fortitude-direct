@@ -12,12 +12,14 @@ import Link from "next/link"
 import CustomerLoginModal from "./customer-login-modal"
 
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
-import { logout } from "@/utils/auth-utils-customer"
+import { getAuthCredentials, logout } from "@/utils/auth-utils-customer"
 import useCustomer from "@/store/customerStore"
 
 export function Header() {
   const [openSearch,setOpenSearch] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const { token, permissions } = getAuthCredentials();
+  const isUserAuthenticated = !!token && Array.isArray(permissions) && permissions.length > 0;
   const {customer} = useCustomer()
   console.log(customer);
   
@@ -39,7 +41,7 @@ export function Header() {
           </div>
           <div className="">
             {
-              customer ? (
+              isUserAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger>
                       <Avatar className="w-8 h-8 lg:w-10 lg:h-10">
@@ -125,7 +127,7 @@ export function Header() {
             </Button>
             </Link>
             {
-              customer ? (
+              isUserAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger>
                       <Avatar className="w-8 h-8 lg:w-10 lg:h-10">
