@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Table from "rc-table";
 import {
   Shield,
@@ -13,9 +14,18 @@ import {
   Save,
   Calculator,
   DollarSign,
-  Lock
+  Lock,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Camera,
+  Eye
 } from "lucide-react";
 import { toast } from "sonner";
+import { useParams } from "next/navigation";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import axiosInstance from "@/utils/fetch-function";
+import Loader from "@/components/ui/loader";
 
 // Mock user role - in real app this would come from auth context
 const USER_ROLE = "CREDIT_OFFICER"; // or "CREDIT_ADMIN"
@@ -41,112 +51,177 @@ interface CreditData {
 
 const CreditScoringScreen = () => {
 
-  const [creditData, setCreditData] = useState<CreditData>({
-    customerId: "CUST-001",
-    customerName: "John Smith",
-    totalScore: 0,
-    grading: "",
-    creditLimit: 50000,
-    currency: "USD",
-    parameters: [
-      {
-        id: 1,
-        parameter: "Income Stability",
-        weight: 25,
-        status: "Active",
-        score: 8,
-        comment: "Stable monthly income verified"
-      },
-      {
-        id: 2,
-        parameter: "Credit History",
-        weight: 30,
-        status: "Active",
-        score: 7,
-        comment: "Good payment history with minor delays"
-      },
-      {
-        id: 3,
-        parameter: "Debt-to-Income Ratio",
-        weight: 20,
-        status: "Active",
-        score: 6,
-        comment: "Acceptable DTI ratio at 35%"
-      },
-      {
-        id: 4,
-        parameter: "Employment Duration",
-        weight: 15,
-        status: "Active",
-        score: 9,
-        comment: "5+ years with current employer"
-      },
-      {
-        id: 5,
-        parameter: "Collateral Value",
-        weight: 10,
-        status: "Active",
-        score: 8,
-        comment: "Property valuation confirmed"
-      }
-    ]
-  });
+  const {id} = useParams()
+  
+  // State for form inputs
+  const [creditLimit, setCreditLimit] = useState(0);
+  const [parametersData, setParametersData] = useState([]);
+  const [decision, setDecision] = useState(""); // New state for approve/reject decision
+  const [scoreUpdated,setScoreUpdated] = useState(false)
+  const {data,isLoading} = useQuery({
+    queryKey: ['customerCreditData', id, scoreUpdated],
+    queryFn: ()=>axiosInstance.request({
+      url: `/credit-assessments/get-customer-record/${id}`,
+      method: 'GET'
+    })
+  })
 
+  const assessmentData = data?.data?.assessmentData
+  const parameterData = data?.data?.parameterData
+
+  // Initialize state when data is loaded
+  useEffect(() => {
+    if (assessmentData?.creditLimit) {
+      setCreditLimit(assessmentData.creditLimit);
+    }
+    if (parameterData) {
+      setParametersData(parameterData);
+    }
+  }, [assessmentData, parameterData]);
+
+  console.log(data);
+  
+  const {mutate,isPending} = useMutation({
+    mutationFn: (data:any)=>axiosInstance.request({
+      url: '/credit-assessments/save-credit-sore',
+      method: 'POST',
+      data
+    }),
+    onSuccess: (data)=>{
+      if(data?.data?.code !== '000'){
+        toast.error(data?.data?.desc)
+        return
+      }
+      toast.success(data?.data?.desc || 'Credit Score Saved Successfully')
+      setScoreUpdated(!scoreUpdated)
+    }
+  })
+  
   // Check if user has access
   const hasAccess = USER_ROLE === "CREDIT_OFFICER" || USER_ROLE === "CREDIT_ADMIN";
 
-  // Calculate total score
-  useEffect(() => {
-    const total = creditData.parameters.reduce((sum, param) => {
-      return sum + (param.weight * param.score / 100);
-    }, 0);
+  // Handle parameter score change
+  const handleScoreChange = (index:any, value:any) => {
+    const updatedParameters = [...parametersData];
+    updatedParameters[index] = {
+      ...updatedParameters[index],
+      score: parseFloat(value) || 0
+    };
+    setParametersData(updatedParameters);
+  };
+
+  // Handle parameter comment change
+  const handleCommentChange = (index:any, value:any) => {
+    const updatedParameters = [...parametersData];
+    updatedParameters[index] = {
+      ...updatedParameters[index],
+      comment: value
+    };
+    setParametersData(updatedParameters);
+  };
+
+  // Get decision details for styling and display
+  const getDecisionDetails = () => {
+    switch (data?.data?.approvalStatus?.toLowerCase()) {
+      case "approved":
+        return {
+          label: "Approved",
+          icon: CheckCircle,
+          bgColor: "bg-green-50",
+          borderColor: "border-green-200",
+          textColor: "text-green-700",
+          buttonColor: "bg-green-600 hover:bg-green-700",
+          iconColor: "text-green-600"
+        };
+      case "rejected":
+        return {
+          label: "Rejected",
+          icon: XCircle,
+          bgColor: "bg-red-50",
+          borderColor: "border-red-200",
+          textColor: "text-red-700",
+          buttonColor: "bg-red-600 hover:bg-red-700",
+          iconColor: "text-red-600"
+        };
+      default:
+        return {
+          label: "Pending Decision",
+          icon: AlertTriangle,
+          bgColor: "bg-yellow-50",
+          borderColor: "border-yellow-200",
+          textColor: "text-yellow-700",
+          buttonColor: "bg-accent hover:bg-accent/90",
+          iconColor: "text-yellow-600"
+        };
+    }
+  };
+
+  const decisionDetails = getDecisionDetails();
+  const DecisionIcon = decisionDetails.icon;
+
+  // Get image verification details for styling
+  const getImageVerificationDetails = () => {
+    const imageLive = data?.data?.imageLive;
+    const confidenceScore = parseFloat(data?.data?.imageConfidenceScore || "0");
     
-    let grading = "";
-    if (total >= 8) grading = "Excellent";
-    else if (total >= 7) grading = "Good";
-    else if (total >= 6) grading = "Fair";
-    else if (total >= 5) grading = "Poor";
-    else grading = "Very Poor";
-
-    setCreditData(prev => ({ ...prev, totalScore: total, grading }));
-  }, [creditData.parameters]);
-
-  const handleScoreChange = (id: number, newScore: number) => {
-    if (newScore < 0 || newScore > 10) return;
-    
-    setCreditData(prev => ({
-      ...prev,
-      parameters: prev.parameters.map(param =>
-        param.id === id ? { ...param, score: newScore } : param
-      )
-    }));
+    if (imageLive) {
+      return {
+        status: "true",
+        statusColor: "text-green-700",
+        bgColor: "bg-green-50",
+        borderColor: "border-green-200",
+        icon: CheckCircle,
+        iconColor: "text-green-600",
+        confidenceColor: "text-green-700"
+      };
+    } else {
+      return {
+        status: "false",
+        statusColor: "text-red-700",
+        bgColor: "bg-red-50",
+        borderColor: "border-red-200",
+        icon: XCircle,
+        iconColor: "text-red-600",
+        confidenceColor: "text-red-700"
+      };
+    }
   };
 
-  const handleCommentChange = (id: number, newComment: string) => {
-    setCreditData(prev => ({
-      ...prev,
-      parameters: prev.parameters.map(param =>
-        param.id === id ? { ...param, comment: newComment } : param
-      )
-    }));
-  };
-
-  const handleCreditLimitChange = (newLimit: number) => {
-    setCreditData(prev => ({ ...prev, creditLimit: newLimit }));
-  };
+  const imageVerificationDetails = getImageVerificationDetails();
+  const ImageIcon = imageVerificationDetails.icon;
 
   const handleSave = () => {
-    // In real app, this would save to backend
-    toast('Credit Score Saved');
+    if (!decision) {
+      toast.error("Please select a decision (Approve or Reject) before saving.");
+      return;
+    }
+
+    // Map the parameters data to the required format
+    const mappedParameters = parametersData.map((param:any) => ({
+      parameterCode: param.parameterCode,
+      parameterName: param.parameterName,
+      score: param.score || 0,
+      comment: param.comment || ""
+    }));
+
+    const payload = {
+      data: mappedParameters,
+      applicationRef: data?.data?.applicationRef,
+      creditLimit: creditLimit,
+      approve: decision === "approve" // Convert decision to boolean
+    };
+
+    console.log('Payload to send:', payload);
+    mutate(payload);
   };
 
   const getGradingColor = (grading: string) => {
-    switch (grading) {
-      case "Excellent": return "text-green-600 bg-green-50 border-green-200";
-      case "Good": return "text-blue-600 bg-blue-50 border-blue-200";
-      case "Fair": return "text-yellow-600 bg-yellow-50 border-yellow-200";
-      case "Poor": return "text-orange-600 bg-orange-50 border-orange-200";
-      case "Very Poor": return "text-red-600 bg-red-50 border-red-200";
+    switch (grading?.toLowerCase()) {
+      case "excellent": return "text-green-600 bg-green-50 border-green-200";
+      case "good": return "text-blue-600 bg-blue-50 border-blue-200";
+      case "fair": return "text-yellow-600 bg-yellow-50 border-yellow-200";
+      case "poor": return "text-orange-600 bg-orange-50 border-orange-200";
+      case "very poor": return "text-red-600 bg-red-50 border-red-200";
       default: return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
@@ -169,6 +244,10 @@ const CreditScoringScreen = () => {
     );
   }
 
+  if (isLoading) {
+    return <Loader text="Loading credit information"/>
+  }
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -176,7 +255,7 @@ const CreditScoringScreen = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Credit Scoring</h1>
-            <p className="text-muted-foreground">Customer: {creditData.customerName} (ID: {creditData.customerId})</p>
+            <p className="text-muted-foreground">Customer: {assessmentData?.customerName} (ID: {assessmentData?.id})</p>
           </div>
           <Badge variant="secondary" className="px-3 py-1">
             <Shield className="h-4 w-4 mr-1" />
@@ -196,9 +275,9 @@ const CreditScoringScreen = () => {
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-primary mb-2">
-                {creditData.totalScore.toFixed(2)}
+                {assessmentData?.creditScore?.toFixed(2)}
               </div>
-              <p className="text-sm text-muted-foreground">Out of 10.00</p>
+              <p className="text-sm text-muted-foreground">Out of 100</p>
             </CardContent>
           </Card>
 
@@ -213,9 +292,9 @@ const CreditScoringScreen = () => {
             <CardContent>
               <Badge 
                 variant="outline" 
-                className={`text-lg px-3 py-1 font-semibold ${getGradingColor(creditData.grading)}`}
+                className={`text-lg px-3 py-1 font-semibold ${getGradingColor(assessmentData?.grading)}`}
               >
-                {creditData.grading}
+                {assessmentData?.grading}
               </Badge>
             </CardContent>
           </Card>
@@ -230,11 +309,10 @@ const CreditScoringScreen = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-2">
-                <span className="text-lg font-semibold">{creditData.currency}</span>
                 <Input
                   type="number"
-                  value={creditData.creditLimit}
-                  onChange={(e) => handleCreditLimitChange(Number(e.target.value))}
+                  value={creditLimit}
+                  onChange={(e) => setCreditLimit(parseFloat(e.target.value) || 0)}
                   className="text-lg font-semibold"
                 />
               </div>
@@ -242,67 +320,159 @@ const CreditScoringScreen = () => {
           </Card>
         </div>
 
-        {/* Scoring Parameters Table */}
-        <Card>
+        {/* Image Verification & Decision Status Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Image Verification Card */}
+          <Card className={`${imageVerificationDetails.bgColor} ${imageVerificationDetails.borderColor} border-2`}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+                <Camera className={`h-4 w-4 mr-2 ${imageVerificationDetails.iconColor}`} />
+                Liveness Check Verification
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {/* Image Status */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">Status:</span>
+                <Badge 
+                  variant="outline" 
+                  className={`${imageVerificationDetails.statusColor} ${imageVerificationDetails.bgColor} ${imageVerificationDetails.borderColor} font-semibold`}
+                >
+                  <ImageIcon className={`h-3 w-3 mr-1 ${imageVerificationDetails.iconColor}`} />
+                  {imageVerificationDetails.status}
+                </Badge>
+              </div>
+              
+              {/* Confidence Score */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">Confidence:</span>
+                <div className="flex items-center space-x-2">
+                  {/* <Eye className={`h-4 w-4 ${imageVerificationDetails.iconColor}`} /> */}
+                  <span className={`text-lg font-bold ${imageVerificationDetails.confidenceColor}`}>
+                    {parseFloat(data?.data?.imageConfidenceScore || "0").toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+              
+              {/* Additional Info */}
+              <div className={`mt-3 p-2 rounded ${imageVerificationDetails.bgColor} border ${imageVerificationDetails.borderColor}`}>
+                <p className={`text-xs ${imageVerificationDetails.statusColor}`}>
+                  {data?.data?.imageLive 
+                    ? "✓ Live image detected - Higher verification confidence"
+                    : "⚠ Not enough confidence - Additional verification may be required"
+                  }
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Decision Status Card */}
+          <Card className={`${decisionDetails.bgColor} ${decisionDetails.borderColor} border-2`}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
+                <DecisionIcon className={`h-4 w-4 mr-2 ${decisionDetails.iconColor}`} />
+                Decision Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center justify-center">
+              <Badge 
+                variant="outline" 
+                className={`text-lg px-4 py-2 font-semibold ${decisionDetails.textColor} ${decisionDetails.bgColor} ${decisionDetails.borderColor}`}
+              >
+                {decisionDetails.label}
+              </Badge>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Decision Selection Card */}
+        <Card className="border-2 border-primary/20">
           <CardHeader>
-            <CardTitle>Scoring Parameters</CardTitle>
-            {/* <p className="text-sm text-muted-foreground">
-              Adjust scores for each parameter. Total Score = Σ(Weight × Score ÷ 100)
-            </p> */}
+            <CardTitle className="flex items-center">
+              <DecisionIcon className={`h-5 w-5 mr-2 ${decisionDetails.iconColor}`} />
+              Credit Assessment Decision
+            </CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="decision" className="text-base font-medium">
+                  Select Decision
+                </Label>
+                <Select value={decision} onValueChange={setDecision}>
+                  <SelectTrigger className="w-full mt-2 h-12 text-base">
+                    <SelectValue placeholder="Choose to approve or reject this credit application" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="approve" className="text-green-700 focus:text-green-700">
+                      <div className="flex items-center">
+                        <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                        Approve Credit Application
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="reject" className="text-red-700 focus:text-red-700">
+                      <div className="flex items-center">
+                        <XCircle className="h-4 w-4 mr-2 text-red-600" />
+                        Reject Credit Application
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {decision && (
+                <div className={`p-4 rounded-lg ${decisionDetails.bgColor} ${decisionDetails.borderColor} border`}>
+                  <div className="flex items-center">
+                    <DecisionIcon className={`h-5 w-5 mr-2 ${decisionDetails.iconColor}`} />
+                    <span className={`font-medium ${decisionDetails.textColor}`}>
+                      {decision === "approve" 
+                        ? "You have selected to APPROVE this credit application." 
+                        : "You have selected to REJECT this credit application."
+                      }
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Scoring Parameters Table */}
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Scoring Parameters</CardTitle>
+          </CardHeader>
+          <CardContent className="w-full">
             <Table
               columns={[
                 {
-                  title: 'No.',
-                  dataIndex: 'id',
-                  key: 'id',
-                  width: 60,
-                  className: 'font-medium text-center',
-                  render: (id: number) => <span className="font-medium">{id}</span>
+                  title: 'S/N',
+                  dataIndex: 'serialNo',
+                  key: 'serialNo',
+                  align: 'center',
+                  width: 50,
+                  render: (text: string, record: any, index: number) => index + 1,
                 },
                 {
                   title: 'Parameter',
-                  dataIndex: 'parameter',
-                  key: 'parameter',
+                  dataIndex: 'parameterName',
+                  key: 'parameterName',
                   className: 'font-medium',
                   render: (parameter: string) => <span className="font-medium">{parameter}</span>
                 },
-                {
-                  title: 'Weight (%)',
-                  dataIndex: 'weight',
-                  key: 'weight',
-                  width: 100,
-                  className: 'text-center',
-                  render: (weight: number) => <span className="text-center">{weight}%</span>
-                },
-                // {
-                //   title: 'Status',
-                //   dataIndex: 'status',
-                //   key: 'status',
-                //   width: 100,
-                //   render: (status: string) => (
-                //     <Badge 
-                //       variant={status === "Active" ? "default" : "secondary"}
-                //       className="text-xs"
-                //     >
-                //       {status}
-                //     </Badge>
-                //   )
-                // },
                 {
                   title: 'Score (0-10)',
                   dataIndex: 'score',
                   key: 'score',
                   width: 120,
-                  render: (score: number, record: ScoringParameter) => (
+                  render: (score: number, record: any, index: number) => (
                     <Input
                       type="number"
                       min="0"
                       max="10"
                       step="0.1"
-                      value={score}
-                      onChange={(e) => handleScoreChange(record.id, Number(e.target.value))}
+                      value={record.score || 0}
+                      onChange={(e) => handleScoreChange(index, e.target.value)}
                       className="w-20"
                     />
                   )
@@ -311,19 +481,19 @@ const CreditScoringScreen = () => {
                   title: 'Comment',
                   dataIndex: 'comment',
                   key: 'comment',
-                  render: (comment: string, record: ScoringParameter) => (
+                  render: (comment: string, record: any, index: number) => (
                     <Textarea
-                      value={comment}
-                      onChange={(e) => handleCommentChange(record.id, e.target.value)}
+                      value={record.comment || ''}
+                      onChange={(e) => handleCommentChange(index, e.target.value)}
                       placeholder="Add comment..."
                       className="min-h-[60px] resize-none"
                     />
                   )
                 }
               ]}
-              data={creditData.parameters}
-              rowKey="id"
-              className="bg-background"
+              data={parametersData}
+              rowKey="parameterCode"
+              className="rc-table w-full"
               tableLayout="fixed"
             />
           </CardContent>
@@ -333,11 +503,17 @@ const CreditScoringScreen = () => {
         <div className="flex justify-center pt-4">
           <Button 
             onClick={handleSave}
+            disabled={isPending || !decision}
             size="lg"
-            className="px-8 bg-accent text-white"
+            className={`px-8 text-white transition-all duration-200 ${decisionDetails.buttonColor} ${!decision ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
           >
-            <Save className="h-4 w-4 mr-2 hg" />
-            Save Credit Score
+            <Save className="h-4 w-4 mr-2" />
+            {isPending 
+              ? 'Saving...' 
+              : decision 
+                ? `${data?.data?.approvalStatus ? 'Update & ' : 'Save & '}${decision === 'approve' ? 'Approve' : 'Reject'}` 
+                : 'Select Decision First'
+            }
           </Button>
         </div>
       </div>

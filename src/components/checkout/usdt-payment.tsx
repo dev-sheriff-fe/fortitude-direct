@@ -37,7 +37,7 @@ type TransactionDetails = {
 }
 
 
-const logoWhite = process.env.NEXT_PUBLIC_LOGO_WHITE!;
+const logoWhite = process.env.NEXT_PUBLIC_LOGO_URL!;
 
 const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPaymentProps) => {
     const {getCartTotal, mainCcy, cart} = useCart()
@@ -468,6 +468,9 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
               <Image
                 src={logoWhite}
                 alt="Logo"
+                width={40}
+                height={40}
+                unoptimized
                 className="w-6 h-6 lg:w-8 lg:h-8 object-contain"
               />
               <h2 className='text-lg lg:text-xl font-semibold'>Help2Pay</h2>
