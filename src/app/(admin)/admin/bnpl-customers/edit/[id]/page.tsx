@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Table from "rc-table";
 import {
   Shield,
@@ -19,13 +20,15 @@ import {
   XCircle,
   AlertTriangle,
   Camera,
-  Eye
+  Eye,
+  ImageIcon
 } from "lucide-react";
 import { toast } from "sonner";
-import { useParams } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import Loader from "@/components/ui/loader";
+import { useParams } from "next/navigation";
+import placeholder from "@/components/images/placeholder-product.webp"
 
 // Mock user role - in real app this would come from auth context
 const USER_ROLE = "CREDIT_OFFICER"; // or "CREDIT_ADMIN"
@@ -58,6 +61,8 @@ const CreditScoringScreen = () => {
   const [parametersData, setParametersData] = useState([]);
   const [decision, setDecision] = useState(""); // New state for approve/reject decision
   const [scoreUpdated,setScoreUpdated] = useState(false)
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  
   const {data,isLoading} = useQuery({
     queryKey: ['customerCreditData', id, scoreUpdated],
     queryFn: ()=>axiosInstance.request({
@@ -325,9 +330,114 @@ const CreditScoringScreen = () => {
           {/* Image Verification Card */}
           <Card className={`${imageVerificationDetails.bgColor} ${imageVerificationDetails.borderColor} border-2`}>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-                <Camera className={`h-4 w-4 mr-2 ${imageVerificationDetails.iconColor}`} />
-                Liveness Check Verification
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+                <div className="flex items-center">
+                  <Camera className={`h-4 w-4 mr-2 ${imageVerificationDetails.iconColor}`} />
+                  Liveness Check Verification
+                </div>
+                <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs"
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      View Images
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center">
+                        <ImageIcon className="h-5 w-5 mr-2" />
+                        Identity Verification Images
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+                      {/* Live Image */}
+                      <div className="space-y-3">
+                        <h3 className="font-semibold text-lg flex items-center">
+                          <Camera className="h-4 w-4 mr-2 text-green-600" />
+                          Live Image
+                        </h3>
+                        {data?.data?.liveImageLink ? (
+                          <div className="relative">
+                            <img
+                              src={data.data.liveImageLink || placeholder.src}
+                              alt="Live verification image"
+                              className="w-full h-auto rounded-lg border-2 border-green-200 shadow-md"
+                            />
+                            <Badge 
+                              className="absolute top-2 right-2 bg-green-600 text-white"
+                            >
+                              Live
+                            </Badge>
+                          </div>
+                        ) : (
+                          <div className="w-full h-48 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                            <div className="text-center text-gray-500">
+                              <Camera className="h-8 w-8 mx-auto mb-2" />
+                              <p>No live image available</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Document Image */}
+                      <div className="space-y-3">
+                        <h3 className="font-semibold text-lg flex items-center">
+                          <ImageIcon className="h-4 w-4 mr-2 text-blue-600" />
+                          Document Image
+                        </h3>
+                        {data?.data?.documentImageLink ? (
+                          <div className="relative">
+                            <img
+                              src={data.data.documentImageLink || placeholder.src}
+                              alt="Document verification image"
+                              className="w-full h-auto rounded-lg border-2 border-blue-200 shadow-md"
+                              onError={(e) => {
+                                e.currentTarget.src = "/placeholder.svg";
+                              }}
+                            />
+                            <Badge 
+                              className="absolute top-2 right-2 bg-blue-600 text-white"
+                            >
+                              Document
+                            </Badge>
+                          </div>
+                        ) : (
+                          <div className="w-full h-48 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                            <div className="text-center text-gray-500">
+                              <ImageIcon className="h-8 w-8 mx-auto mb-2" />
+                              <p>No document image available</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Image Details */}
+                    <div className="border-t pt-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-muted-foreground">Verification Status:</span>
+                          <Badge 
+                            variant="outline" 
+                            className={`ml-2 ${imageVerificationDetails.statusColor} ${imageVerificationDetails.bgColor} ${imageVerificationDetails.borderColor}`}
+                          >
+                            {imageVerificationDetails.status}
+                          </Badge>
+                        </div>
+                        <div>
+                          <span className="font-medium text-muted-foreground">Confidence Score:</span>
+                          <span className={`ml-2 font-bold ${imageVerificationDetails.confidenceColor}`}>
+                            {parseFloat(data?.data?.imageConfidenceScore || "0").toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -347,7 +457,6 @@ const CreditScoringScreen = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">Confidence:</span>
                 <div className="flex items-center space-x-2">
-                  {/* <Eye className={`h-4 w-4 ${imageVerificationDetails.iconColor}`} /> */}
                   <span className={`text-lg font-bold ${imageVerificationDetails.confidenceColor}`}>
                     {parseFloat(data?.data?.imageConfidenceScore || "0").toFixed(1)}%
                   </span>
