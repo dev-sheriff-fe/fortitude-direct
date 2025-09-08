@@ -68,6 +68,26 @@ const Documents = ({ form }: PersonalProps) => {
 
             <FormField
                 control={form.control}
+                name="idDocument"
+                render={({ field: { value, onChange, ...field } }) => (
+                <FormItem>
+                    <FormLabel>ID (Upload a clear form of identification)</FormLabel>
+                    <FormControl>
+                    <Input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={handleFileChange}
+                        {...field}
+                    />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">Upload PDF, JPG, or PNG (max 5MB)</p>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+
+            <FormField
+                control={form.control}
                 name="bankStatement"
                 render={({ field: { value, onChange, ...field } }) => (
                 <FormItem>

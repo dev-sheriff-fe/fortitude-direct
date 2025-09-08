@@ -42,6 +42,7 @@ export interface RegistrationData {
   nin?: string;
   payslip?: File | null;
   bankStatement?: File | null;
+  idDocument?: File | null;
   utilityBill?: File | null;
   livenessCompleted?: boolean;
 }
@@ -112,6 +113,15 @@ const BNPL = ({setBnplStep,setCreditScore,setCurrentStep,setScore}:BNPLProps) =>
           documentType: 'UTILITY_BILL',
           comment: '',
           name: 'UTILITY_BILL'
+        })
+      }
+
+      if (dets?.idDocument){
+        onboardDocs.push({
+          link: fileUrlFormatted(dets?.idDocument as any),
+          documentType: 'IDENTITY_CARD',
+          comment: '',
+          name: 'IDENTITY_CARD'
         })
       }
 

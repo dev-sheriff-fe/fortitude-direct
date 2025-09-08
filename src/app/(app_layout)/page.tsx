@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 import HomePageH2P from '../../../h2p-app/page'
 import HomeFortitude from '../../../fortitude-app/page'
+import { useLocationStore } from '@/store/locationStore'
 
 const Home = dynamic(() => import('./page-content'), {
   ssr: false,
@@ -11,6 +12,9 @@ const Home = dynamic(() => import('./page-content'), {
 })
 
 const HomePage = () => {
+  const {location} = useLocationStore()
+  console.log(location);
+  
   if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p'){
     return <HomePageH2P/>
   }
