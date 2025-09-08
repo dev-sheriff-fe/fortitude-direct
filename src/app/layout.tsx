@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "./Provider";
 import { Toaster } from "@/components/ui/sonner";
 import Script from "next/script";
+import { LocationProvider } from "@/components/Providers/location-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,7 +59,9 @@ export default function RootLayout({
           strategy="beforeInteractive"
         /> */}
         <Providers>
-          {children}
+          <LocationProvider>
+            {children}
+          </LocationProvider>
         </Providers>
         <Toaster/>
       </body>
