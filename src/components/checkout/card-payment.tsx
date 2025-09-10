@@ -2,19 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Button } from '../ui/button'
 import { ArrowLeft, CreditCard } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Label } from '../ui/label'
-import { Input } from '../ui/input'
-import { useToast } from '@/app/hooks/use-toast'
 import { useCart } from '@/store/cart'
 import { CurrencyCode, formatPrice } from '@/utils/helperfns'
-
-import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
-import {
-  PaymentElement,
-  Elements,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
 import { useMutation } from '@tanstack/react-query'
 import { CheckoutStep, PaymentMethod } from '@/app/checkout/checkoutContent'
 import axiosInstance from '@/utils/fetch-function'
@@ -25,18 +14,12 @@ type CardPaymentProps = {
     setSelectedPayment: (method: PaymentMethod) => void;
 }
 
-type method = 'stripe' | 'paystack' | ''
+type method = 'stripe' | 'paystack' | null
 
-const stripePromise = loadStripe('pk_test_51QZlW8Deo5zH04Uxetn9fDgorYX2SDE0QoCAxHz5jxupJsA28any2ASzr3YkhQA3LFemKMJ8fTE70Wy4D369pkvj00G98Vo4O2');
-
-type CreatePaymentIntentPayload = {
-  amount: number;     // amount in major currency unit (e.g. dollars, naira)
-  currency: string;   // e.g. "usd", "ngn"
-};
 
 
 const CardPayment = ({ setCurrentStep, setSelectedPayment }: CardPaymentProps) => {
-    const [paymentMethod, setPaymentMethod] = useState<method>('');
+    const [paymentMethod, setPaymentMethod] = useState<method>(null);
     const { getCartTotal, mainCcy, cart } = useCart()
     const currency = mainCcy()
     const total = getCartTotal() 

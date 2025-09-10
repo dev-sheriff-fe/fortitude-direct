@@ -1,4 +1,4 @@
-import CustomerDetailScreen from '@/components/Admin/dashboard/bnpl-customers/customer-details'
+import CustomerDetailScreen from '@/components/Admin/dashboard/bnpl-customers/customer-details/customer-details'
 import React, { Suspense } from 'react'
 
 const CustomerDetails = () => {

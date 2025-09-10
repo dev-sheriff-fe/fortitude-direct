@@ -1,13 +1,14 @@
 'use client'
-import TransactionHistory from '@/components/Admin/dashboard/recent-transactions'
-import OrderHistory from '@/components/Admin/dashboard/recent-orders'
-import { WalletOverview } from '@/components/Admin/dashboard/wallet-overview'
+
+import OrderHistory from '@/components/Customer/dashboard/recent-orders'
+import TransactionHistory from '@/components/Customer/dashboard/recent-transactions'
+import { WalletOverview } from '@/components/Customer/dashboard/wallet-overview'
 import React from 'react'
 
 // const WalletOverview = dynamic(() => import('@/components/Admin/dashboard/wallet-overview' as any),{
 //   ssr: true
 // })
-const AdminDashboard = () => {
+const CustomerDashboard = () => {
 
   return (
     <>
@@ -20,4 +21,4 @@ const AdminDashboard = () => {
   )
 }
 
-export default AdminDashboard
+export default CustomerDashboard

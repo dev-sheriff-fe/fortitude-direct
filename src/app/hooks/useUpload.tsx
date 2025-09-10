@@ -18,7 +18,7 @@ export const useFileUpload = () => {
   
   // Helper function to determine if file is an image
   const isImageFile = (mimeType: string) => {
-    return ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(mimeType);
+    return ['image/jpeg', 'image/jpg', 'image/png'].includes(mimeType);
   };
 
    // ✅ Prevent SSR mismatch by running browser-only logic after hydration
@@ -70,13 +70,13 @@ export const useFileUpload = () => {
       'image/jpeg', 
       'image/jpg', 
       'image/png', 
-      'image/webp',
       'application/pdf',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ];
     if (!allowedTypes.includes(file[0].type)) {
-      setFileError('Only JPG, PNG, WebP, PDF, and DOC files are allowed');
+      toast.error("'Only JPG, PNG, PDF, and DOC files are allowed'")
+      setFileError('Only JPG, PNG, PDF, and DOC files are allowed');
       resetFileInput(originalImageUrl);
       return;
     }

@@ -20,8 +20,6 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const { token, permissions } = getAuthCredentials();
   const isUserAuthenticated = !!token && Array.isArray(permissions) && permissions.length > 0;
-  const {customer} = useCustomer()
-  console.log(customer);
   
   return (
     <>
@@ -62,9 +60,10 @@ export function Header() {
                 <>
                 <Button 
                 className="bg-accent hover:bg-accent-foreground text-white p-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200"
-                onClick={() => setIsOpen(true)}
               >
-                <LogIn className="w-5 h-5" />
+                <Link href={`/customer-login`} target="_blank">
+                  <LogIn className="w-5 h-5" />
+                </Link>
               </Button>
                 </>
               )
@@ -148,9 +147,10 @@ export function Header() {
                 <>
                 <Button 
                   className="bg-accent hover:bg-accent-foreground text-white px-6 py-2 rounded-md font-medium"
-                  onClick={() => setIsOpen(true)}
                   >
-                    Join
+                    <Link href={`/customer-login`} target="_blank">
+                      Join
+                    </Link>
                   </Button>
                 </>
               )

@@ -316,6 +316,7 @@
   --fortitude-accent: #313133;
   --fortitude-accent-foreground: #535357;
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -334,6 +335,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --success-foreground: oklch(0.696 0.17 162.48);
   --font-roboto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --success: oklch(61.464% 0.12869 163.14);
+  --warning: oklch(0.828 0.189 84.429);
 }
 
 .dark {

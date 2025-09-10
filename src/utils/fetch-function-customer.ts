@@ -28,7 +28,7 @@ async function getToken() {
 axiosCustomer.interceptors.request.use(async function (config) {
   const token = await getToken();
 
-  if (token && !config.url?.includes('admin-login')) {
+  if (token && !config.url?.includes('customer-login')) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;

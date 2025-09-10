@@ -73,3 +73,36 @@ export function timestampToDays(timestamp:number) {
     return timestamp / millisecondsPerDay;
 }
 
+export const getStatusBadge = (status: string) => {
+  const variants: Record<string, string> = {
+    "active": "bg-green-500 text-white",
+    "verified": "bg-green-500 text-white",
+    "completed": "bg-green-500 text-white", 
+    "pending": "bg-yellow-500 text-white",
+    "suspended": "bg-red-500 text-white",
+    "rejected": "bg-red-500 text-white",
+    "failed": "bg-red-500 text-white",
+    "n": "bg-red-500 text-white",
+    "y": "bg-green-500 text-white",
+    "success": "bg-green-500 text-white"
+  };
+  
+  return variants[status?.toLowerCase()] || "bg-gray-500 text-gray-400";
+};
+
+export const formatDateToDDMMYYYY = (date?: Date | string): string => {
+  const dateObj = date ? new Date(date) : new Date();
+  
+  // Check if the date is valid
+  if (isNaN(dateObj.getTime())) {
+    throw new Error('Invalid date provided');
+  }
+  
+  // Get day, month, and full year
+  const day = dateObj.getDate().toString().padStart(2, '0');
+  const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+  const year = dateObj.getFullYear().toString();
+  
+  return `${day}-${month}-${year}`;
+};
+
