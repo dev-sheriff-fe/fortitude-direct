@@ -86,10 +86,11 @@
 // }
 
 // components/Providers/location-provider.tsx
-'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useLocationDetection } from '@/hooks/useLocationDetection';
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import { useLocationDetection } from '@/hooks/useLocationDetection'
 
 interface LocationProviderProps {
   children: React.ReactNode;
@@ -102,18 +103,22 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
   autoDetect = true,
   showPermissionPrompt = false,
 }) => {
-  const [isClient, setIsClient] = useState(false);
-  const { detectLocation, shouldDetectThisSession, hasLocationPermission } = useLocationDetection();
-  const hasAttemptedDetection = useRef(false);
+  const { detectLocation, shouldDetectThisSession, hasLocationPermission } = useLocationDetection()
+  const hasAttemptedDetection = useRef(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Ensure we're only running on client side
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    // Only run after component is mounted (client-side)
+    if (!isMounted) return
 
-  useEffect(() => {
-    // Only attempt detection once per component mount and only on client
-    if (!isClient || hasAttemptedDetection.current) {
-      return;
+    // Only attempt detection once per component mount
+    if (hasAttemptedDetection.current) {
+      return
     }
 
     // Don't auto-detect if we shouldn't detect this session
@@ -136,54 +141,7 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
 
       return () => clearTimeout(timer);
     }
-  }, [autoDetect, detectLocation, shouldDetectThisSession, hasLocationPermission, showPermissionPrompt, isClient]);
+  }, [isMounted, autoDetect, detectLocation, shouldDetectThisSession, hasLocationPermission, showPermissionPrompt])
 
-  // Don't render anything during SSR
-  if (!isClient) {
-    return <>{children}</>;
-  }
-
-  return <>{children}</>;
-};
-
-// Optional: Location permission banner component
-export const LocationPermissionBanner: React.FC<{
-  onAllow: () => void;
-  onDeny: () => void;
-  show: boolean;
-}> = ({ onAllow, onDeny, show }) => {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient || !show) return null;
-
-  return (
-    <div className="fixed top-0 left-0 right-0 bg-blue-600 text-white p-4 z-50 shadow-lg">
-      <div className="max-w-4xl mx-auto flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-sm">
-            We'd like to show you relevant products and services based on your location. 
-            This helps us provide a better shopping experience.
-          </p>
-        </div>
-        <div className="flex gap-2 ml-4">
-          <button
-            onClick={onAllow}
-            className="px-4 py-2 bg-white text-blue-600 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
-          >
-            Allow
-          </button>
-          <button
-            onClick={onDeny}
-            className="px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-medium hover:bg-blue-800 transition-colors"
-          >
-            Not Now
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+  return <>{children}</>
+}

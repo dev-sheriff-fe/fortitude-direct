@@ -60,7 +60,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
         /> */}
         <Providers>
-          <LocationProvider>
+          <LocationProvider autoDetect={true}>
             {children}
           </LocationProvider>
         </Providers>

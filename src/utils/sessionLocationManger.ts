@@ -19,8 +19,13 @@ export class SessionLocationManager {
   }
 
   static shouldDetectLocation(): boolean {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') {
+      return true // Default to detecting on server-side or when sessionStorage isn't available
+    }
+    
     try {
-      const storedData = sessionStorage?.getItem(this.SESSION_KEY)
+      const storedData = sessionStorage.getItem(this.SESSION_KEY)
       
       if (!storedData) {
         return true // No session data, should detect
@@ -43,6 +48,11 @@ export class SessionLocationManager {
   }
 
   static markAsDetected(): void {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') {
+      return // Can't store data on server-side
+    }
+
     try {
       const sessionData: SessionLocationData = {
         hasDetectedThisSession: true,
@@ -57,6 +67,11 @@ export class SessionLocationManager {
   }
 
   static clearSessionData(): void {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') {
+      return // Can't clear data on server-side
+    }
+
     try {
       sessionStorage.removeItem(this.SESSION_KEY)
     } catch (error) {
@@ -65,8 +80,13 @@ export class SessionLocationManager {
   }
 
   static getSessionInfo(): { sessionId: string; hasDetected: boolean } {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined' || typeof sessionStorage === 'undefined') {
+      return { sessionId: this.sessionId, hasDetected: false }
+    }
+
     try {
-      const storedData = sessionStorage?.getItem(this.SESSION_KEY)
+      const storedData = sessionStorage.getItem(this.SESSION_KEY)
       
       if (!storedData) {
         return { sessionId: this.sessionId, hasDetected: false }

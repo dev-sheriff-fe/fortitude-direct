@@ -12,7 +12,8 @@ import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import * as z from 'zod'
 import { get } from 'http'
-import axiosCustomer from '@/utils/fetch-function-customer'
+import axiosCustomer from '@/utils/fetch-function-no-auth'
+
 
 export type RegisterProps = {
     setState: React.Dispatch<React.SetStateAction<'login' | 'register'>>
@@ -103,13 +104,14 @@ type OTPForm = z.infer<typeof otpSchema>;
             geolocation: "",
             lastname: value?.lastName,
             name: value?.firstName,
+            channel: "WEB",
             middlename: "",
             mobileNo: value?.mobile,
             email: value?.email,
             entityCode: 'H2P',
             city: value?.address,
             countryCode: "NG",
-            gender: "",
+            gender: "MALE",
             onboardingId: "",
             dateOfBirth: "01-01-2000",
             password: value?.password,
