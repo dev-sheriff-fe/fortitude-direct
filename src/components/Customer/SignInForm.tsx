@@ -7,7 +7,7 @@ import Link from "next/link"
 import Image from "next/image"
 import posIcon from "@/assets/ecommerce-svg.jpg"
 import { useMutation } from "@tanstack/react-query"
-import axiosInstance from "@/utils/fetch-function"
+
 // import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
 import { toast } from "sonner"
 // import useUser from "@/global_states/userStore"
@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation"
 import useUser from "@/store/userStore"
 import useCustomer from "@/store/customerStore"
 import { hasAccess, setAuthCredentials } from "@/utils/auth-utils-customer"
+import axiosCustomer from "@/utils/fetch-function-no-auth"
 
 export function SignInForm() {
   const [username, setUsername] = useState("")
@@ -24,7 +25,7 @@ export function SignInForm() {
   const { push } = useRouter()
   const {setCustomer} = useCustomer()
    const { mutate, isPending } = useMutation({
-        mutationFn: (data: any) => axiosInstance.request({
+        mutationFn: (data: any) => axiosCustomer.request({
             url: '/ecommerce/login',
             method: 'POST',
             data,

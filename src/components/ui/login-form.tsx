@@ -6,12 +6,13 @@ import { Button } from './button'
 import { useForm } from 'react-hook-form'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
-import axiosInstance from '@/utils/fetch-function'
+
 import { toast } from 'sonner'
 import * as z from 'zod'
 import useCustomer from '@/store/customerStore'
 import { hasAccess, setAuthCredentials } from '@/utils/auth-utils-customer'
 import { Label } from '@radix-ui/react-dropdown-menu'
+import axiosCustomer from '@/utils/fetch-function-no-auth'
 export type LoginProps = {
     setState: React.Dispatch<React.SetStateAction<'login' | 'register'>>,
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -43,7 +44,7 @@ const LoginForm = ({ setState, setIsOpen }: LoginProps) => {
     const [loginData, setLoginData] = useState<FormData | null>(null);
     const storeCode = searchParams.get('storeCode') || ''
     const { mutate, isPending } = useMutation({
-        mutationFn: (data: any) => axiosInstance.request({
+        mutationFn: (data: any) => axiosCustomer.request({
             url: '/ecommerce/login',
             method: 'POST',
             data,
