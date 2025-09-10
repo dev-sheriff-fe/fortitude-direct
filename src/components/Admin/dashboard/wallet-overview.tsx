@@ -186,7 +186,10 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
 
       <CardContent className="p-5 relative z-10">
         <div className="flex items-center mb-4">
-          <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden">
+          <div className={cn(
+            "w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden",
+            isActive ? "" : "border-accent"
+          )}>
             <Image
               src={flag}
               alt={`${currency} flag`}
@@ -468,21 +471,21 @@ export const WalletOverview = () => {
             <Badge className='bg-accent/70 flex items-center gap-2 px-3 py-1.5 hover:bg-accent/70 transition-colors'>
               <span className="text-sm text-foreground text-black">Show Balances</span>
 
-            <button
-              onClick={toggleAllBalances}
-              className={cn(
-                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2",
-                hideAllBalances ? "bg-accent" : "bg-gray-300"
-              )}
-            >
-              <span
+              <button
+                onClick={toggleAllBalances}
                 className={cn(
-                  "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                  hideAllBalances ? "translate-x-6" : "translate-x-1"
+                  "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2",
+                  hideAllBalances ? "bg-accent" : "bg-gray-300"
                 )}
-              />
-            </button>
-                        </Badge>
+              >
+                <span
+                  className={cn(
+                    "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                    hideAllBalances ? "translate-x-6" : "translate-x-1"
+                  )}
+                />
+              </button>
+            </Badge>
           </div>
         </div>
 
