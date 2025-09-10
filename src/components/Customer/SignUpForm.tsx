@@ -16,8 +16,8 @@ import Personal from "./onboarding/Personal"
 import ContactDetails from "./onboarding/Contact"
 import PasswordDetails from "./onboarding/PasswordDetails"
 import LocationDetails from "./onboarding/LocationDetails"
-import axiosCustomer from "@/utils/fetch-function-customer"
 import { formatDateToDDMMYYYY } from "@/utils/helperfns"
+import axiosCustomer from "@/utils/fetch-function-no-auth"
 
 
 export interface FormData {
