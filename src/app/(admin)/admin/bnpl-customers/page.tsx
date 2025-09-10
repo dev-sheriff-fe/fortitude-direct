@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/utils/fetch-function';
 import Link from 'next/link';
 import Loader from '@/components/ui/loader';
+import { getStatusBadge } from '@/utils/helperfns';
 
 interface CreditRecord {
   id: string;
@@ -136,11 +137,14 @@ const CreditAssessment = () => {
       dataIndex: 'status',
       key: 'status',
       width: 100,
-      render: (status: string) => (
-        <Badge variant={getStatusVariant(status) as any} className="text-xs">
-          {status}
+      render: (status: string) => {
+
+        console.log(getStatusBadge(status));
+        
+        return <Badge className={`${getStatusBadge(status)} !important`}>
+          {status.toLowerCase()}
         </Badge>
-      ),
+      },
     },
     {
       title: 'App Date',

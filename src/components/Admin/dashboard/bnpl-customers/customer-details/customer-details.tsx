@@ -30,6 +30,7 @@ import axiosInstance from "@/utils/fetch-function";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Image from "next/image";
+import { getStatusBadge } from "@/utils/helperfns";
 
 interface CreditAssessment {
   score: number;
@@ -51,7 +52,7 @@ const CustomerDetailScreen = () => {
   const searchParams = useSearchParams()
   const entityCode = searchParams.get('entityCode')
 
-  const {data} = useQuery({
+  const {data,isLoading} = useQuery({
    queryKey: ['customer-detail'],
    queryFn: ()=>axiosInstance.request({
     method: 'GET',
@@ -64,49 +65,22 @@ const CustomerDetailScreen = () => {
   })
 
   const userInfo = data?.data?.userInfo
-  const kycDocs = data?.data?.kycDocDtos
   const documentsInfo = data?.data?.documents
   
   console.log(data);
   
 
+   if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Loading customer details...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const creditAssessment: CreditAssessment = {
-    score: 742,
-    grade: "A",
-    riskLevel: "Low",
-    lastUpdated: "2024-02-15",
-    factors: {
-      paymentHistory: 95,
-      creditUtilization: 68,
-      lengthOfHistory: 85,
-      creditMix: 72,
-      newCredit: 88
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, string> = {
-      "Active": "bg-success text-success-foreground",
-      "Verified": "bg-success text-success-foreground",
-      "Completed": "bg-success text-success-foreground",
-      "Pending": "bg-warning text-warning-foreground",
-      "Suspended": "bg-destructive text-destructive-foreground",
-      "Rejected": "bg-destructive text-destructive-foreground",
-      "Failed": "bg-destructive text-destructive-foreground"
-    };
-    
-    return variants[status] || "bg-muted text-muted-foreground";
-  };
-
-  const getRiskLevelColor = (level: string) => {
-    const colors: Record<string, string> = {
-      "Low": "text-success-foreground",
-      "Medium": "text-warning-foreground", 
-      "High": "text-destructive-foreground"
-    };
-    return colors[level] || "text-muted-foreground";
-  };
 
   return (
     <div className="min-h-screen bg-background p-6 space-y-6">
@@ -121,9 +95,9 @@ const CustomerDetailScreen = () => {
                   {userInfo?.fullname.split(' ').map((n:string) => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
-              <Badge className={`mt-3 ${getStatusBadge(userInfo?.status)}`}>
+              {/* <Badge className={`mt-3 ${getStatusBadge(userInfo?.status)}`}>
                 {userInfo?.status}
-              </Badge>
+              </Badge> */}
             </div>
             
             <div className="flex-1 space-y-4">
@@ -160,7 +134,7 @@ const CustomerDetailScreen = () => {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-muted">
+        <TabsList className="grid w-full grid-cols-2 bg-muted">
           <TabsTrigger value="overview" className="data-[state=active]:bg-card">
             <User className="h-4 w-4 mr-2" />
             Overview
@@ -169,14 +143,6 @@ const CustomerDetailScreen = () => {
             <FileText className="h-4 w-4 mr-2" />
             Documents
           </TabsTrigger>
-          <TabsTrigger value="kyc" className="data-[state=active]:bg-card">
-            <Shield className="h-4 w-4 mr-2" />
-            KYC
-          </TabsTrigger>
-          {/* <TabsTrigger value="credit" className="data-[state=active]:bg-card">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Credit
-          </TabsTrigger> */}
         </TabsList>
 
         {/* Overview Tab */}
@@ -185,25 +151,27 @@ const CustomerDetailScreen = () => {
             <Card className="shadow-[var(--shadow-card)]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
+                  <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                      <User className="h-5 w-5 text-accent" />
+                    </div>
                   Personal Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Full Name</label>
+                  <label className="text-sm font-semibold text-muted-foreground">Full Name</label>
                   <p className="text-card-foreground">{userInfo?.fullname}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                  <label className="text-sm font-semibold text-muted-foreground">Email Address</label>
                   <p className="text-card-foreground">{userInfo?.email}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                  <label className="text-sm font-semibold text-muted-foreground">Phone Number</label>
                   <p className="text-card-foreground">{userInfo?.mobileNo}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Account Type</label>
+                  <label className="text-sm font-semibold text-muted-foreground">Account Type</label>
                   <p className="text-card-foreground">{userInfo?.userRole}</p>
                 </div>
               </CardContent>
@@ -212,22 +180,24 @@ const CustomerDetailScreen = () => {
             <Card className="shadow-[var(--shadow-card)]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
+                  <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                      <MapPin className="h-5 w-5 text-accent" />
+                    </div>
                   Address Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Street Address</label>
+                  <label className="text-sm font-semibold text-muted-foreground">Street Address</label>
                   <p className="text-card-foreground">{userInfo?.address||'NIL'}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">City</label>
+                    <label className="text-sm font-semibold text-muted-foreground">City</label>
                     <p className="text-card-foreground">{userInfo?.city||'NIL'}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">State</label>
+                    <label className="text-sm font-semibold text-muted-foreground">State</label>
                     <p className="text-card-foreground">{userInfo?.state||'NIL'}</p>
                   </div>
                 </div>
@@ -237,7 +207,7 @@ const CustomerDetailScreen = () => {
                     <p className="text-card-foreground">{customer.address.zipCode}</p>
                   </div> */}
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Country</label>
+                    <label className="text-sm font-semibold text-muted-foreground">Country</label>
                     <p className="text-card-foreground">{userInfo?.country||'NIL'}</p>
                   </div>
                 </div>
@@ -309,47 +279,6 @@ const CustomerDetailScreen = () => {
                         </Link>
                       </div>
                     </div>
-                  </div>
-                ))
-                }
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* KYC Tab */}
-        <TabsContent value="kyc" className="space-y-6 mt-6">
-          <Card className="shadow-[var(--shadow-card)]">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                KYC Verification Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {
-                  !kycDocs ? <p className="text-center text-sm text-muted-foreground">No KYC items available.</p>
-                  :
-                  kycDocs.map((item:any) => (
-                  <div key={item.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {item.status === "Completed" && <CheckCircle className="h-8 w-8 text-success-foreground" />}
-                      {item.status === "Pending" && <Clock className="h-8 w-8 text-warning-foreground" />}
-                      {item.status === "Failed" && <XCircle className="h-8 w-8 text-destructive-foreground" />}
-                      <div>
-                        <h4 className="font-medium text-card-foreground">{item.documentName}</h4>
-                        {item.completedDate && (
-                          <p className="text-sm text-muted-foreground">uploaded {new Date(item.uploadedDate).toLocaleDateString()}</p>
-                        )}
-                        {/* {item.expiryDate && (
-                          <p className="text-sm text-warning-foreground">Due {new Date(item.expiryDate).toLocaleDateString()}</p>
-                        )} */}
-                      </div>
-                    </div>
-                    <Badge className={getStatusBadge(item.status)}>
-                      {item.status}
-                    </Badge>
                   </div>
                 ))
                 }
