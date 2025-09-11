@@ -1,6 +1,5 @@
 'use client'
 
-import axiosInstance from "@/utils/fetch-function"
 import { useQuery } from "@tanstack/react-query"
 import { Product } from "./product"
 import { ProductProps } from "@/types"
@@ -8,6 +7,8 @@ import { useSearchParams } from "next/navigation"
 import { Dialog, DialogContent } from "../ui/dialog"
 import { Suspense, useState } from "react"
 import ProductDetail from "../ui/product-modal"
+import { Button } from "../ui/button"
+import axiosInstanceNoAuth from "@/utils/fetch-function-auth"
 
 const ProductsGrid = () => {
     // This component displays a grid of products
@@ -17,11 +18,15 @@ const ProductsGrid = () => {
     const storeCode = searchParams.get('storeCode') || ''
     const [modalProduct, setModalProduct] = useState<ProductProps | null>(null)
     const [isOpen, setIsOpen] = useState(false)
+    const [retryProducts,setRetryProducts] = useState(false)
+    const retryFn = () =>{
+        setRetryProducts(!retryProducts)
+      }
     
-   const { data,isLoading } = useQuery({
-  queryKey: ["products",category,name],
+   const { data,isLoading, error } = useQuery({
+  queryKey: ["products",category,name,retryProducts],
   queryFn: () => {
-    return axiosInstance.request({
+    return axiosInstanceNoAuth.request({
       method: "GET",
       url: '/ecommerce/products/list',
       params: {
@@ -46,6 +51,14 @@ const ProductsGrid = () => {
         }
     </div>
     
+
+  
+    if (error) return (
+    <div className='hidden lg:flex flex-col items-center justify-center l lg:sticky lg:max-h-screen'>
+      <div className="p-4">Error loading products</div>
+      <Button className='bg-accent text-white' onClick={retryFn}>Retry</Button>
+    </div>
+  )
 
     console.log(isOpen);
     

@@ -4,13 +4,18 @@ import { Category } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import React from 'react'
+import React, { useState } from 'react'
+import { Button } from '../ui/button'
 
 const CategoriesDesktop = () => {
-  const {data, isLoading, error} = useCategories()
-  const searchParams = useSearchParams();
+  const [retry,setRetry] = useState(false)
+  const {data, isLoading, error} = useCategories(retry)
+  const searchParams = useSearchParams(); 
   const selectedCategory = searchParams.get('category') || '';
   const storeCode = searchParams.get('storeCode') || ''
+  const retryFn = () =>{
+    setRetry(!retry)
+  }
 
   console.log(data);
 
@@ -29,8 +34,9 @@ const CategoriesDesktop = () => {
   )
   
   if (error) return (
-    <div className='hidden lg:block lg:w-[380px] xl:w-[380px] lg:sticky lg:top-22 lg:self-start lg:max-h-screen'>
+    <div className='hidden lg:flex flex-col items-center justify-center lg:w-[380px] xl:w-[380px] lg:sticky lg:top-22 lg:self-start lg:max-h-screen'>
       <div className="p-4">Error loading categories</div>
+      <Button className='bg-accent text-white' onClick={retryFn}>Retry</Button>
     </div>
   )
 

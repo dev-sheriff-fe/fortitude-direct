@@ -1,13 +1,13 @@
 'use client'
 
-import axiosInstance from '@/utils/fetch-function'
+import axiosInstanceNoAuth from '@/utils/fetch-function-auth'
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
 
-export const useCategories = () => {
+export const useCategories = (retry?:any) => {
     const {data,isLoading,error} = useQuery({
-        queryKey: ['categories'],
-        queryFn: ()=>axiosInstance.request({
+        queryKey: ['categories',retry],
+        queryFn: ()=>axiosInstanceNoAuth.request({
            url: '/ecommerce/products/categories',
             params: {
             name: "",

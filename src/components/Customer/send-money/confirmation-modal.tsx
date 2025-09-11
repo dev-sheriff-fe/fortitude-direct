@@ -71,8 +71,8 @@ export const ConfirmationModal = ({ data, onConfirm, onCancel, isPending }: Conf
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-xl font-bold mb-4">Confirm Transaction</CardTitle>
-          <div className="flex justify-center items-center gap-4 mb-4">
-            <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center justify-between mb-4 px-4">
+            <div className="flex flex-col items-center gap-2 flex-1">
               {data.fromCurrency?.logo ? (
                 <div className="w-12 h-12 rounded-full bg-white p-2 flex items-center justify-center">
                   <Image
@@ -89,12 +89,14 @@ export const ConfirmationModal = ({ data, onConfirm, onCancel, isPending }: Conf
                   {fromCurrency.icon}
                 </div>
               )}
-              <span className="text-xs text-muted-foreground">{data.fromCurrency?.chain}</span>
+              <span className="text-xs text-muted-foreground text-center">{data.fromCurrency?.chain}</span>
             </div>
             
-            <ArrowUpDown className="w-6 h-6 text-muted-foreground" />
+            <div className="flex justify-center px-6">
+              <ArrowUpDown className="w-6 h-6 text-muted-foreground" />
+            </div>
             
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 flex-1">
               <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
                 <span className="text-lg">🏦</span>
               </div>
