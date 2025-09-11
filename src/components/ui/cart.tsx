@@ -6,13 +6,13 @@ import Link from 'next/link'
 import { useCart } from '@/store/cart'
 import { CurrencyCode, formatPrice, generateRandomNumber, getCurrentDate } from '@/utils/helperfns'
 import { useMutation } from '@tanstack/react-query'
-import axiosInstance from '@/utils/fetch-function'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
 import useCustomer from '@/store/customerStore'
 import { set } from 'zod'
 import CustomerLoginModal from './customer-login-modal'
 import { getAuthCredentials } from '@/utils/auth-utils-customer'
+import axiosInstanceNoAuth from '@/utils/fetch-function-auth'
 
 const Cart = () => {
     const {cart, decrement, increment, removeItem, mainCcy} = useCart()
@@ -29,7 +29,7 @@ const Cart = () => {
     const storeCode = searchParams.get('storeCode') || ''
 
     const {mutate,isPending} = useMutation({
-        mutationFn: (data:any)=>axiosInstance.request({
+        mutationFn: (data:any)=>axiosInstanceNoAuth.request({
             url: '/store/save-cart',
             method: 'POST',
             params: {
