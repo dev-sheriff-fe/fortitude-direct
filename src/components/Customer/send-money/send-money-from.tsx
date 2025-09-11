@@ -279,6 +279,7 @@ export const TransferForm = () => {
                     type="text"
                     {...form.register("fromAmount")}
                     className="flex-1"
+                    disabled= {!getValues('fromCurrency')}
                     max={selectedFromCoin?.balance || undefined}
                   />
                 </div>
@@ -301,7 +302,9 @@ export const TransferForm = () => {
                 <Input
                   id="recipientNetwork"
                   placeholder="Select Recipient Network"
+                  value={getValues('fromCurrency.chain')}
                   {...form.register("recipientNetwork")}
+                  readOnly
                 />
               </div>
               
