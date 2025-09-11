@@ -7,21 +7,22 @@ import HomePageFortitiude from '../../../fortitude-app/homepage'
 // import HomeFortitude from '../../../fortitude-app/page'
 import { useLocationStore } from '@/store/locationStore'
 
+
 const Home = dynamic(() => import('./page-content'), {
   ssr: false,
   loading: () => <Loader text='Loading home page...' />
 })
 
 const HomePage = () => {
-  const {location} = useLocationStore()
+  const { location } = useLocationStore()
   console.log(location);
-  
-  if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p'){
-    return <HomePageH2P/>
+
+  if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p') {
+    return <Suspense><HomePageH2P /></Suspense>
   }
 
-  if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'fortitude'){
-    return <HomePageFortitiude/>
+  if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'fortitude') {
+    return <Suspense><HomePageFortitiude /></Suspense>
   }
 
 }
