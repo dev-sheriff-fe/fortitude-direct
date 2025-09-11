@@ -7,13 +7,14 @@ import Link from "next/link"
 import Image from "next/image"
 import posIcon from "@/assets/ecommerce-svg.jpg"
 import { useMutation } from "@tanstack/react-query"
-import axiosInstance from "@/utils/fetch-function"
+
 // import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
 import { toast } from "sonner"
 // import useUser from "@/global_states/userStore"
 import { useRouter } from "next/navigation"
 import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
 import useUser from "@/store/userStore"
+import axiosInstanceNoAuth from "@/utils/fetch-function-auth"
 
 export function SignInForm() {
   const [username, setUsername] = useState("")
@@ -23,7 +24,7 @@ export function SignInForm() {
 
 const loginMutation = useMutation({
     mutationFn: ({ username, password }: { username: string; password: string }) =>
-      axiosInstance.post("/usermanager/weblogin", {
+      axiosInstanceNoAuth.post("/usermanager/weblogin", {
         username: username,
         password: password,
         userlang: "en",
