@@ -37,7 +37,7 @@ interface BulkUploadRequest {
 
 const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
-  
+
   const { register, handleSubmit, watch, formState: { errors }, setValue, resetField } = useForm<UploadFormData>({
     mode: 'onChange'
   });
@@ -45,10 +45,10 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
   const selectedFile = watch('file')?.[0];
 
   const downloadTemplate = () => {
-    const templateFileName = uploadType === 'products' 
-      ? 'product-upload-template.xlsx' 
+    const templateFileName = uploadType === 'products'
+      ? 'product-upload-template.xlsx'
       : 'category-upload-template.xlsx';
-    
+
     const templateUrl = `/templates/${templateFileName}`;
     const link = document.createElement('a');
     link.href = templateUrl;
@@ -61,7 +61,7 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
   const validateFile = (file: File) => {
     const validExtensions = ['.xlsx', '.xls', '.csv'];
     const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-    
+
     if (!validExtensions.includes(fileExtension)) {
       return 'Please select a valid Excel or CSV file';
     }
@@ -76,19 +76,19 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
   const onSubmit = async (data: UploadFormData) => {
     const file = data.file[0];
     const validationError = validateFile(file);
-    
+
     if (validationError) {
       toast.error(validationError);
       return;
     }
 
     setIsUploading(true);
-    
+
     try {
       // First upload the file to get fileRef
       const fileUploadFormData = new FormData();
       fileUploadFormData.append('file', file);
-      
+
       // Set appropriate headers
       const headers = {
         'x-source-code': 'WEB',
@@ -103,8 +103,10 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
         {
           headers,
           params: {
-            entityCode: '',
-            storeCode: ''
+            entityCode: 'H2P',
+            storeCode: 'STO445',
+            FILETYPE: uploadType === 'products' ? 'PRODUCT' : 'PRODUCT_CATEGORY',
+
           }
         }
       );
@@ -141,9 +143,9 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
       if (bulkUploadResponse.data?.code !== '000') {
         throw new Error(bulkUploadResponse.data?.desc || `Error uploading ${uploadType}`);
       }
-      
+
       toast.success(`${uploadType.charAt(0).toUpperCase() + uploadType.slice(1)} uploaded successfully`);
-      
+
       // Reset the form after successful upload
       resetField('file');
       onSuccess?.();
@@ -158,20 +160,20 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
 
   // Get appropriate text based on upload type
   const getTitle = () => {
-    return uploadType === 'products' 
-      ? 'Bulk Upload Products' 
+    return uploadType === 'products'
+      ? 'Bulk Upload Products'
       : 'Bulk Upload Categories';
   };
 
   const getButtonLabel = () => {
-    return uploadType === 'products' 
-      ? 'Upload Products' 
+    return uploadType === 'products'
+      ? 'Upload Products'
       : 'Upload Categories';
   };
 
   const getFileTypeLabel = () => {
-    return uploadType === 'products' 
-      ? 'PRODUCT' 
+    return uploadType === 'products'
+      ? 'PRODUCT'
       : 'PRODUCT CATEGORY';
   };
 
@@ -207,7 +209,7 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
               Download Template
             </button>
           </div>
-          
+
           <div className="space-y-2">
             <input
               type="file"
@@ -225,11 +227,11 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
               })}
               className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg cursor-pointer"
             />
-            
+
             {errors.file && (
               <p className="text-sm text-red-600 mt-1">{errors.file.message}</p>
             )}
-            
+
             {selectedFile && !errors.file && (
               <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                 <p className="text-sm font-medium text-gray-900">Selected File: {selectedFile.name}</p>
@@ -239,7 +241,7 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
             )}
           </div>
         </div>
-        
+
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
           <Button
             type="button"
