@@ -9,13 +9,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import posIcon from '@/assets/ecommerce-svg.jpg'
 import Image from "next/image"
 import { useMutation } from "@tanstack/react-query"
-import axiosInstance from "@/utils/fetch-function"
+
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import BusinessInformation from "./onboarding/business-information"
 import ContactDetails from "./onboarding/contact-details"
 import PasswordDetails from "./onboarding/password-details"
 import LocationDetails from "./onboarding/location-details"
+import axiosInstanceNoAuth from "@/utils/fetch-function-auth"
 
 export interface FormData {
   businessName: string
@@ -108,7 +109,7 @@ export function SignUpForm() {
   }
 
   const { mutate, isPending } = useMutation({
-    mutationFn: ()=> axiosInstance.request({
+    mutationFn: ()=> axiosInstanceNoAuth.request({
       url: 'business/onboard',
       method: 'POST',
       data: {
