@@ -3,7 +3,8 @@ import Loader from '@/components/ui/loader'
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 import HomePageH2P from '../../../h2p-app/page'
-import HomeFortitude from '../../../fortitude-app/page'
+import HomePageFortitiude from '../../../fortitude-app/homepage'
+// import HomeFortitude from '../../../fortitude-app/page'
 import { useLocationStore } from '@/store/locationStore'
 
 const Home = dynamic(() => import('./page-content'), {
@@ -20,7 +21,7 @@ const HomePage = () => {
   }
 
   if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'fortitude'){
-    return <HomeFortitude/>
+    return <HomePageFortitiude/>
   }
 
 }
