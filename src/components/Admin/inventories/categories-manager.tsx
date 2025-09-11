@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Edit, Search, Grid, List } from "lucide-react";
+import { Plus, Edit, Search, Grid, List, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +11,9 @@ import CategoryForm from "./category-form";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import useUser from "@/store/userStore";
+import UploadBulkModal from "../../../app/upload";
+import UploadBulkForm from "../../../app/upload";
+
 
 export interface Category {
   id: number;
@@ -27,6 +30,7 @@ export interface Category {
 const CategoriesManager = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const { user } = useUser();
@@ -49,9 +53,9 @@ const CategoriesManager = () => {
   // Filter categories based on search term
   const filteredCategories = useMemo(() => {
     if (!data?.data?.categories) return [];
-    
+
     if (!searchTerm) return data.data.categories;
-    
+
     return data.data.categories.filter((category: Category) =>
       category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       category.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -107,7 +111,7 @@ const CategoriesManager = () => {
             className="pl-10"
           />
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "grid" | "table")}>
             <TabsList className="grid w-full grid-cols-2">
@@ -121,7 +125,32 @@ const CategoriesManager = () => {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          
+
+          {/* Bulk Upload Button */}
+          <Dialog open={isBulkUploadOpen} onOpenChange={setIsBulkUploadOpen}>
+            <DialogTrigger asChild>
+              <Button className="transition-smooth" variant="outline">
+                <Upload className="h-4 w-4 mr-2" />
+                Bulk Upload
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              {/* <DialogHeader> */}
+              {/* <DialogTitle className=""></DialogTitle> */}
+              {/* </DialogHeader> */}
+              {/* <UploadBulkModal
+                open={isBulkUploadOpen}
+                onClose={() => setIsBulkUploadOpen(false)}
+                uploadType="categories"
+              /> */}
+              <UploadBulkForm
+                uploadType="categories"
+                onSuccess={() => setIsBulkUploadOpen(false)}
+                onCancel={() => setIsBulkUploadOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="transition-smooth" variant="secondary">
@@ -129,11 +158,11 @@ const CategoriesManager = () => {
                 Add Category
               </Button>
             </DialogTrigger>
-            <DialogContent className="min-w-[70vw] max-h-[80vh] overflow-y-auto">
+            <DialogContent className="min-w-[55vw] max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Create New Category</DialogTitle>
+                <DialogTitle></DialogTitle>
               </DialogHeader>
-              <CategoryForm 
+              <CategoryForm
                 mode="create"
                 onSuccess={handleCreateSuccess}
                 onCancel={() => setIsCreateDialogOpen(false)}
@@ -151,8 +180,8 @@ const CategoriesManager = () => {
               <CardHeader className="pb-4">
                 {category.logo && (
                   <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden mb-4 mx-auto">
-                    <img 
-                      src={category.logo} 
+                    <img
+                      src={category.logo}
                       alt={category.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-smooth"
                       onError={(e) => {
@@ -167,20 +196,20 @@ const CategoriesManager = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">{category.description}</p>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Sector</span>
                     <Badge variant="secondary">{category.sector}</Badge>
                   </div>
-                  
+
                   {category.topCategory && (
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">Level</span>
                       <span className="text-sm capitalize">{category.topCategory}</span>
                     </div>
                   )}
-                  
+
                   {category.qty && (
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">Quantity</span>
@@ -213,8 +242,8 @@ const CategoriesManager = () => {
           ))}
         </div>
       ) : (
-        <CategoriesTable 
-          categories={filteredCategories} 
+        <CategoriesTable
+          categories={filteredCategories}
           onEdit={handleEditCategory}
         />
       )}
@@ -226,7 +255,7 @@ const CategoriesManager = () => {
             <DialogTitle>Edit Category</DialogTitle>
           </DialogHeader>
           {editingCategory && (
-            <CategoryForm 
+            <CategoryForm
               category={editingCategory}
               mode="edit"
               onSuccess={handleEditSuccess}
@@ -261,8 +290,8 @@ const CategoriesManager = () => {
           <p className="text-muted-foreground mb-4">
             No categories match your search term "{searchTerm}"
           </p>
-          <Button 
-            onClick={() => setSearchTerm("")} 
+          <Button
+            onClick={() => setSearchTerm("")}
             variant="secondary"
           >
             Clear Search

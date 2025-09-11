@@ -133,3 +133,9 @@ export interface UserProfile {
   onboardType?: string | null;
   pinSet?: boolean;
 }
+
+export interface Attachment {
+  thumbnail: string;
+  original: string;
+  id?: string;
+}

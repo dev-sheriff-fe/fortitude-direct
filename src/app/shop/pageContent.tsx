@@ -39,7 +39,7 @@ export default function HomeFortitude() {
                     category: selectedCategory,
                     tag: '',
                     pageNumber: 1,
-                    pageSize: 12
+                    pageSize: 100
                 }
             }).then(response => response.data)
         }
@@ -47,7 +47,7 @@ export default function HomeFortitude() {
 
     useEffect(() => {
         if (data?.products) {
-            setFeaturedProducts(data.products.slice(0, 12));
+            setFeaturedProducts(data.products.slice(0, 20));
         }
     }, [data]);
 
@@ -141,7 +141,7 @@ export default function HomeFortitude() {
                 <CategoryFilterIndicator />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-30">
-                    {featuredProducts.slice(4, 12).map((product) => (
+                    {featuredProducts.slice(4, 25).map((product) => (
                         <ProductCard
                             key={product.id}
                             product={product}

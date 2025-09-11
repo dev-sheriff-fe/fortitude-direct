@@ -247,7 +247,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       {/* Order Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
+          <DialogHeader className='flex flex-col'>
             <DialogTitle>Order Details - {selectedOrder?.cartId}</DialogTitle>
             <DialogDescription>
               Detailed information about the selected order
