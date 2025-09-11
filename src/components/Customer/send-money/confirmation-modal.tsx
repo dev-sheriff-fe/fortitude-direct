@@ -23,7 +23,7 @@ interface Coin {
 }
 
 interface ConfirmationData {
-  fromAmount: number;
+  fromAmount: string;
   toAmount: string;
   fromCurrency?: Coin | any;
   toCurrency?: Coin | any;

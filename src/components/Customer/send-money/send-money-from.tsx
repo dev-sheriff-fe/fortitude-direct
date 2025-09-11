@@ -41,7 +41,7 @@ interface Coin {
 }
 
 const transferSchema = z.object({
-  fromAmount: z.number().min(1, "Amount is required"),
+  fromAmount: z.string().trim().min(1, "Amount is required"),
   toAmount: z.string().min(1, "Amount is required"),
   fromCurrency: z.object({
     id: z.string().nullable(),
@@ -99,7 +99,7 @@ export const TransferForm = () => {
   const form = useForm<TransferFormData>({
     resolver: zodResolver(transferSchema),
     defaultValues: {
-      fromAmount: 0,
+      fromAmount: '',
       toAmount: "1,000,000",
       recipientNetwork: "",
       recipientAddress: "",
@@ -244,8 +244,8 @@ export const TransferForm = () => {
                   />
                   <Input
                     id="fromAmount"
-                    type="number"
-                    {...form.register("fromAmount", { valueAsNumber: true })}
+                    type="text"
+                    {...form.register("fromAmount")}
                     className="flex-1"
                     max={selectedFromCoin?.balance || undefined}
                   />
