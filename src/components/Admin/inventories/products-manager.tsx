@@ -225,6 +225,7 @@ import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import useUser from "@/store/userStore";
 import UploadBulkModal from "../../../app/upload"; // Import the bulk upload modal
+import UploadBulkForm from "../../../app/upload";
 
 export interface Product {
   productId: string;
@@ -331,14 +332,19 @@ const ProductsManager = () => {
                 Bulk Upload
               </Button>
             </DialogTrigger>
-            <DialogContent className=" w-full bg-accent">
-              {/* <DialogHeader>
+            <DialogContent>
+              <DialogHeader>
                 <DialogTitle></DialogTitle>
-              </DialogHeader> */}
-              <UploadBulkModal
+              </DialogHeader>
+              {/* <UploadBulkModal
                 open={isBulkUploadOpen}
                 onClose={() => setIsBulkUploadOpen(false)}
                 uploadType="products"
+              /> */}
+              <UploadBulkForm
+                uploadType="products"
+                onSuccess={() => setIsBulkUploadOpen(false)}
+                onCancel={() => setIsBulkUploadOpen(false)}
               />
             </DialogContent>
 
@@ -357,9 +363,9 @@ const ProductsManager = () => {
                 Add Product
               </Button>
             </DialogTrigger>
-            <DialogContent className="min-w-[70vw] max-h-[80vh] overflow-y-auto">
+            <DialogContent className="min-w-[55vw] max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Create New Product</DialogTitle>
+                <DialogTitle></DialogTitle>
               </DialogHeader>
               <ProductForm mode="create" />
             </DialogContent>

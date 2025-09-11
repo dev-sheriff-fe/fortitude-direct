@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import useUser from "@/store/userStore";
 import UploadBulkModal from "../../../app/upload";
+import UploadBulkForm from "../../../app/upload";
 
 
 export interface Category {
@@ -133,14 +134,19 @@ const CategoriesManager = () => {
                 Bulk Upload
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-accent">
+            <DialogContent>
               {/* <DialogHeader> */}
-                {/* <DialogTitle className=""></DialogTitle> */}
+              {/* <DialogTitle className=""></DialogTitle> */}
               {/* </DialogHeader> */}
-              <UploadBulkModal
+              {/* <UploadBulkModal
                 open={isBulkUploadOpen}
                 onClose={() => setIsBulkUploadOpen(false)}
                 uploadType="categories"
+              /> */}
+              <UploadBulkForm
+                uploadType="categories"
+                onSuccess={() => setIsBulkUploadOpen(false)}
+                onCancel={() => setIsBulkUploadOpen(false)}
               />
             </DialogContent>
           </Dialog>
@@ -152,7 +158,7 @@ const CategoriesManager = () => {
                 Add Category
               </Button>
             </DialogTrigger>
-            <DialogContent className="min-w-[70vw] max-h-[80vh] overflow-y-auto">
+            <DialogContent className="min-w-[55vw] max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle></DialogTitle>
               </DialogHeader>

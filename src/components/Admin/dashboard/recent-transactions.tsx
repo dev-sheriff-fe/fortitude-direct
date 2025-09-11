@@ -180,7 +180,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       {/* Transaction Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+          <DialogHeader className='flex flex-col'>
             <DialogTitle>Transaction Details</DialogTitle>
             <DialogDescription>
               Detailed information about the selected transaction

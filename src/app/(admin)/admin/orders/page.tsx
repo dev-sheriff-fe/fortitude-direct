@@ -260,7 +260,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       {/* Order Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
+          <DialogHeader className='flex flex-col'>
             <DialogTitle>Order Details - {selectedOrder?.cartId || 'N/A'}</DialogTitle>
             <DialogDescription>
               Detailed information about the selected order
@@ -478,7 +478,7 @@ export default function OrderHistory(): React.ReactElement {
         const firstItem = items[0];
         return (
           <div className="flex items-center gap-3">
-            <div className="w-20 h-10 relative rounded-md overflow-hidden">
+            <div className="w-13 h-10 relative rounded-md overflow-hidden">
               <Image
                 src={firstItem.picture || `${placeholder.src}`}
                 alt={firstItem.itemName}
