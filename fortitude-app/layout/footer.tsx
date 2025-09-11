@@ -33,10 +33,9 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#535357] text-white border-t border-gray-200 relative pt-24 px-6 md:px-8 lg:px-12"> {/* Added pt-24 and relative */}
-      {/* Newsletter - positioned absolutely at the top */}
-      <div className="absolute -top-30 left-0 right-0 mx-auto px-4"> {/* Changed to absolute positioning */}
-        <div className="max-w-7xl md:flex gap-4 py-10 mx-auto p-6 bg-[#313133] items-center justify-center rounded-xl shadow-lg z-10"> {/* Added z-10 */}
+    <footer className="bg-[#535357] text-white border-t border-gray-200 relative pt-24 px-6 md:px-8 lg:px-12">
+      <div className="absolute -top-30 left-0 right-0 mx-auto px-4">
+        <div className="max-w-7xl md:flex gap-4 py-10 mx-auto p-6 bg-[#313133] items-center justify-center rounded-xl shadow-lg z-10">
           <div className="text-start mb-8 max-w-lg">
             <h2 className="text-2xl md:text-3xl font-bold mb-3">
               Subscribe our newsletter

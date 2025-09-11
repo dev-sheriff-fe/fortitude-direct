@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import Providers from "./Provider";
+
 import { Toaster } from "@/components/ui/sonner";
 import Script from "next/script";
 import { LocationProvider } from "@/components/Providers/location-provider";

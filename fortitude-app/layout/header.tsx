@@ -163,7 +163,14 @@ export default function Header() {
                 >
                   Login
                 </span>
-                <span className="text-sm font-medium">Account</span>
+                <Link href="/customer-login" target="_blank" className="relative z-10">
+                  <p className='text-sm text-center'>
+
+                    <button type='button' className="text-accent underline">
+                      Admin
+                    </button>
+                  </p>
+                </Link>
               </div>
             </div>
 
