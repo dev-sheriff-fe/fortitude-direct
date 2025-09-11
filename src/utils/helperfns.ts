@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 export type CurrencyCode =
   | 'USD'
   | 'GBP'
@@ -106,3 +108,9 @@ export const formatDateToDDMMYYYY = (date?: Date | string): string => {
   return `${day}-${month}-${year}`;
 };
 
+
+
+ export const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast('Copied to clipboard')
+  };
