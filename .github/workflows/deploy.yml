@@ -38,7 +38,7 @@ jobs:
             docker run -d \
               --name nextjs-app \
               --restart unless-stopped \
-              -p 80:3000 \
+              -p 3000:3000 \
               -e NEXT_PUBLIC_STORE_FRONT=${{ secrets.NEXT_PUBLIC_STORE_FRONT }} \
               -e NEXT_PUBLIC_DOMAIN=${{ secrets.NEXT_PUBLIC_DOMAIN }} \
               -e NEXT_PUBLIC_ACCENT_COLOR=${{ secrets.NEXT_PUBLIC_ACCENT_COLOR }} \
