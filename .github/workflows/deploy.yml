@@ -39,7 +39,7 @@ jobs:
               --name nextjs-app \
               --restart unless-stopped \
               -p 3000:3000 \
-              -e NEXT_PUBLIC_STORE_FRONT=${{ secrets.NEXT_PUBLIC_STORE_FRONT }} \
+              -e NEXT_PUBLIC_STORE_FRONT=fortitude \
               -e NEXT_PUBLIC_DOMAIN=${{ secrets.NEXT_PUBLIC_DOMAIN }} \
               -e NEXT_PUBLIC_ACCENT_COLOR=${{ secrets.NEXT_PUBLIC_ACCENT_COLOR }} \
               -e NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR=${{ secrets.NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR }} \
