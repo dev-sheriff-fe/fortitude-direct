@@ -82,7 +82,7 @@ import { AlertCircle, CheckCircle, Clock, Copy, ExternalLink, RefreshCw } from "
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Transaction ID:</span>
                     <div className="flex items-center gap-2">
-                      <code className="text-xs bg-background px-2 py-1 rounded">{paymentResponse?.txId}</code>
+                      <code className="text-xs bg-background px-2 py-1 rounded">{paymentResponse?.txId?.slice(0, 10)}</code>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -97,7 +97,7 @@ import { AlertCircle, CheckCircle, Clock, Copy, ExternalLink, RefreshCw } from "
                   {paymentResponse?.amountPaid && (
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Amount Paid:</span>
-                      <span className="text-sm font-medium">{paymentResponse.amountPaid} {paymentResponse.symbol}</span>
+                      <span className="text-sm font-medium">{Number(paymentResponse.amountPaid)?.toFixed(2)} {paymentResponse.symbol}</span>
                     </div>
                   )}
                   
@@ -105,6 +105,13 @@ import { AlertCircle, CheckCircle, Clock, Copy, ExternalLink, RefreshCw } from "
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">From Address:</span>
                       <code className="text-xs bg-background px-2 py-1 rounded">{paymentResponse.fromAddress.slice(0, 10)}...</code>
+                    </div>
+                  )}
+
+                  {paymentResponse?.publicAddress && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">To Address:</span>
+                      <code className="text-xs bg-background px-2 py-1 rounded">{paymentResponse.publicAddress.slice(0, 10)}...</code>
                     </div>
                   )}
                   
