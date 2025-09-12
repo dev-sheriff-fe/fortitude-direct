@@ -30,77 +30,6 @@ import axiosCustomer from '@/utils/fetch-function-customer';
 import useCustomer from '@/store/customerStore';
 import { Button } from '@/components/ui/button';
 
-// Simplified currency wallets with image flags
-const currencyWallets = [
-  {
-    currency: 'United Kingdom Pound',
-    amount: '£103,101.86',
-    flag: uk,
-    isActive: true,
-    currencyCode: 'GBP',
-  },
-  {
-    currency: 'United States Dollar',
-    amount: '$103,101.86',
-    flag: us,
-    currencyCode: 'USD',
-    isActive: false,
-  },
-  {
-    currency: 'Nigerian naira',
-    amount: '₦103,101.86',
-    flag: ng,
-    isActive: false,
-    currencyCode: 'NGN',
-  },
-  {
-    currency: 'Ghanaian cedi',
-    amount: '₵103,101.86',
-    flag: gh,
-    currencyCode: 'GHC',
-    isActive: false,
-  }
-];
-
-// Crypto wallets data
-const cryptoWallets = [
-  {
-    currency: 'Bitcoin',
-    amount: '0.5234',
-    icon: '₿',
-    currencyCode: 'BTC',
-    isActive: true,
-    change: '+2.5%',
-    changePositive: true,
-  },
-  {
-    currency: 'Ethereum',
-    amount: '4.321',
-    icon: 'Ξ',
-    currencyCode: 'ETH',
-    isActive: false,
-    change: '-1.2%',
-    changePositive: false,
-  },
-  {
-    currency: 'USD Coin',
-    amount: '12,345.67',
-    icon: '💲',
-    currencyCode: 'USDC',
-    isActive: false,
-    change: '+0.1%',
-    changePositive: true,
-  },
-  {
-    currency: 'Litecoin',
-    amount: '15.789',
-    icon: 'Ł',
-    currencyCode: 'LTC',
-    isActive: false,
-    change: '+5.3%',
-    changePositive: true,
-  }
-];
 
 // Wallet data for the additional section
 
@@ -368,14 +297,14 @@ export const WalletOverview = () => {
   const [activeTab, setActiveTab] = useState<'fiat' | 'crypto'>('fiat');
   const { customer } = useCustomer()
   const { data, isLoading, error } = useQuery({
-    queryKey: ['dashboard-summary'],
+    queryKey: ['customer-dashboard-summary'],
     queryFn: () => axiosCustomer.request({
       method: 'GET',
-      url: '/store-dashboard/summary',
+      url: '/customer-dashboard/summary',
       params: {
         // startDate: getCurrentDate(),
         startDate: '01-01-2025',
-        endDate: '02-09-2025',
+        endDate: '12-09-2025',
         // merchantCode: user?.merchantCode,
         // datePeriod: getCurrentDate(),
         datePeriod: "",
@@ -387,42 +316,18 @@ export const WalletOverview = () => {
   })
 
   const { data: balances, isLoading: balancesLoading, error: balancesError } = useQuery({
-    queryKey: ['wallet-balances'],
+    queryKey: ['customer-balances'],
     queryFn: () => axiosCustomer.request({
       method: 'GET',
-      url: '/coinwallet/balance',
+      url: '/customer-dashboard/balance',
       params: {
+        storeCode: 'STO445',
         username: customer?.username,
         entityCode: customer?.entityCode
       }
     })
   })
 
-  
-
-  const { data: storeBalances } = useQuery({
-    queryKey: ['recent-trans'],
-    queryFn: () => axiosCustomer.request({
-      url: '/store-dashboard/fetchRecentTrans',
-      method: 'GET',
-      params: {
-        storeCode: "STO445",
-        entityCode: customer?.entityCode
-      }
-    })
-  })
-
-  const { data: storeBalan } = useQuery({
-    queryKey: ['recent-tras'],
-    queryFn: () => axiosCustomer.request({
-      url: '/store-dashboard/fetch-recent-orders',
-      method: 'GET',
-      params: {
-        storeCode: "STO445",
-        entityCode: customer?.entityCode
-      }
-    })
-  })
 
 
   const toggleAllBalances = () => {
@@ -432,6 +337,17 @@ export const WalletOverview = () => {
   const fiatBalances = balances?.data?.wallets
   const coinBalances = balances?.data?.coins
 
+  const BalancesLoadingCards = ()=>(
+    <div className="grid md:grid-cols-1 lg:grid-cols-4 gap-4 p-4">
+      {
+        [1, 2, 3, 4].map((item) => (
+        <div key={item} className="animate-pulse h-[180px] bg-gray-200 rounded-md mb-2"></div>
+    ))
+      }
+    </div>
+  )
+
+  
   return (
     <div className="space-y-4 lg:space-y-6">
       {/* Wallet Overview Section */}
@@ -439,23 +355,7 @@ export const WalletOverview = () => {
       <div className="bg-background p-4 lg:p-6">
         <div className="flex items-center justify-between mb-4 lg:mb-6">
           <h3 className="text-base lg:text-lg font-semibold">Wallet Overview</h3>
-          {/* Toggle Button */}
-          {/* <button
-            onClick={toggleAllBalances}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md border border-border hover:bg-muted/50 transition-colors"
-          >
-            {hideAllBalances ? (
-              <>
-                <Eye className="w-4 h-4" />
-                Show Balances
-              </>
-            ) : (
-              <>
-                <EyeOff className="w-4 h-4" />
-                Hide All Balances
-              </>
-            )}
-          </button> */}
+        
           <div className="flex items-center gap-2">
             <Badge className='bg-accent/70 flex items-center gap-2 px-3 py-1.5 hover:bg-accent/70 transition-colors'>
               <span className="text-sm text-foreground text-black">Show Balances</span>
@@ -509,7 +409,13 @@ export const WalletOverview = () => {
 
         {/* Tab Content */}
         {activeTab === 'fiat' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
+          <>
+            {
+              balancesLoading && <BalancesLoadingCards/>
+            }
+
+             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
+            
             {fiatBalances?.map((wallet:any, index:any) => (
               <CurrenciesCard
                 key={index}
@@ -522,10 +428,16 @@ export const WalletOverview = () => {
               />
             ))}
           </div>
+          </>
+         
         )}
 
         {activeTab === 'crypto' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
+          <>
+            {
+              balancesLoading && <BalancesLoadingCards/>
+            }
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
             {coinBalances?.map((wallet:any, index:number) => (
               <CryptoCard
                 key={index}
@@ -541,6 +453,7 @@ export const WalletOverview = () => {
               />
             ))}
           </div>
+          </>
         )}
       </div>
 
@@ -568,39 +481,6 @@ export const WalletOverview = () => {
           ))}
         </div>
       </div>
-
-      {/* Additional Wallet Data Section
-      {/* <div className="bg-background p-4 lg:p-6">
-        <h3 className="text-base lg:text-lg font-semibold mb-4 lg:mb-6">Financial Overview</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
-          {walletData.map((item, index) => (
-            <Card key={index} className="border-border shadow-sm">
-              <CardContent className="p-4 lg:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 lg:gap-3 min-w-0">
-                    <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg ${item.color} flex items-center justify-center flex-shrink-0`}>
-                      <item.icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs lg:text-sm text-muted-foreground truncate">{item.title}</p>
-                      <p className="text-lg lg:text-2xl font-bold text-foreground">{item.amount}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-3 lg:mt-4">
-                  <Badge variant="secondary" className="text-xs">
-                    {item.change}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}; */}
-
     </div>
   );
 };

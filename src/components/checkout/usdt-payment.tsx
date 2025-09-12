@@ -205,6 +205,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
         
         if (data?.data?.responseCode === '000') {
           setPaymentVerificationStatus('success');
+          setTransactionDetails(data?.data)
           toast.success('Payment confirmed successfully!');
         }
           else if(data?.data?.responseCode === 'PP') {
@@ -340,6 +341,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
             paymentResponse={paymentResponse}
             startOver={startOver}
             handleCopyToClipboard={handleCopyToClipboard}
+            transactionDetails= {transactionDetails}
           />}
           {paymentVerificationStatus === 'error' && <PaymentErrorScreen 
             checkingPaymentStatus={checkingPaymentStatus}
@@ -401,7 +403,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
                               unoptimized
                               className='mx-auto mb-2'
                             />
-                            Send {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
+                            Send {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} {chainDets?.symbol}
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4 p-4 lg:p-6">
@@ -439,7 +441,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
                             <div>
                               <Label className="text-xs lg:text-sm font-medium">Amount</Label>
                               <p className="text-xs lg:text-sm text-muted-foreground mt-1">
-                                {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT
+                                {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} {chainDets?.symbol}
                               </p>
                             </div>
                           </div>
@@ -457,7 +459,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
                             <h4 className="font-medium text-blue-900 mb-2 text-sm lg:text-base">Payment Instructions:</h4>
                             <ol className="text-xs lg:text-sm text-blue-800 space-y-1">
                               <li>1. Copy the payment address above</li>
-                              <li>2. Send exactly {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} USDT to this address</li>
+                              <li>2. Send exactly {checkoutData?.payingAmount?.toFixed(2) || cartTotal.toFixed(2)} {chainDets?.symbol} to this address</li>
                               <li>3. Make sure you're using the {selectedChain.name} network</li>
                               <li>4. Click "I've Sent the Payment" after sending</li>
                             </ol>
@@ -519,7 +521,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
                           </div> */}
                           <Image
                           src={chain?.otherInfo||''}
-                          alt={chain.name}
+                          alt={chain.name || 'logo'}
                           height={40}
                           width={40}
                           unoptimized

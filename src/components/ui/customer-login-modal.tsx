@@ -1,8 +1,8 @@
 'use client'
 import React, { useState } from 'react'
 import { Dialog, DialogContent } from './dialog'
-import LoginForm from './login-form'
 import RegisterForm from './register-form'
+import { LoginForm } from './login-form'
 
 const CustomerLoginModal = ({ isOpen, setIsOpen }:{isOpen:boolean, setIsOpen: React.Dispatch<React.SetStateAction<boolean>>}) => {
     const [state,setState] = useState<'login' | 'register'>('login')
