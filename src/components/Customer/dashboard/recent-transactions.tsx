@@ -232,14 +232,14 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
 export default function TransactionHistory(): React.ReactElement {
   const {customer} = useCustomer()
   const { data, isLoading, error } = useQuery({
-    queryKey: ['recent-trans'],
+    queryKey: ['customer-recent-trans'],
     queryFn: () => axiosCustomer.request({
-      url: '/store-dashboard/fetchRecentTrans',
+      url: '/customer-dashboard/fetchRecentTrans',
       method: 'GET',
-      params: {
-        storeCode: "STO445",
-        entityCode: customer?.entityCode
-      }
+      // params: {
+      //   storeCode: "STO445",
+      //   entityCode: customer?.entityCode
+      // }
     })
   });
 

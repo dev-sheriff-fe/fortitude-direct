@@ -254,6 +254,7 @@ export const TransferForm = () => {
           setPayloadInfo(null)
         }}
      payloadInfo = {payloadInfo}
+     setCurrentStep = {setCurrentStep}
     />
     )
   }

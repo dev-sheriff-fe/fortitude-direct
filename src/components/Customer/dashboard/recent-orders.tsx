@@ -400,9 +400,9 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
 export default function OrderHistory(): React.ReactElement {
   const {customer} = useCustomer()
   const { data, isLoading, error } = useQuery({
-    queryKey: ['recent-orders'],
+    queryKey: ['customer-recent-orders'],
     queryFn: () => axiosCustomer.request({
-      url: '/store-dashboard/fetch-recent-orders',
+      url: '/customer-dashboard/fetch-recent-orders',
       method: 'GET',
       params: {
         storeCode: "STO445",

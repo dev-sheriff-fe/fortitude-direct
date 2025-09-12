@@ -34,7 +34,7 @@ interface ConfirmationData {
 interface SuccessModalProps {
   onLogin: () => void;
   onCancel: () => void;
-  data: ConfirmationData
+  data: ConfirmationData | any
 }
 
 export const SuccessModal = ({ onLogin, onCancel,data }: SuccessModalProps) => {
