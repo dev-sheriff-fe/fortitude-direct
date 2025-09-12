@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { any, z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ import { useMutation } from "@tanstack/react-query";
 import axiosCustomer from "@/utils/fetch-function-customer";
 import { toast } from "sonner";
 import { generateRandomNumber } from "@/utils/helperfns";
+import { PendingModal } from "./pending-modal";
 
 interface Coin {
   id: string | null;
@@ -41,7 +42,7 @@ interface Coin {
 }
 
 const transferSchema = z.object({
-  fromAmount: z.number().min(1, "Amount is required"),
+  fromAmount: z.string().trim().min(1, "Amount is required"),
   toAmount: z.string().min(1, "Amount is required"),
   fromCurrency: z.object({
     id: z.string().nullable(),
@@ -88,18 +89,19 @@ const transferSchema = z.object({
 type TransferFormData = z.infer<typeof transferSchema>;
 
 export const TransferForm = () => {
-  const [currentStep, setCurrentStep] = useState<"form" | "confirm" | "verify" | "success">("form");
+  const [currentStep, setCurrentStep] = useState<"form" | "confirm" | "verify" | "success" | "pending">("form");
   const [exchangeRate, setExchangeRate] = useState(1);
   const [selectedFromCoin, setSelectedFromCoin] = useState<Coin | null>(null);
   const [selectedToCoin, setSelectedToCoin] = useState<Coin | null>(null);
   const {customer} = useCustomer()
+  const [payloadInfo,setPayloadInfo] = useState<any>(null)
 
   console.log(customer);
   
   const form = useForm<TransferFormData>({
     resolver: zodResolver(transferSchema),
     defaultValues: {
-      fromAmount: 0,
+      fromAmount: '',
       toAmount: "1,000,000",
       recipientNetwork: "",
       recipientAddress: "",
@@ -139,6 +141,12 @@ export const TransferForm = () => {
       data
     }),
     onSuccess: (data)=>{
+      if (data?.data?.responseCode === 'PP') {
+        setCurrentStep('pending')
+        toast.warning(data?.data?.responseMessage)
+        return
+      }
+      
       if (data?.data?.responseCode!=='000') {
         toast?.error(data?.data?.responseMessage)
         return
@@ -151,7 +159,7 @@ export const TransferForm = () => {
     }
   })
 
-  const handleConfirm = (value:TransferFormData) => {
+  const handleConfirm = () => {
     const payload = {
       externalRefNo: `CNCN${generateRandomNumber(10)}`,
       deviceId: '111',
@@ -176,7 +184,7 @@ export const TransferForm = () => {
       channelType: "WEB",
       username: customer?.username
     }
-
+    setPayloadInfo({...payload})
     mutate(payload)
   };
 
@@ -201,7 +209,10 @@ export const TransferForm = () => {
           toCurrency: selectedToCoin,
         }}
         onConfirm={handleConfirm}
-        onCancel={() => setCurrentStep("form")}
+        onCancel={() => {
+          setCurrentStep("form")
+          setPayloadInfo(null)
+        }}
         isPending= {isPending}
       />
     );
@@ -219,12 +230,34 @@ export const TransferForm = () => {
   if (currentStep === "success") {
     return (
       <SuccessModal
+        data={{
+          ...form.getValues(),
+          fromCurrency: selectedFromCoin,
+          toCurrency: selectedToCoin,
+          payloadInfo: payloadInfo
+        }}
         onLogin={() => setCurrentStep("form")}
         onCancel={() => setCurrentStep("form")}
       />
     );
   }
 
+  if (currentStep === 'pending') {
+    return (
+      <PendingModal
+    onCancel={() => {
+          setCurrentStep("form")
+          setPayloadInfo(null)
+        }}
+    onLogin={() => {
+          setCurrentStep("form")
+          setPayloadInfo(null)
+        }}
+     payloadInfo = {payloadInfo}
+     setCurrentStep = {setCurrentStep}
+    />
+    )
+  }
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
@@ -244,9 +277,10 @@ export const TransferForm = () => {
                   />
                   <Input
                     id="fromAmount"
-                    type="number"
-                    {...form.register("fromAmount", { valueAsNumber: true })}
+                    type="text"
+                    {...form.register("fromAmount")}
                     className="flex-1"
+                    disabled= {!getValues('fromCurrency')}
                     max={selectedFromCoin?.balance || undefined}
                   />
                 </div>
@@ -269,7 +303,9 @@ export const TransferForm = () => {
                 <Input
                   id="recipientNetwork"
                   placeholder="Select Recipient Network"
+                  value={getValues('fromCurrency.chain')}
                   {...form.register("recipientNetwork")}
+                  readOnly
                 />
               </div>
               
