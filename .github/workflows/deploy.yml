@@ -1,0 +1,55 @@
+name: Deploy Next.js App (CI Build + Server Pull)
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout source
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Log in to GitHub Container Registry (GHCR)
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build and push image to GHCR
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}/nextjs-app:latest
+
+      # Deploy on server
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+
+            # Stop old container
+            docker stop nextjs-app || true
+            docker rm nextjs-app || true
+
+            # Pull latest image
+            docker pull ghcr.io/${{ github.repository }}/nextjs-app:latest
+
+            # Run new container
+            docker run -d \
+              --name nextjs-app \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              ghcr.io/${{ github.repository }}/nextjs-app:latest
