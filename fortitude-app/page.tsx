@@ -91,7 +91,7 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-12 px-4 mt-50">
+      <div className="container mx-auto py-12 px-4 mt-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, index) => (
             <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-gray-100 animate-pulse">
@@ -109,14 +109,14 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
 
   if (error) {
     return (
-      <div className="container mx-auto py-12 px-4 mt-50 text-center">
+      <div className="container mx-auto py-12 px-4 mt-10 text-center">
         <p className="text-red-500">Error loading products. Please try again later.</p>
       </div>
     );
   }
 
   return (
-    <><div className="container mx-auto py-12 px-4 md:px-6 mt-50">
+    <><div className="container mx-auto py-12 px-4 md:px-6">
       <HeroSlider />
 
       <div className="py-12">

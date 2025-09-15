@@ -78,7 +78,7 @@ export default function HomeFortitude() {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto py-12 px-4 mt-50">
+            <div className="container mx-auto py-12 px-4 mt-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[...Array(8)].map((_, index) => (
                         <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-gray-100 animate-pulse">
@@ -96,7 +96,7 @@ export default function HomeFortitude() {
 
     if (error) {
         return (
-            <div className="container mx-auto py-12 px-4 mt-50 text-center">
+            <div className="container mx-auto py-12 px-4 mt-10 text-center">
                 <p className="text-red-500">Error loading products. Please try again later.</p>
             </div>
         );
@@ -105,7 +105,7 @@ export default function HomeFortitude() {
     return (
         <>
         <Header/>
-            <div className="container mx-auto py-12 px-4 mt-50">
+            <div className="container mx-auto py-12 px-4">
                 <div className="mb-8 py-5 border-b border-[#e7eaee] flex justify-between items-center">
                     <h1 className="text-3xl font-bold">Deals of the Week</h1>
                     <span className="font-semibold text-[#d8480b]">View All →</span>

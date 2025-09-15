@@ -16,7 +16,7 @@ export default function AboutPage() {
 
 
       {/* Hero Section */}
-      <section className=" mt-50 text-accent-foreground bg-gray-100 py-10 px-5">
+      <section className="text-accent-foreground bg-gray-100 py-10 px-5">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -161,7 +161,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 icon: <Users className="h-8 w-8 text-accent" />,
@@ -185,11 +185,11 @@ export default function AboutPage() {
               }
             ].map((value, index) => (
             //   <FadeIn key={index} direction="up" delay={index * 0.1}>
-                <div className="flex">
+                <div className="flex bg-accent-foreground rounded-2xl shadow-md p-6 border border-accent hover:shadow-lg transition-all duration-300 h-full">
                   <div className="flex-shrink-0 mt-1">{value.icon}</div>
                   <div className="ml-4">
-                    <h3 className="text-xl font-bold mb-2">{value.title}</h3>
-                    <p className="text-gray-600">{value.description}</p>
+                    <h3 className="text-xl font-bold mb-2 text-white">{value.title}</h3>
+                    <p className="text-gray-600 text-white">{value.description}</p>
                   </div>
                 </div>
             //   </FadeIn>

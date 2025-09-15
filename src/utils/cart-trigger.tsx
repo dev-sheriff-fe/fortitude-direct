@@ -63,7 +63,7 @@ const CartTriggerDesktop = ({
         </div>
 
         {itemCount > 0 && (
-          <div className="text-[#d8480b] bg-white text-center py-1 rounded-sm text-[13px] font-semibold">
+          <div className="text-accent bg-white text-center py-1 rounded-sm text-[13px] font-semibold">
             {formatPrice(totalAmount, mainCcy() as CurrencyCode)}
           </div>
         )}

@@ -12,7 +12,7 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, onClick }: ProductCardProps) => {
   const { inCart, addToCart, singleQuantity, increment, decrement } = useCart();
-  const discount = product?.salePrice 
+  const discount = product?.salePrice
     ? Math.ceil(((product.oldPrice! - product.salePrice!) / product.oldPrice!) * 100)
     : 0;
 
@@ -32,16 +32,23 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
   };
 
   return (
-    <div 
+    <div
       className="bg-white p-6 rounded-lg shadow-md border border-gray-100 cursor-pointer hover:shadow-lg transition-shadow"
       onClick={onClick}
     >
-      {discount > 0 && (
-        <div className="bg-[#d8480b] text-white text-xs font-semibold px-2 py-1 rounded-full inline-block mb-4">
-          {discount}% OFF
-        </div>
-      )}
-      
+      <div className='flex justify-between items-center'>
+        {discount > 0 && (
+          <>
+            <div className="bg-accent text-white text-xs font-semibold px-2 py-1 rounded-full inline-block mb-4">
+              On Sale
+            </div>
+            <div className="bg-accent-foreground text-white text-xs font-semibold px-2 py-1 rounded-full inline-block mb-4">
+              {discount}% OFF
+            </div>
+          </>
+        )}
+      </div>
+
       <div className="relative w-full h-48 mb-4">
         <Image
           src={product.picture!}
@@ -54,7 +61,7 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
       <h3 className="text-lg mb-2 text-center text-[#535357] line-clamp-2">
         {product.name}
       </h3>
-      
+
       <div className="flex flex-col items-center gap-1 mb-4">
         <div className="flex items-center gap-2">
           <span className="text-lg font-bold text-[#d8480b]">
@@ -72,7 +79,7 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
       </div>
 
       {singleQuantity(product?.id) <= 0 ? (
-        <button 
+        <button
           className="w-full bg-white text-black py-2 px-4 rounded-3xl hover:bg-black hover:text-white transition border-2 border-black hover:border-[#d8480b] font-semibold"
           onClick={handleAddToCart}
         >
@@ -80,7 +87,7 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
         </button>
       ) : (
         <div className="flex items-center justify-between w-full bg-[#d8480b] text-white rounded-3xl overflow-hidden">
-          <button 
+          <button
             className="h-full px-3 py-2 hover:bg-[#c23c0a] transition-colors"
             onClick={handleDecrement}
           >
@@ -89,7 +96,7 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
           <span className="flex-1 text-center font-semibold">
             {singleQuantity(product?.id)}
           </span>
-          <button 
+          <button
             className="h-full px-3 py-2 hover:bg-[#c23c0a] transition-colors"
             onClick={handleIncrement}
           >

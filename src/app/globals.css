@@ -310,8 +310,8 @@
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: var(--accent-env);
-  --accent-foreground: var(--accent-foreground-env);
+  --accent: var(--accent-env, #d8480b);
+  --accent-foreground: var(--accent-foreground-env, #535357);
   --fortitude-primary: #d8480b;
   --fortitude-accent: #313133;
   --fortitude-accent-foreground: #535357;

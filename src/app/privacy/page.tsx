@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
     <>
       <Suspense>
         <Header />
-        <div className="my-50 container mx-auto py-12 px-4 md:px-6">
+        <div className="mb-30 container mx-auto py-12 px-4 md:px-6">
           <h1 className="text-3xl font-bold mb-2">Privacy Policy</h1>
 
           <div className="prose max-w-none">

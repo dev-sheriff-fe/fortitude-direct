@@ -19,7 +19,7 @@ export default function ContactPage() {
 
         </div>
         {/* Hero Section */}
-        <section className=" mt-50 text-accent-foreground bg-gray-100 py-10">
+        <section className="text-accent-foreground bg-gray-100 py-10">
           <div className="container-custom">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact us</h1>
