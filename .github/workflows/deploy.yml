@@ -38,7 +38,7 @@ jobs:
               --build-arg NEXT_PUBLIC_ACCENT_COLOR=${{ secrets.NEXT_PUBLIC_ACCENT_COLOR }} \
               --build-arg NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR=${{ secrets.NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR }} \
               --build-arg NEXT_PUBLIC_LOGO_URL=${{ secrets.NEXT_PUBLIC_LOGO_URL }} \
-              -t nextjs-app:latest .
+              --no-cache -t nextjs-app:latest .
 
             # Run container (runtime vars optional, already baked in)
             docker run -d \
