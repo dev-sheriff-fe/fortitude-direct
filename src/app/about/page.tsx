@@ -6,10 +6,12 @@ import About from "@/components/images/about-fortitude.jpg"; // You'll need to a
 import About2 from "@/components/images/about2-fortitude.jpg";
 import Header from "../../../fortitude-app/layout/header";
 import Footer from "../../../fortitude-app/layout/footer";
+import { Suspense } from "react";
 
 export default function AboutPage() {
   return (
     <>
+    <Suspense>
     <Header />
 
 
@@ -264,6 +266,7 @@ export default function AboutPage() {
         </div>
       </section>
       <Footer />
+      </Suspense>
     </>
   );
 }
