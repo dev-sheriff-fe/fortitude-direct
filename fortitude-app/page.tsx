@@ -9,14 +9,17 @@ import { useQuery } from "@tanstack/react-query";
 import mouse from "@/components/images/mouse.png";
 import watch from "@/components/images/watch.png";
 import { useRouter, useSearchParams } from "next/navigation";
+import ProductDetailsModal from '@/utils/product-details';
 
 
 export default function HomeFortitude() {
-const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedCategory = searchParams ? searchParams.get('category') || '' : '';
   const storeCode = searchParams ? searchParams.get('storeCode') || 'STO445' : 'STO445';
+  const [selectedProduct, setSelectedProduct] = useState<ProductProps | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!searchParams?.get('storeCode')) {
@@ -66,7 +69,7 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
 
   const CategoryFilterIndicator = () => {
     if (!selectedCategory) return null;
-    
+
     return (
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -247,11 +250,19 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredProducts.slice(0, 4).map((product) => (
+            // <ProductCard
+            //   key={product.id}
+            //   product={product}
+            //   onClick={() => {
+            //     console.log('Product clicked:', product);
+            //   }}
+            // />
             <ProductCard
               key={product.id}
               product={product}
               onClick={() => {
-                console.log('Product clicked:', product);
+                setSelectedProduct(product);
+                setIsModalOpen(true);
               }}
             />
           ))}
@@ -297,7 +308,8 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
               key={product.id}
               product={product}
               onClick={() => {
-                console.log('Product clicked:', product);
+                setSelectedProduct(product);
+                setIsModalOpen(true);
               }}
             />
           ))}
@@ -307,6 +319,12 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
           <TestimonialSlider />
         </div>
       </div>
+
+      <ProductDetailsModal
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
+        product={selectedProduct}
+      />
     </>
   );
 } 

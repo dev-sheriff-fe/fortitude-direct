@@ -7,6 +7,7 @@ import About2 from "@/components/images/about2-fortitude.jpg";
 import Header from "../../../fortitude-app/layout/header";
 import Footer from "../../../fortitude-app/layout/footer";
 import { Suspense } from "react";
+import Link from "next/link";
 
 export default function AboutPage() {
   return (
@@ -256,12 +257,16 @@ export default function AboutPage() {
             Experience the future of ecommerce with innovative features, secure payments, and exceptional service.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-accent hover:bg-accent-foreground hover:text-white border-white border-1">
-              Start Shopping
-            </Button>
-            <Button size="lg" className="bg-accent-foreground border-white border-1 text-white hover:bg-white hover:text-accent">
-              Become a Seller
-            </Button>
+            <Link href="/shop">
+              <Button size="lg" className="bg-white text-accent hover:bg-accent-foreground hover:text-white border-white border-1">
+                Start Shopping
+              </Button>
+            </Link>
+            <Link href="/admin-login" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" className="bg-accent-foreground border-white border-1 text-white hover:bg-white hover:text-accent">
+                Become a Seller
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
