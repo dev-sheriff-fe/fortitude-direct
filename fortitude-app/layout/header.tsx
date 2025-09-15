@@ -27,6 +27,10 @@ const mainNavItems = [
     href: "/shop",
   },
   {
+    title: "My Account",
+    href: "/customer-login",
+  },  
+  {
     title: "Blogs",
     href: "/blogs",
   },
@@ -290,13 +294,13 @@ export default function Header() {
             <div className="flex items-center gap-2">
               <PhoneCall className="h-5 w-5 text-[#d8480b]" />
               <p className="text-sm">
-                Call: (123) 123-4567
+                Call: +234 707-855-3444
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Mail className="h-5 w-5 text-[#d8480b]" />
               <p className="text-sm">
-                Email: example@gmail.com
+                Email: info@fortitudeiot.com
               </p>
             </div>
           </div>

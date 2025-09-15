@@ -1,3 +1,4 @@
+"use client"
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -17,8 +18,8 @@ import {
   FolderOpen,
   ArrowLeft
 } from "lucide-react";
-import { Category } from "../categories-manager";
-import FileUpload from "../file-input";
+import { Category } from "@/components/Admin/inventories/categories-manager";
+import FileUpload from "@/components/Admin/inventories/file-input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/utils/fetch-function";
@@ -128,7 +129,7 @@ const CreateCategoryPage = ({
         queryClient.invalidateQueries({ queryKey: ['categories'] });
         
         // Navigate back to categories page
-        router.push('/categories');
+        router.push('/inventories');
         
         // Reset form only in create mode
         if (!isEditMode) {
@@ -185,7 +186,7 @@ const CreateCategoryPage = ({
           className="flex items-center gap-2 text-muted-foreground hover:text-accent-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Categories
+          Back to Inventories
         </Button>
       </div>
 

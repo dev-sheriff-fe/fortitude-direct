@@ -4,7 +4,7 @@ import axios, { AxiosError } from 'axios';
 const axiosCustomer = axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_REACT_APP_API_URL ??
-    'https://corestack.app:8008/mmcp/api/v1',
+    'https://www.fortitudedirect.com/api/mmcp/api/v1',
   headers: {
     'x-source-code': 'HELP2PAY',
      'x-client-id': 'TST03054745785188010772',

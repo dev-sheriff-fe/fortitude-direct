@@ -7,6 +7,13 @@ import { Toaster } from "@/components/ui/sonner";
 import Script from "next/script";
 import { LocationProvider } from "@/components/Providers/location-provider";
 
+const albertSans = {
+  variable: "--font-albert-sans",
+  style: "normal",
+  weight: "400",
+  src: "https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&display=swap",
+};
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -51,9 +58,11 @@ export default function RootLayout({
             `,
           }}
         />
+        <link href={albertSans.src} rel="stylesheet" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${roboto?.variable} antialiased font-roboto bg-[#f3f4f6]`}
+        className={`${geistSans.variable} ${geistMono.variable} font-albert-sans antialiased`}
+        style={{ fontFamily: "'Albert Sans', sans-serif" }}
       >
         {/* <Script 
           src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"
