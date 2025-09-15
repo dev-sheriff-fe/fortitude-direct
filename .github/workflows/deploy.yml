@@ -16,7 +16,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            # Navigate to app directory (or clone if first time)
+            set -e
             if [ ! -d "/opt/nextjs-app" ]; then
               git clone https://github.com/${{ github.repository }}.git /opt/nextjs-app
             fi
