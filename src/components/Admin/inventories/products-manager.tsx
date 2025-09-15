@@ -226,6 +226,7 @@ import axiosInstance from "@/utils/fetch-function";
 import useUser from "@/store/userStore";
 import UploadBulkModal from "../../../app/upload"; // Import the bulk upload modal
 import UploadBulkForm from "../../../app/upload";
+import Link from "next/link";
 
 export interface Product {
   productId: string;
@@ -356,20 +357,12 @@ const ProductsManager = () => {
             </Button> */}
 
           {/* Add Product Button */}
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="transition-smooth" variant="secondary">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Product
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="min-w-[55vw] max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle></DialogTitle>
-              </DialogHeader>
-              <ProductForm mode="create" />
-            </DialogContent>
-          </Dialog>
+           <Link href="/admin/inventories/create-product" passHref>
+            <Button className="transition-smooth" variant="secondary">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Product
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -455,10 +448,12 @@ const ProductsManager = () => {
           <h3 className="text-lg font-medium mb-2">No products yet</h3>
           <p className="text-muted-foreground mb-4">Get started by creating your first product</p>
           <div className="flex gap-3 justify-center">
-            <Button onClick={() => setIsCreateDialogOpen(true)} variant="secondary">
+          <Link href="/admin/inventories/create-product" passHref>
+            <Button className="transition-smooth" variant="secondary">
               <Plus className="h-4 w-4 mr-2" />
               Add Product
             </Button>
+          </Link>
             <Button onClick={() => setIsBulkUploadOpen(true)} variant="outline">
               <Upload className="h-4 w-4 mr-2" />
               Bulk Upload
