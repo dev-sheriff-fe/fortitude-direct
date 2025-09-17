@@ -73,9 +73,9 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
             </span>
           )}
         </div>
-        <span className="text-sm text-[#6b7280]">
+        {/* <span className="text-sm text-[#6b7280]">
           ({formatPrice(product.usdPrice!, 'USD')})
-        </span>
+        </span> */}
       </div>
 
       {singleQuantity(product?.id) <= 0 ? (
