@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import Image from "next/image"
-import posIcon from "@/assets/ecommerce-svg.jpg"
+import posIcon from "@/assets/login-image.png"
 import { useMutation } from "@tanstack/react-query"
 
 // import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
@@ -66,7 +66,7 @@ export function SignInForm() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Blue header bar */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-blue-600"></div>
+      <div className="absolute top-0 left-0 right-0 h-2 bg-accent"></div>
 
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-12">
@@ -111,7 +111,7 @@ export function SignInForm() {
 
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium"
+              className="w-full bg-accent hover:bg-accent/70 text-white py-3 rounded-md font-medium"
               disabled= {isPending}
             >
               {isPending ? "Please wait" : "Sign In"}
@@ -122,7 +122,7 @@ export function SignInForm() {
             <span className="text-sm text-gray-600">Don&apos;t have an account? </span>
             <Link
               href="/customer-onboarding"
-              className="text-sm text-blue-600 hover:text-blue-700"
+              className="text-sm text-accent hover:text-accent/70"
             >
               Sign up
             </Link>

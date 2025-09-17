@@ -129,7 +129,7 @@ const CreateCategoryPage = ({
         queryClient.invalidateQueries({ queryKey: ['categories'] });
         
         // Navigate back to categories page
-        router.push('/inventories');
+        router.push('/admin/inventories');
         
         // Reset form only in create mode
         if (!isEditMode) {

@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Header from '../../../fortitude-app/layout/header';
 import Footer from '../../../fortitude-app/layout/footer';
 import ProductDetailsModal from '@/utils/product-details';
-import { useCategories } from '@/app/hooks/useCategories'; 
+import { useCategories } from '@/app/hooks/useCategories';
 import { all } from 'axios';
 
 export default function HomeFortitude() {
@@ -27,7 +27,7 @@ export default function HomeFortitude() {
     const [selectedProduct, setSelectedProduct] = useState<ProductProps | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-    
+
     const { data: categoriesData, isLoading: categoriesLoading } = useCategories();
 
     useEffect(() => {
@@ -36,11 +36,11 @@ export default function HomeFortitude() {
         }
     }, [router, searchParams]);
 
-        useEffect(() => {
+    useEffect(() => {
         if (categoriesData?.categories?.length > 0 && !selectedCategory) {
             const firstCategory = categoriesData.categories[0].name;
             setSelectedCategory(firstCategory);
-            
+
             // Update URL with the first category
             const params = new URLSearchParams(searchParams?.toString() || '');
             params.set('category', firstCategory);
@@ -113,7 +113,7 @@ export default function HomeFortitude() {
 
     const handleCategoryClick = (categoryName: string) => {
         setSelectedCategory(categoryName);
-        
+
         const params = new URLSearchParams(searchParams?.toString() || '');
         params.set('category', categoryName);
         router.push(`?${params.toString()}`);
@@ -165,11 +165,11 @@ export default function HomeFortitude() {
     if (error) {
         return (
             <>
-            <Header />
-            <div className="container mx-auto py-12 px-4 mt-10 text-center">
-                <p className="text-red-500">Error loading products. Please try again later.</p>
-            </div>
-            <Footer />
+                <Header />
+                <div className="container mx-auto py-12 px-4 mt-10 text-center">
+                    <p className="text-red-500">Error loading products. Please try again later.</p>
+                </div>
+                <Footer />
             </>
         );
     }

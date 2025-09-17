@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -47,9 +47,14 @@ interface ProductFormData {
   ccy: string;
 }
 
-const CreateProductPage = () => {
+interface CreateProductPageProps {
+  product?: any; // Existing product for edit mode
+  mode?: 'create' | 'edit'; // Explicit mode specification
+}
+
+const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: CreateProductPageProps) => {
   const router = useRouter();
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ProductFormData>({
+  const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<ProductFormData>({
     defaultValues: {
       productId: "",
       productName: "",
@@ -73,10 +78,54 @@ const CreateProductPage = () => {
   const { user } = useUser();
   const { fileUrl, handleFileChange } = useFileUpload();
 
+  const watchedImageURL = watch("imageURL");
+  const isEditMode = mode === 'edit' || !!product;
+
+  // Reset form when product prop changes (for edit mode)
+  useEffect(() => {
+    if (product && isEditMode) {
+      const productObj = {
+        productId: product?.id || product?.productId || "",
+        productName: product?.name || product?.productName || "",
+        productDescription: product?.description || product?.productDescription || "",
+        productCategory: product?.category || product?.productCategory || "",
+        productCode: product?.code || product?.productCode || "",
+        productPrice: product?.salePrice || product?.productPrice || "",
+        stockQuantity: product?.qtyInStore || product?.stockQuantity || 0,
+        unitQuantity: product?.unit || product?.unitQuantity || "",
+        imageURL: product?.picture || product?.imageURL || "",
+        costPrice: product?.costPrice || "",
+        storeId: product?.storeId || "",
+        barCode: product?.barCode || "",
+        brand: product?.brand || "",
+        ccy: product?.ccy || 'NGN'
+      };
+      reset(productObj);
+    } else if (!isEditMode) {
+      // Reset to default values for create mode
+      reset({
+        productId: "",
+        productName: "",
+        productDescription: "",
+        productCategory: "",
+        productCode: "",
+        productPrice: "",
+        stockQuantity: 0,
+        unitQuantity: "",
+        imageURL: "",
+        costPrice: "",
+        storeId: "",
+        barCode: "",
+        brand: "",
+        ccy: "NGN"
+      });
+    }
+  }, [product, reset, isEditMode]);
+
   const onSubmitForm = async (values: ProductFormData) => {
     try {
       const payload = {
-        productId: null,
+        productId: isEditMode ? (product?.id || product?.productId) : null,
         productName: values?.productName,
         productDescription: values?.productDescription,
         productCategory: values?.productCategory,
@@ -120,10 +169,10 @@ const CreateProductPage = () => {
             <Package className="h-8 w-8 text-accent-foreground" />
           </div>
           <h1 className="text-3xl font-bold text-accent-foreground">
-            Create New Product
+            {isEditMode ? 'Edit Product' : 'Create New Product'}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Add a new product to your inventory
+            {isEditMode ? 'Update product information' : 'Add a new product to your inventory'}
           </p>
         </div>
       </div>
@@ -375,7 +424,7 @@ const CreateProductPage = () => {
           <CardContent className="p-6">
             <FileUpload
               onFileSelect={handleFileChange}
-              currentFileUrl=""
+              currentFileUrl={watchedImageURL}
               accept="image/*"
               label="Product Image"
             />
@@ -399,7 +448,7 @@ const CreateProductPage = () => {
             disabled={isPending}
           >
             <Save className="h-4 w-4" />
-            {isPending ? 'Processing...' : "Create Product"}
+            {isPending ? 'Processing...' : (isEditMode ? "Update Product" : "Create Product")}
           </Button>
         </div>
       </form>

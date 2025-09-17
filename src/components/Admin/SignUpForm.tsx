@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import posIcon from '@/assets/ecommerce-svg.jpg'
+import posIcon from '@/assets/login-image.png'
 import Image from "next/image"
 import { useMutation } from "@tanstack/react-query"
 
@@ -216,7 +216,7 @@ export function SignUpForm() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Blue header bar */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-blue-600"></div>
+      <div className="absolute top-0 left-0 right-0 h-2 bg-accent"></div>
 
       {/* Left side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-8">
@@ -236,12 +236,12 @@ export function SignUpForm() {
                 <div key={step} className="flex items-center">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium relative z-10 ${
-                      step <= currentStep ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
+                      step <= currentStep ? "bg-accent text-white" : "bg-gray-200 text-gray-600"
                     }`}
                   >
                     {step}
                   </div>
-                  {index < 3 && <div className={`w-20 h-0.5 ${step < currentStep ? "bg-blue-600" : "bg-gray-200"}`} />}
+                  {index < 3 && <div className={`w-20 h-0.5 ${step < currentStep ? "bg-accent" : "bg-gray-200"}`} />}
                 </div>
               ))}
             </div>
@@ -268,7 +268,7 @@ export function SignUpForm() {
                   type="button"
                   onClick={nextStep}
                   disabled={!isStepComplete()}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center space-x-2 bg-accent hover:bg-accent/70 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span>Next</span>
                   <ChevronRight className="w-4 h-4" />
@@ -277,7 +277,7 @@ export function SignUpForm() {
                 <Button
                   type="submit"
                   disabled={!isStepComplete() || isPending}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-accent hover:bg-accent/70 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isPending ? "Submitting..." : "Complete Registration"}
                 </Button>
