@@ -1,12 +1,38 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useCart } from '@/store/cart'
-import { CurrencyCode, formatPrice } from '@/utils/helperfns'
+import useCustomer from '@/store/customerStore'
+import axiosCustomer from '@/utils/fetch-function-customer'
+
+import { useQuery } from '@tanstack/react-query'
 import { Calendar, CheckCircle, Clock, Shield, TrendingUp } from 'lucide-react'
 import React from 'react'
 
-const PaymentSchedulePreview = () => {
-    const {getCartTotal,mainCcy} = useCart()
-    const ccy = mainCcy()
+const PaymentSchedulePreview = ({totalAmount}:{totalAmount:any}) => {
+    const {customer} = useCustomer()
+
+    
+    const {data,isLoading} = useQuery({
+      queryKey: ['payment-plan-preview',totalAmount],
+      queryFn: ()=>axiosCustomer({
+        method: 'POST',
+        url: '/payment-plans/preview',
+        params: {
+          totalAmount:totalAmount||1,
+          currency: customer?.ccy
+        }
+      })
+    })
+
+
+    if (isLoading) {
+      return <Card className='h-[524px] sticky top-0 bg-gray-100 animate-pulse rounded-md'>
+
+      </Card>
+    }
+
+    console.log(data);
+    const installments = data?.data?.paymentPlanSummary?.installments
+    
+
   return (
     <>
         <Card className='h-fit sticky top-0'>
@@ -22,7 +48,33 @@ const PaymentSchedulePreview = () => {
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h4 className="font-semibold mb-3">Interest-Free Installments</h4>
                     <div className="space-y-3">
-                      <div className="flex justify-between items-center p-3 bg-white rounded">
+                          {
+                        installments?.map((plan:any,index:any)=>(
+                          plan?.scheduleDisplayText === 'Today'? <div className="flex justify-between items-center p-3 bg-white rounded">
+                          <div className="flex items-center gap-2" key={index}>
+                            <div className="w-2 h-2 bg-accent rounded-full"></div>
+                            <div className='flex flex-col gap-y-1'>
+                              <span className="text-sm font-medium">{plan?.scheduleDisplayText}</span>
+                              <span className='text-sm'>{plan?.scheduleDate}</span>
+                            </div>
+                          </div>
+                          <span className="font-bold text-accent">{plan?.amountDisplay}</span>
+                        </div>
+                        :
+                         <div className="flex justify-between items-center p-3 bg-white rounded" key={index}>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <div className='flex flex-col gap-y-1'>
+                            <span className="text-sm font-medium">{plan?.scheduleDisplayText}</span>
+                            <span className='text-sm'>{plan?.scheduleDate}</span>
+                          </div>
+                        </div>
+                        <span className="font-medium">{plan?.amountDisplay}</span>
+                      </div>
+                        ))
+                      }
+                      
+                      {/* <div className="flex justify-between items-center p-3 bg-white rounded">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                           <span className="text-sm font-medium">Today</span>
@@ -42,7 +94,7 @@ const PaymentSchedulePreview = () => {
                           <span className="text-sm">In 60 days</span>
                         </div>
                         <span className="font-medium">{formatPrice(getCartTotal()/3, ccy as CurrencyCode)}</span>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
 

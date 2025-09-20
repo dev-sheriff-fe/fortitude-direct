@@ -132,10 +132,57 @@ export interface UserProfile {
   chatSessionToken?: string;
   onboardType?: string | null;
   pinSet?: boolean;
+  twoFaSetupRequired?: 'Y' | 'N' | null;
+  twoFaLinkData?: string | null;
+  twoFaReferenceNo?: string | null;
 }
 
 export interface Attachment {
   thumbnail: string;
   original: string;
   id?: string;
+}
+
+export interface PaymentPlanResponse {
+  responseCode: string;
+  responseMessage: string;
+  paymentPlanSummary: PaymentPlanSummary;
+}
+
+export interface PaymentPlanSummary {
+  orderId: string;
+  totalAmount: number;
+  totalAmountDisplay: string;
+  currency: string;
+  installments: Installment[];
+  paymentPlanText: string;
+  firstPaymentDate: string;
+  installmentAmount: number;
+  installmentAmountDisplay: string;
+  creditLimitUsed: string;
+  remainingCreditLimit: string;
+}
+
+export interface Installment {
+  installmentNumber: number;
+  scheduleDate: string;
+  scheduleAmount: number;
+  paymentStatus: string;
+  paymentRef: string;
+  scheduleDisplayText: string;
+  amountDisplay: string;
+}
+
+export type PaymentStatus = 'paid' | 'pending' | 'overdue' | 'upcoming';
+
+export interface PaymentRequest {
+  orderId: string;
+  paymentRef: string;
+  amount: number;
+}
+
+export interface PaymentResponse {
+  success: boolean;
+  message: string;
+  transactionId?: string;
 }

@@ -14,7 +14,7 @@ import useCustomer from '@/store/customerStore'
 import { hasAccess, setAuthCredentials } from '@/utils/auth-utils-customer'
 import { Label } from '@radix-ui/react-dropdown-menu'
 export type LoginProps = {
-    setState: React.Dispatch<React.SetStateAction<'login' | 'register'>>,
+    // setState: React.Dispatch<React.SetStateAction<'login' | 'register'>>,
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 type FormData = {
@@ -29,7 +29,7 @@ const otpSchema = z.object({
 });
 
 type OTPForm = z.infer<typeof otpSchema>;
-export const LoginForm = ({ setState, setIsOpen }: LoginProps) => {
+export const LoginForm = ({ setIsOpen }: LoginProps) => {
     const { register, handleSubmit } = useForm<FormData>()
     const { setCustomer } = useCustomer()
     const {
@@ -133,9 +133,9 @@ export const LoginForm = ({ setState, setIsOpen }: LoginProps) => {
 
             <p className='text-sm text-center'>
                 Don't have an account?{' '}
-                <button type='button' className="text-accent underline" onClick={() => setState('register')}>
+                <Link href={`/customer-onboarding`} className="text-accent underline" target='_blank'>
                     Register
-                </button>
+                </Link >
             </p>
 
             <Link href="/admin-login" target="_blank" className="relative z-10">

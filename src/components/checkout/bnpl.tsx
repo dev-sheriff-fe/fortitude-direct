@@ -14,12 +14,14 @@ import Documents from './bnpl/Documents'
 import PaymentSchedulePreview from './bnpl/PaymentSchedulePreview'
 import LivenessTrigger from './bnpl/LivenessTrigger'
 import { useMutation } from '@tanstack/react-query'
-import axiosInstance from '@/utils/fetch-function'
+
 import { toast } from 'sonner'
 import { fileUrlFormatted, getCurrentDate } from '@/utils/helperfns'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import BNPLApproved from './bnpl-approved'
 import { BNPLStep, CheckoutStep, CreditScoreData } from '@/app/checkout/checkoutContent'
+import axiosCustomer from '@/utils/fetch-function-customer'
+import useCustomer from '@/store/customerStore'
 
 export interface RegistrationData {
   firstname: string;
@@ -45,31 +47,40 @@ export interface RegistrationData {
   idDocument?: File | null;
   utilityBill?: File | null;
   livenessCompleted?: boolean;
+  totalAmount?: number
 }
 
 type BNPLProps = {
     setCurrentStep: (step: CheckoutStep) => void;
-    setBnplStep: (bnplStep: BNPLStep) => void;
+    // setBnplStep?: (bnplStep: BNPLStep) => void;
     setCreditScore: (creditScore: CreditScoreData) => void;
-    setScore: any
+    // setScore: any
 }
-const BNPL = ({setBnplStep,setCreditScore,setCurrentStep,setScore}:BNPLProps) => {
+const BNPL = ({setCurrentStep}:BNPLProps) => {
      const form = useForm<RegistrationData>()
-     const [registrationStep, setRegistrationStep] = useState(1)
+     const router = useRouter()
      const {handleFileChange,fileUrl,isUploadingFile} = useFileUpload()
-     const currentDate = getCurrentDate()
+     const [score,setScore] = useState(null)
     const  searchParams = useSearchParams()
     const storeCode = searchParams.get('storeCode') || ''
-    const orderNo = searchParams.get('orderNo') || ''
-    const [checkoutData,setCheckoutData] = useState<any>(null)
-    useEffect(() => {
-    const stored = sessionStorage.getItem('checkout');
-    if (stored) {
-      setCheckoutData(JSON.parse(stored));
-    }
-      }, []);
+    const [bnplStep,setBnplStep] = useState<"registration" | "scoring" | "approved" | "rejected">('registration')
+    // const [checkoutData,setCheckoutData] = useState<any>(null)
+    const {customer} = useCustomer()
+    useEffect(()=>{
+          router?.push(`?storeCode=STO445`)
+        },[router])
+    console.log(customer);
+      const totalAmount = form.watch('totalAmount')
+    console.log(totalAmount);
+    
+    // useEffect(() => {
+    // const stored = sessionStorage.getItem('checkout');
+    // if (stored) {
+    //   setCheckoutData(JSON.parse(stored));
+    // }
+    //   }, []);
      const {mutate,isPending} = useMutation({
-      mutationFn: (data:any)=>axiosInstance.request({
+      mutationFn: (data:any)=>axiosCustomer.request({
         url: '/ecomm-wallet/apply-bnpl',
         method: 'POST',
         data
@@ -126,27 +137,27 @@ const BNPL = ({setBnplStep,setCreditScore,setCurrentStep,setScore}:BNPLProps) =>
       }
 
       const payload = {
-      personalData: {
-        firstname: dets?.firstname,
-        customerType: '',
-        deviceId: "",
-        geolocation: "",
-        lastname: dets?.lastname,
-        name: `${dets?.firstname} ${dets?.lastname}`,
-        middlename: "",
-        mobileNo: dets?.phone,
-        email: dets?.email,
-        city: dets?.address,
-        countryCode: "GB",
-        gender: "M",
-        onboardingId: "",
-        dateOfBirth: "01-01-1970",
-        password: dets?.password,
-        nationality: dets?.nationality,
-        phoneCode: "+44",
-        referralCode: "",
-        bvn: dets?.bvn
-      },
+      // personalData: {
+      //   firstname: dets?.firstname,
+      //   customerType: '',
+      //   deviceId: "",
+      //   geolocation: "",
+      //   lastname: dets?.lastname,
+      //   name: `${dets?.firstname} ${dets?.lastname}`,
+      //   middlename: "",
+      //   mobileNo: dets?.phone,
+      //   email: dets?.email,
+      //   city: dets?.address,
+      //   countryCode: "GB",
+      //   gender: "M",
+      //   onboardingId: "",
+      //   dateOfBirth: "01-01-1970",
+      //   password: dets?.password,
+      //   nationality: dets?.nationality,
+      //   phoneCode: "+44",
+      //   referralCode: "",
+      //   bvn: dets?.bvn
+      // },
       incomeData: {
         annualIncomeRange: "2M - 5M",
         employmentStatus: dets?.employmentStatus,
@@ -167,50 +178,50 @@ const BNPL = ({setBnplStep,setCreditScore,setCurrentStep,setScore}:BNPLProps) =>
         }
       ],
       documentUploads: onboardDocs,
-      onlineOrderRequest: {
-        channel: "WEB",
-        cartId: checkoutData?.orderNo,
-        orderDate: currentDate,
-        totalAmount: checkoutData?.totalAmount,
-        totalDiscount: 0,
-        deliveryOption: "",
-        paymentMethod: "BNPL",
-        couponCode: "",
-        ccy: checkoutData?.ccy,
-        deliveryFee: 0,
-        geolocation: "",
-        deviceId: "",
-        orderSatus: "",
-        paymentStatus: "",
-        storeCode: storeCode,
-        deliveryAddress: {
-          id: 0,
-          street: "",
-          landmark: "",
-          postCode: "",
-          city: "",
-          state: "",
-          country: "",
-          addressType: ""
-        },
-        // cartItems: [
-        //   {
-        //     "itemCode": "string",
-        //     "itemName": "string",
-        //     "price": 0,
-        //     "unit": "string",
-        //     "quantity": 0,
-        //     "discount": 0,
-        //     "amount": 0,
-        //     "picture": "string"
-        //   }
-        // ]
-      },
+      // onlineOrderRequest: {
+      //   channel: "WEB",
+      //   cartId: checkoutData?.orderNo,
+      //   orderDate: currentDate,
+      //   totalAmount: checkoutData?.totalAmount,
+      //   totalDiscount: 0,
+      //   deliveryOption: "",
+      //   paymentMethod: "BNPL",
+      //   couponCode: "",
+      //   ccy: checkoutData?.ccy,
+      //   deliveryFee: 0,
+      //   geolocation: "",
+      //   deviceId: "",
+      //   orderSatus: "",
+      //   paymentStatus: "",
+      //   storeCode: storeCode,
+      //   deliveryAddress: {
+      //     id: 0,
+      //     street: "",
+      //     landmark: "",
+      //     postCode: "",
+      //     city: "",
+      //     state: "",
+      //     country: "",
+      //     addressType: ""
+      //   },
+      //   // cartItems: [
+      //   //   {
+      //   //     "itemCode": "string",
+      //   //     "itemName": "string",
+      //   //     "price": 0,
+      //   //     "unit": "string",
+      //   //     "quantity": 0,
+      //   //     "discount": 0,
+      //   //     "amount": 0,
+      //   //     "picture": "string"
+      //   //   }
+      //   // ]
+      // },
       storeCode: storeCode,
-      entityCode: "H2P",
-      orderNo: checkoutData?.orderNo,
-      ccy: checkoutData?.ccy,
-      totalAmount: checkoutData?.totalAmount
+      entityCode: customer?.entityCode,
+      // orderNo: checkoutData?.orderNo,
+      ccy: customer?.ccy,
+      totalAmount: Number(dets?.totalAmount) || 0
     }
 
       mutate(payload)
@@ -220,12 +231,20 @@ const BNPL = ({setBnplStep,setCreditScore,setCurrentStep,setScore}:BNPLProps) =>
   return (
     <>
       <Suspense>
-        <div className="max-w-6xl mx-auto space-y-6 ">
+        {
+          bnplStep === 'approved'
+          ?
+          <BNPLApproved
+          score={score}
+          
+          />
+          :
+          <div className="max-w-6xl mx-auto space-y-6 py-6">
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost" 
                 size="sm"
-                onClick={() => setCurrentStep('cart')}
+                onClick={() =>router?.back() }
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
@@ -245,9 +264,9 @@ const BNPL = ({setBnplStep,setCreditScore,setCurrentStep,setScore}:BNPLProps) =>
                   <Form {...form}>
                     <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
                       
-                      <Personal
+                      {/* <Personal
                       form={form}
-                      />
+                      /> */}
                       <Work
                       form={form}
                       />
@@ -268,9 +287,12 @@ const BNPL = ({setBnplStep,setCreditScore,setCurrentStep,setScore}:BNPLProps) =>
               </Card>
 
               {/* Payment Schedule Preview */}
-              <PaymentSchedulePreview/>
+              <PaymentSchedulePreview
+               totalAmount = {totalAmount}
+              />
             </div>
           </div>
+        }
       </Suspense>
     </>
   )

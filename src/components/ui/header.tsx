@@ -50,7 +50,9 @@ export function Header() {
                       </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                      <DropdownMenuItem>My profile</DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href={`/dashboard`} target="_blank">Dashboard</Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={()=>logout()}>Log out</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -61,7 +63,7 @@ export function Header() {
                 <Button 
                 className="bg-accent hover:bg-accent-foreground text-white p-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200"
               >
-                <Link href={`/customer-login`} target="_blank">
+                <Link href={`/customer-onboarding`} target="_blank">
                   <LogIn className="w-5 h-5" />
                 </Link>
               </Button>
@@ -86,7 +88,7 @@ export function Header() {
             </div>
 
             {/* Gadget Dropdown */}
-            <DropdownMenu>
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2  font-medium">
                   <div className="w-5 h-5 rounded-full border-2 border-accent flex items-center justify-center">
@@ -99,7 +101,7 @@ export function Header() {
               <DropdownMenuContent>
                 <div className="p-2">Gadgets</div>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </div>
 
           {/* Navigation */}
@@ -107,9 +109,13 @@ export function Header() {
             <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
               Shops
             </a>
-            <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+            <Link href="/apply-bnpl" className="text-gray-700 hover:text-gray-900 font-medium">
+              BNPL
+            </Link>
+
+             <Link href="#" className="text-gray-700 hover:text-gray-900 font-medium">
               Offers
-            </a>
+            </Link>
             <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
               Contact
             </a>
@@ -137,7 +143,9 @@ export function Header() {
                       </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                      <DropdownMenuItem>My profile</DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href={`/dashboard`} target="_blank">Dashboard</Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={()=>logout()}>Log out</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -148,7 +156,7 @@ export function Header() {
                 <Button 
                   className="bg-accent hover:bg-accent-foreground text-white px-6 py-2 rounded-md font-medium"
                   >
-                    <Link href={`/customer-login`} target="_blank">
+                    <Link href={`/customer-onboarding`} target="_blank">
                       Join
                     </Link>
                   </Button>
