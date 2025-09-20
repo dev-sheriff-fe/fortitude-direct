@@ -11,7 +11,7 @@ import { useMutation } from "@tanstack/react-query"
 // import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
 import { toast } from "sonner"
 // import useUser from "@/global_states/userStore"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
 import useUser from "@/store/userStore"
 import axiosInstanceNoAuth from "@/utils/fetch-function-auth"
@@ -21,7 +21,9 @@ export function SignInForm() {
   const [password, setPassword] = useState("")
   const { setUser } = useUser()
   const { push } = useRouter()
-
+  const searchParams = useSearchParams()
+  // Get the return URL from query parameters, default to dashboard
+  const returnUrl = searchParams.get('returnUrl') || '/admin'
 const loginMutation = useMutation({
     mutationFn: ({ username, password }: { username: string; password: string }) =>
       axiosInstanceNoAuth.post("/usermanager/weblogin", {
@@ -39,7 +41,7 @@ const loginMutation = useMutation({
       if (data?.data?.ticketID) {
         if (hasAccess([data?.data.userRole], ["BUSINESS_MANAGER"])) {
           setAuthCredentials(data?.data.ticketID, ['BUSINESS_MANAGER'])
-          push("/admin")
+          push(decodeURIComponent(returnUrl))
           return
         }
         toast.error("Not enough permission")

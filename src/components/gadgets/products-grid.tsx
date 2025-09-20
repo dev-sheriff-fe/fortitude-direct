@@ -45,9 +45,9 @@ const ProductsGrid = () => {
 
     if (isLoading) return <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {
-            [1, 2, 3, 4, 5, 6].map((item) => (
-                <div key={item} className="animate-pulse h-[356px] bg-gray-200 rounded-md mb-2"></div>
-            ))
+          [1, 2, 3, 4, 5, 6].map((item) => (
+              <div key={item} className="animate-pulse h-[356px] bg-gray-200 rounded-md mb-2"></div>
+          ))
         }
     </div>
     

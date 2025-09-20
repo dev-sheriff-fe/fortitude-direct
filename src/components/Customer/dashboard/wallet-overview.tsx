@@ -79,6 +79,11 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
     setShowAmount(!showAmount);
   };
 
+  const {customer} = useCustomer()
+
+  console.log(customer);
+  
+
   const displayAmount = forceHideAmount ? false : showAmount;
   return (
     <Card

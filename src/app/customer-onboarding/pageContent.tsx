@@ -1,23 +1,16 @@
 'use client'
-import { SignInForm } from '@/components/Admin/SignInForm'
-import Loader from '@/components/ui/loader';
-import { getAuthCredentials } from '@/utils/auth-utils';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
-import useUser from '../hooks/userStore';
 
-const AdminLogin = () => {
-  const router = useRouter();
+import { SignUpForm } from "@/components/Customer/SignUpForm";
+import Loader from "@/components/ui/loader";
+import { getAuthCredentials } from "@/utils/auth-utils-customer";
+
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react';
+
+export default function SignUp() {
+    const router = useRouter();
     const [isChecking, setIsChecking] = useState(true);
 
-    const {user} = useUser()
-
-    console.log(user);
-
-    useEffect(()=>{
-      document.title = 'Store owner login'
-    },[])
-    
     useEffect(() => {
         // Check authentication status after component mounts
         const { token, permissions } = getAuthCredentials();
@@ -36,14 +29,14 @@ const AdminLogin = () => {
     // Show loading state while checking authentication
     if (isChecking) {
         return (
-            <Loader text='loading'/>
+            <Loader text="loading"/>
         );
     }
 
     // User is not authenticated, show login form
-  return (
-    <SignInForm/>
-  )
+    return (
+        <div className="min-h-screen bg-white">
+            <SignUpForm />
+        </div>
+    );
 }
-
-export default AdminLogin

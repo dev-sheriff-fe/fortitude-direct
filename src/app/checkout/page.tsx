@@ -1,6 +1,11 @@
 import React, { Suspense } from 'react'
 import CheckoutContent from './checkoutContent'
 import PrivateRoute from '@/utils/private-route-customer'
+import { Metadata } from 'next'
+
+export const metadata: Metadata ={
+  title: 'Checkout'
+}
 
 const Checkout = () => {
   return (

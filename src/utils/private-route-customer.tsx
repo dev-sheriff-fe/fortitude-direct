@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Loader from '@/components/ui/loader';
 import AccessDeniedPage from '@/components/common/access-denied';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { getAuthCredentials, hasAccess } from './auth-utils-customer';
 
 // Define proper TypeScript interfaces
@@ -15,17 +15,15 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({
   children,
   requiredPermissions = [],
-  fallbackPath = '/',
+  fallbackPath = '/customer-login',
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const { token, permissions } = getAuthCredentials();
 
   console.log(permissions);
-
   console.log(token);
-  
-  
   
   const isAuthenticated = !!token;
   const hasRequiredPermission = requiredPermissions.length === 0 || 
@@ -35,7 +33,9 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.replace(fallbackPath);
+      // Include current path as returnUrl parameter
+      const returnUrl = encodeURIComponent(pathname);
+      router.replace(`${fallbackPath}?returnUrl=${returnUrl}`);
       return;
     }
     
@@ -45,7 +45,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [isAuthenticated, router, fallbackPath]);
+  }, [isAuthenticated, router, fallbackPath, pathname]);
 
   // Show loader while checking authentication or during redirect
   if (!isAuthenticated || isLoading) {

@@ -1,22 +1,16 @@
 'use client'
-import { SignInForm } from '@/components/Admin/SignInForm'
-import Loader from '@/components/ui/loader';
-import { getAuthCredentials } from '@/utils/auth-utils';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
-import useUser from '../hooks/userStore';
 
-const AdminLogin = () => {
+import { SignInForm } from '@/components/Customer/SignInForm'
+import Loader from '@/components/ui/loader';
+import { getAuthCredentials } from '@/utils/auth-utils-customer';
+import { useRouter } from 'next/navigation';
+import React, { Suspense, useEffect, useState } from 'react'
+
+
+const CustomerLogin = () => {
   const router = useRouter();
     const [isChecking, setIsChecking] = useState(true);
 
-    const {user} = useUser()
-
-    console.log(user);
-
-    useEffect(()=>{
-      document.title = 'Store owner login'
-    },[])
     
     useEffect(() => {
         // Check authentication status after component mounts
@@ -26,7 +20,7 @@ const AdminLogin = () => {
         console.log('Auth check:', { token, permissions, isUserAuthenticated });
         
         if (isUserAuthenticated) {
-            router.replace('/admin');
+            router.replace('/dashboard');
         } else {
             // User is not authenticated, show login form
             setIsChecking(false);
@@ -42,8 +36,10 @@ const AdminLogin = () => {
 
     // User is not authenticated, show login form
   return (
-    <SignInForm/>
+    <Suspense>
+      <SignInForm/>
+    </Suspense>
   )
 }
 
-export default AdminLogin
+export default CustomerLogin

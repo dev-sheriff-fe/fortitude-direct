@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { CreditCard, Wallet, Bot, CheckCircle, Copy,AlertCircle, TrendingUp } from 'lucide-react';
+import { CreditCard, Wallet, Bot, CheckCircle, Copy,AlertCircle, TrendingUp, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/app/hooks/use-toast';
 import { useCart } from '@/store/cart';
 import { useForm } from 'react-hook-form';
@@ -20,6 +20,7 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/utils/fetch-function';
 import EscrowCheckout from '@/components/checkout/tron-payment';
 import axiosCustomer from '@/utils/fetch-function-customer';
+import BnplManager from '@/components/checkout/bnpl_checkout/bnpl-manager';
 
 export type PaymentMethod = 'card' | 'usdt' | 'bnpl' | 'bank' | 'tron' | null;
 export type CheckoutStep = 'cart' | 'payment' | 'processing' | 'success';
@@ -66,9 +67,6 @@ const CheckoutContent = () => {
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('cart');
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>(null);
   const [usdtPaid, setUsdtPaid] = useState(false);
-  const [bnplStep, setBnplStep] = useState<BNPLStep>('registration');
-  const [creditScore, setCreditScore] = useState<CreditScoreData | null>(null);
-  const [score,setScore] = useState(null)
   const [checkoutData,setCheckoutData] = useState(null)
 
    const searchParams = useSearchParams()
@@ -151,100 +149,21 @@ const CheckoutContent = () => {
     //       <EscrowCheckout/>
     //     </Suspense>
     //   );
+
     // }
-
+    console.log(selectedPayment);
+    
     if (selectedPayment === 'bnpl') {
-      if (bnplStep === 'registration') {
-        return (
-          <Suspense>
-            <BNPL
-            setBnplStep={setBnplStep}
-            setCreditScore={setCreditScore}
-            setCurrentStep={setCurrentStep}
-            setScore= {setScore}
+      return (
+        <div className='h-screen'>
+          {/* <button className='' onClick={()=>setCurrentStep('cart')}>
+            <ArrowLeft/>
+          </button> */}
+          <BnplManager
+            setCurrentStep= {setCurrentStep}
           />
-          </Suspense>
-        );
-      }
-
-
-      if (bnplStep === 'scoring') {
-        return (
-          <div className="max-w-md mx-auto text-center space-y-6">
-            <div className="animate-pulse">
-              <TrendingUp className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Credit Assessment in Progress</h2>
-              <p className="text-muted-foreground">Analyzing your credit profile...</p>
-            </div>
-            <div className="space-y-2 text-sm text-left bg-muted p-4 rounded">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Verifying income stability...</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Checking digital payment history...</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Analyzing social/professional signals...</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span>Calculating credit score...</span>
-              </div>
-            </div>
-          </div>
-        );
-      }
-
-      if (bnplStep === 'approved' || score || creditScore) {
-        return (
-          <Suspense>
-            <BNPLApproved
-            setBnplStep={setBnplStep}
-            setCurrentStep={setCurrentStep}
-            score={score}
-            setSelectedPayment = {setSelectedPayment}
-          />
-          </Suspense>
-        );
-      }
-
-      if (bnplStep === 'rejected') {
-        return (
-          <div className="max-w-md mx-auto text-center space-y-6">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto" />
-            <div>
-              <h2 className="text-2xl font-bold text-red-600 mb-2">Credit Application Declined</h2>
-              <p className="text-muted-foreground">We're unable to approve your BNPL application at this time.</p>
-            </div>
-            <div className="bg-red-50 p-4 rounded-lg text-left">
-              <h4 className="font-semibold text-red-800 mb-2">Why was I declined?</h4>
-              <ul className="text-sm text-red-700 space-y-1">
-                <li>• Insufficient credit history</li>
-                <li>• Income verification required</li>
-                <li>• Try again in 30 days</li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <Button 
-                onClick={() => setSelectedPayment('card')}
-                className="w-full"
-                variant="outline"
-              >
-                Pay with Card Instead
-              </Button>
-              <Button 
-                onClick={() => setSelectedPayment('usdt')}
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
-                Try USDT for Instant Approval
-              </Button>
-            </div>
-          </div>
-        );
-      }
+      </div>
+      )     
     }
 
 
