@@ -7,13 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import CategoriesTable from "./categories-table";
-import CategoryForm from "./category-form";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import useUser from "@/store/userStore";
-import UploadBulkModal from "../../../app/upload";
 import UploadBulkForm from "../../../app/upload";
-
+import Link from "next/link"; // Import Next.js Link
+import CreateCategoryPage from "@/app/(admin)/admin/inventories/create-category/page";
 
 export interface Category {
   id: number;
@@ -29,7 +28,6 @@ export interface Category {
 
 const CategoriesManager = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
@@ -63,14 +61,6 @@ const CategoriesManager = () => {
       category.tags.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [data?.data?.categories, searchTerm]);
-
-  const handleCreateSuccess = () => {
-    setIsCreateDialogOpen(false);
-  };
-
-  const handleEditSuccess = () => {
-    setEditingCategory(null);
-  };
 
   const handleEditCategory = (category: Category) => {
     setEditingCategory(category);
@@ -135,14 +125,6 @@ const CategoriesManager = () => {
               </Button>
             </DialogTrigger>
             <DialogContent>
-              {/* <DialogHeader> */}
-              {/* <DialogTitle className=""></DialogTitle> */}
-              {/* </DialogHeader> */}
-              {/* <UploadBulkModal
-                open={isBulkUploadOpen}
-                onClose={() => setIsBulkUploadOpen(false)}
-                uploadType="categories"
-              /> */}
               <UploadBulkForm
                 uploadType="categories"
                 onSuccess={() => setIsBulkUploadOpen(false)}
@@ -151,27 +133,17 @@ const CategoriesManager = () => {
             </DialogContent>
           </Dialog>
 
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="transition-smooth" variant="secondary">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Category
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="min-w-[55vw] max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle></DialogTitle>
-              </DialogHeader>
-              <CategoryForm
-                mode="create"
-                onSuccess={handleCreateSuccess}
-                onCancel={() => setIsCreateDialogOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
+          {/* Replace Dialog with Link to the new page */}
+          <Link href="/admin/inventories/create-category" passHref>
+            <Button className="transition-smooth" variant="secondary">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Category
+            </Button>
+          </Link>
         </div>
       </div>
 
+      {/* Rest of your component remains the same */}
       {/* Categories Content */}
       {viewMode === "grid" ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -248,18 +220,16 @@ const CategoriesManager = () => {
         />
       )}
 
-      {/* Edit Dialog */}
+      {/* Edit Dialog - Keep this for inline editing if needed */}
       <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
         <DialogContent className="min-w-[70vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Category</DialogTitle>
           </DialogHeader>
           {editingCategory && (
-            <CategoryForm
+            <CreateCategoryPage
               category={editingCategory}
               mode="edit"
-              onSuccess={handleEditSuccess}
-              onCancel={() => setEditingCategory(null)}
             />
           )}
         </DialogContent>
@@ -273,10 +243,12 @@ const CategoriesManager = () => {
           </div>
           <h3 className="text-lg font-medium mb-2">No categories yet</h3>
           <p className="text-muted-foreground mb-4">Get started by creating your first category</p>
-          <Button onClick={() => setIsCreateDialogOpen(true)} variant="secondary">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Category
-          </Button>
+          <Link href="/admin/inventories/create-category" passHref>
+            <Button variant="secondary">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Category
+            </Button>
+          </Link>
         </div>
       )}
 
