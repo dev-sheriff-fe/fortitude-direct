@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,9 @@ import { useProductMutation } from "@/components/Admin/inventories/shared-hooks.
 import { useCategories } from "@/app/hooks/useCategories";
 import useUser from "@/store/userStore";
 import { fileUrlFormatted } from "@/utils/helperfns";
+import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "@/utils/fetch-function";
+import { toast } from "sonner";
 
 interface ProductFormData {
   productId: string;
@@ -48,42 +51,52 @@ interface ProductFormData {
 }
 
 interface CreateProductPageProps {
-  product?: any; // Existing product for edit mode
-  mode?: 'create' | 'edit'; // Explicit mode specification
+  product?: any;
+  mode?: 'create' | 'edit';
 }
 
 const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: CreateProductPageProps) => {
   const router = useRouter();
-  const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<ProductFormData>({
-    defaultValues: {
-      productId: "",
-      productName: "",
-      productDescription: "",
-      productCategory: "",
-      productCode: "",
-      productPrice: "",
-      stockQuantity: 0,
-      unitQuantity: "",
-      imageURL: "",
-      costPrice: "",
-      storeId: "",
-      barCode: "",
-      brand: "",
-      ccy: "NGN"
-    }
-  });
-
+  const searchParams = useSearchParams();
+  const [isEditMode, setIsEditMode] = useState(mode === 'edit');
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<ProductFormData>();
+  
   const { mutate: saveProduct, isPending } = useProductMutation();
   const { data: categories } = useCategories();
   const { user } = useUser();
   const { fileUrl, handleFileChange } = useFileUpload();
 
   const watchedImageURL = watch("imageURL");
-  const isEditMode = mode === 'edit' || !!product;
 
-  // Reset form when product prop changes (for edit mode)
+  // Check if we're in edit mode from URL params
   useEffect(() => {
-    if (product && isEditMode) {
+    const editParam = searchParams.get('edit');
+    const idParam = searchParams.get('id');
+    
+    if (editParam === 'true' && idParam) {
+      setIsEditMode(true);
+      setEditingProductId(idParam);
+    }
+  }, [searchParams]);
+
+  // Fetch product details for editing
+  const { data: productData, isLoading: isLoadingProduct } = useQuery({
+    queryKey: ['product-detail', editingProductId],
+    queryFn: () => axiosInstance.request({
+      url: '/ecommerce/products/list?name=&storeCode=STO445&entityCode=H2P&tag=&pageNumber=1&pageSize=200',
+      method: 'GET',
+      params: {
+        code: editingProductId
+      }
+    }),
+    enabled: !!editingProductId && isEditMode,
+  });
+
+  // Populate form when product data is fetched
+  useEffect(() => {
+    if (productData?.data && isEditMode) {
+      const product = productData.data;
       const productObj = {
         productId: product?.id || product?.productId || "",
         productName: product?.name || product?.productName || "",
@@ -95,7 +108,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
         unitQuantity: product?.unit || product?.unitQuantity || "",
         imageURL: product?.picture || product?.imageURL || "",
         costPrice: product?.costPrice || "",
-        storeId: product?.storeId || "",
+        storeId: product?.storeId || user?.storeCode || "",
         barCode: product?.barCode || "",
         brand: product?.brand || "",
         ccy: product?.ccy || 'NGN'
@@ -114,18 +127,18 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
         unitQuantity: "",
         imageURL: "",
         costPrice: "",
-        storeId: "",
+        storeId: user?.storeCode || "",
         barCode: "",
         brand: "",
         ccy: "NGN"
       });
     }
-  }, [product, reset, isEditMode]);
+  }, [productData, isEditMode, user, reset]);
 
   const onSubmitForm = async (values: ProductFormData) => {
     try {
       const payload = {
-        productId: isEditMode ? (product?.id || product?.productId) : null,
+        productId: isEditMode ? (editingProductId || product?.id || product?.productId) : null,
         productName: values?.productName,
         productDescription: values?.productDescription,
         productCategory: values?.productCategory,
@@ -143,10 +156,22 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
       };
 
       await saveProduct(payload);
+      toast.success(isEditMode ? 'Product updated successfully' : 'Product created successfully');
     } catch (error) {
       console.error('Error submitting form:', error);
+      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product`);
     }
   };
+
+  if (isLoadingProduct) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500">Loading product data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -177,11 +202,12 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
         </div>
       </div>
 
+
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Basic Information */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Tag className="h-5 w-5" />
                 Basic Information
@@ -250,7 +276,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
 
           {/* Codes and IDs */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Barcode className="h-5 w-5" />
                 Codes & IDs
@@ -292,7 +318,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
 
           {/* Pricing */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <DollarSign className="h-5 w-5" />
                 Pricing
@@ -369,7 +395,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
 
           {/* Inventory */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Warehouse className="h-5 w-5" />
                 Inventory
@@ -414,7 +440,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
 
         {/* Image Upload */}
         <Card className="mt-8 border-accent/20 border-2 shadow-md">
-          <CardHeader className="bg-accent/10 pb-4">
+          <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
               <ImageIcon className="h-5 w-5" />
               Product Image

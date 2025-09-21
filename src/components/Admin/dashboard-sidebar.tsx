@@ -18,6 +18,8 @@ const navigationItems = [
   { name: 'Inventories', href: '/admin/inventories', icon: Box },
   { name: 'BNPL Customers', href: '/admin/bnpl-customers', icon: UsersRoundIcon },
   { name: 'Orders', href: '/admin/orders', icon: Clock },
+  { name: 'Stores', href: '/admin/stores', icon: StoreIcon },
+  { name: 'Staffs', href: '/admin/staffs', icon: UsersRoundIcon },
 ];
 
 export const DashboardSidebar = () => {

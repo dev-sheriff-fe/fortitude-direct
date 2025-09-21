@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Edit, Search, Grid, List, Upload } from "lucide-react";
@@ -11,12 +11,14 @@ import axiosInstance from "@/utils/fetch-function";
 import useUser from "@/store/userStore";
 import UploadBulkForm from "../../../app/upload";
 import Link from "next/link";
-import CreateProductPage from "@/app/(admin)/admin/inventories/create-product/page";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export interface Product {
   productId: string;
   productName: string;
   productDescription: string;
+  code: string;
+  id: string;
   productCategory: string;
   productCode: string;
   productPrice: string;
@@ -34,10 +36,27 @@ const ProductsManager = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false); // State for bulk upload modal
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
-  const { user } = useUser()
+  const { user } = useUser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+
+  // Check if we're in edit mode from URL params
+  useEffect(() => {
+    const editParam = searchParams.get('edit');
+    const idParam = searchParams.get('id');
+    
+    if (editParam === 'true' && idParam) {
+      setIsEditMode(true);
+      setEditingProductId(idParam);
+      router.push(`/admin/inventories/create-product?edit=true&id=${idParam}`);
+    }
+  }, [searchParams, router]);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["products"],
     queryFn: () => {
@@ -45,17 +64,24 @@ const ProductsManager = () => {
         method: "GET",
         url: '/ecommerce/products/list',
         params: {
-          name,
+          name: '',
           storeCode: user?.storeCode,
           entityCode: user?.entityCode,
           tag: '',
           pageNumber: 1,
           pageSize: 200
         }
-      })
-        .then(response => response.data)
+      }).then(response => response.data);
     }
   });
+
+  // const handleEditDetails = (product: Product) => {
+  //   router.push(`/admin/inventories/create-product?edit=true&id=${product.productId}`);
+  // };
+
+  const handleEditDetails = (product: Product) => {
+  router.push(`/admin/inventories/create-product?edit=true&id=${product.code}`);
+};
 
   console.log(data);
 
@@ -186,7 +212,7 @@ const ProductsManager = () => {
                   variant="secondary"
                   size="sm"
                   className="w-full mt-4 bg-accent text-white hover:bg-accent-foreground"
-                  onClick={() => setEditingProduct(product)}
+                  onClick={() => handleEditDetails(product)}
                 >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Product
@@ -198,31 +224,9 @@ const ProductsManager = () => {
       ) : (
         <ProductsTable
           products={data?.products || []}
-          onEdit={setEditingProduct}
+          onEdit={handleEditDetails}
         />
       )}
-
-      {/* Edit Dialog */}
-      <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
-        <DialogContent className="min-w-[70vw] max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
-          </DialogHeader>
-          {editingProduct && (
-            <CreateProductPage
-              product={editingProduct}
-              mode="edit"
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Bulk Upload Modal */}
-      {/* <UploadBulkModal 
-        open={isBulkUploadOpen} 
-        onClose={() => setIsBulkUploadOpen(false)} 
-        uploadType="products" 
-      /> */}
 
       {/* Empty State */}
       {data?.products.length === 0 && (

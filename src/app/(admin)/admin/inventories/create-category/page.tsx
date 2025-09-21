@@ -112,9 +112,9 @@ const CreateCategoryPage = ({
 
   const { mutate: saveCategory, isPending } = useMutation({
     mutationFn: (data: any) => {
-      const endpoint = isEditMode ? "/products/update-product-category" : "/products/save-product-category";
+      const endpoint = isEditMode ? "/products/save-product-category" : "/products/save-product-category";
       return axiosInstance.request({
-        method: isEditMode ? "PUT" : "POST",
+        method: isEditMode ? "POST" : "POST",
         url: endpoint,
         data: data,
       });
@@ -209,7 +209,7 @@ const CreateCategoryPage = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Basic Information */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Tag className="h-5 w-5" />
                 Basic Information
@@ -269,7 +269,7 @@ const CreateCategoryPage = ({
 
           {/* Classification */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Layers className="h-5 w-5" />
                 Classification
@@ -347,7 +347,7 @@ const CreateCategoryPage = ({
 
         {/* Logo Upload */}
         <Card className="mt-8 border-accent/20 border-2 shadow-md">
-          <CardHeader className="bg-accent/10 pb-4">
+          <CardHeader className=" pb-4">
             <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
               <ImageIcon className="h-5 w-5" />
               Category Logo
