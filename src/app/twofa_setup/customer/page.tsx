@@ -1,7 +1,7 @@
 'use client'
 
 
-import { OtpVerification } from '@/components/twofa_setup/otp-verification'
+import { OtpVerification } from '@/components/twofa_setup/customer/otp-verification'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import useCustomer from '@/store/customerStore'
 import { logout } from '@/utils/auth-utils-customer'

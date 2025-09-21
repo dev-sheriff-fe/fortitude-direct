@@ -1,15 +1,16 @@
 'use client'
-import useCustomer from '@/store/customerStore'
+// import useCustomer from '@/store/customerStore'
+import useUser from '@/store/userStore'
 import { useRouter } from 'next/navigation'
 import React, { ReactNode, useEffect } from 'react'
 
 const TwoFaWrapper = ({children}: {children:ReactNode}) => {
-    const {customer} = useCustomer()
+    const {user} = useUser()
     const router = useRouter()
     
     useEffect(()=>{
-      if (customer && customer?.twoFaSetupRequired === 'Y') {
-     router?.replace('/twofa_setup/customer')
+      if (user && user?.twoFaSetupRequired === 'Y') {
+     router?.replace('/twofa_setup/admin')
   }
     return
     },[router])

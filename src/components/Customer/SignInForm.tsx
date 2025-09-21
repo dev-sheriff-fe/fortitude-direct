@@ -40,7 +40,7 @@ export function SignInForm() {
         if (hasAccess([data?.data.userRole], ["CUSTOMER"])) {
           setAuthCredentials(data?.data.ticketID, ['CUSTOMER'])
             if (data?.data?.twoFaSetupRequired === 'Y') {
-              push(`/twofa_setup`)
+              push(`/twofa_setup/customer`)
               return
             }
           // Redirect to the original intended page or dashboard
