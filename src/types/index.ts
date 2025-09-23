@@ -190,3 +190,33 @@ export interface PaymentResponse {
   message: string;
   transactionId?: string;
 }
+
+
+export interface ScoreDetail {
+  parameterCode: string;
+  parameterName: string;
+  weight: number;
+  score: number;
+  comment: string;
+}
+
+export interface CreditScoreResponse {
+  responseCode: string;
+  responseMessage: string;
+  username: string;
+  entityCode: string;
+  scoreDetails: ScoreDetail[];
+  rating: string;
+  totalScore: number;
+  approvedAmount: number;
+}
+
+export type ScoreRating = 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR';
+
+export interface ScoreConfig {
+  rating: ScoreRating;
+  color: string;
+  description: string;
+  minScore: number;
+  maxScore: number;
+}

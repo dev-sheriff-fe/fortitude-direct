@@ -22,6 +22,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const { token, permissions } = getAuthCredentials();
 
+
   console.log(permissions);
   console.log(token);
   
@@ -32,6 +33,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
      hasAccess(requiredPermissions, permissions));
 
   useEffect(() => {
+    
     if (!isAuthenticated) {
       // Include current path as returnUrl parameter
       const returnUrl = encodeURIComponent(pathname);

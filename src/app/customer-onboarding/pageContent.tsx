@@ -19,7 +19,7 @@ export default function SignUp() {
         console.log('Auth check:', { token, permissions, isUserAuthenticated });
         
         if (isUserAuthenticated) {
-            router.replace('/admin');
+            router.replace('/dashboard');
         } else {
             // User is not authenticated, show login form
             setIsChecking(false);

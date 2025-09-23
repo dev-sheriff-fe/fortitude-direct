@@ -12,7 +12,8 @@ import useCustomer from '@/store/customerStore'
 import { set } from 'zod'
 import CustomerLoginModal from './customer-login-modal'
 import { getAuthCredentials } from '@/utils/auth-utils-customer'
-import axiosInstanceNoAuth from '@/utils/fetch-function-auth'
+import axiosCustomer from '@/utils/fetch-function-customer'
+
 
 const Cart = () => {
     const {cart, decrement, increment, removeItem, mainCcy} = useCart()
@@ -29,7 +30,7 @@ const Cart = () => {
     const storeCode = searchParams.get('storeCode') || ''
 
     const {mutate,isPending} = useMutation({
-        mutationFn: (data:any)=>axiosInstanceNoAuth.request({
+        mutationFn: (data:any)=>axiosCustomer.request({
             url: '/store/save-cart',
             method: 'POST',
             params: {

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { ArrowLeft, CheckCircle, RefreshCcw } from "lucide-react"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import useCustomer from "@/store/customerStore"
 import axiosCustomer from "@/utils/fetch-function-customer"
@@ -19,6 +19,9 @@ export function OtpVerification() {
   const router = useRouter()
   const [regenerateRef,setRegenerateRef] = useState(false)
   const {customer,setCustomer} = useCustomer()
+  const searchParams = useSearchParams()
+  // Get the return URL from query parameters, default to dashboard
+  const returnUrl = searchParams.get('returnUrl') || '/dashboard'
   console.log(customer);
   
   const {isPending,mutate} = useMutation({
@@ -46,7 +49,8 @@ export function OtpVerification() {
         
         setCustomer({...customer,twoFaSetupRequired:'N'})
         toast?.success(data?.data?.desc)
-        router?.push(`/dashboard`)
+        // Redirect to the original intended page or dashboard
+          router?.push(decodeURIComponent(returnUrl))
         return
     },
     onError: (error) =>{

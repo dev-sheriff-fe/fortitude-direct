@@ -337,6 +337,13 @@
   --font-roboto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
   --success: oklch(61.464% 0.12869 163.14);
   --warning: oklch(0.828 0.189 84.429);
+  /* Progress Ring Colors */
+    --progress-track: 0 0% 90%;
+    --progress-fill: linear-gradient(135deg, hsl(142 76% 36%), hsl(48 100% 67%), hsl(35 100% 55%));
+
+     /* Gradient Variables */
+    --score-gradient: linear-gradient(135deg, hsl(0 84% 60%), hsl(35 100% 55%), hsl(48 100% 67%), hsl(142 76% 36%));
+    --card-gradient: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), color-mix(in srgb, var(--accent) 5%, transparent));
 }
 
 .dark {
@@ -410,6 +417,50 @@
   }
   .shadow-card-glow {
     box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+  }
+
+   .score-gradient {
+    background: var(--score-gradient);
+  }
+  
+  .card-gradient {
+    background: var(--card-gradient);
+  }
+  
+  .progress-ring {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .progress-track {
+    stroke: hsl(var(--progress-track));
+  }
+
+   .progress-fill {
+    stroke: url(#scoreGradient);
+    stroke-dasharray: 0 100;
+    animation: progress-fill 2s ease-out forwards;
+  }
+  
+  @keyframes progress-fill {
+    from {
+      stroke-dasharray: 0 100;
+    }
+  }
+  
+  .score-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .score-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, hsl(var(--accent)), hsl(48 100% 67%));
   }
 }
 

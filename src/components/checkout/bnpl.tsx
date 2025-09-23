@@ -50,13 +50,7 @@ export interface RegistrationData {
   totalAmount?: number
 }
 
-type BNPLProps = {
-    setCurrentStep: (step: CheckoutStep) => void;
-    // setBnplStep?: (bnplStep: BNPLStep) => void;
-    setCreditScore: (creditScore: CreditScoreData) => void;
-    // setScore: any
-}
-const BNPL = ({setCurrentStep}:BNPLProps) => {
+const BNPL = () => {
      const form = useForm<RegistrationData>()
      const router = useRouter()
      const {handleFileChange,fileUrl,isUploadingFile} = useFileUpload()
@@ -217,6 +211,7 @@ const BNPL = ({setCurrentStep}:BNPLProps) => {
       //   //   }
       //   // ]
       // },
+      channel: 'WEB',
       storeCode: storeCode,
       entityCode: customer?.entityCode,
       // orderNo: checkoutData?.orderNo,

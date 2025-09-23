@@ -124,7 +124,7 @@ const getStatusIcon = (status: string): React.ReactNode => {
 const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   data,
-  itemsPerPage = 5,
+  itemsPerPage = 4,
   onViewDetails
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -535,7 +535,7 @@ export default function OrderHistory(): React.ReactElement {
   ];
 
   return (
-    <Card className="border-gray-200 shadow-sm">
+    <Card className="border-gray-200 shadow-sm h-fit">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base lg:text-lg font-semibold text-gray-900">

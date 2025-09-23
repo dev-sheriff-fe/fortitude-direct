@@ -7,6 +7,7 @@ import { Badge } from '../ui/badge';
 import { useCart } from '@/store/cart';
 import { CurrencyCode, formatPrice } from '@/utils/helperfns';
 import { PaymentMethod } from '@/app/checkout/checkoutContent';
+import { useRouter } from 'next/navigation';
 
 type CartViewProps = {
     handlePaymentSelect: (method: PaymentMethod) => void;
@@ -17,7 +18,9 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
     const ccy = mainCcy()
      const [aiRecommendation, setAiRecommendation] = useState<PaymentMethod>('usdt');
     const [checkoutData,setCheckoutData] = useState<any>(null)
-     useEffect(() => {
+    const router = useRouter()
+    
+    useEffect(() => {
     const stored = sessionStorage.getItem('checkout');
     if (stored) {
       setCheckoutData(JSON.parse(stored));
@@ -29,7 +32,7 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
         <Button 
           variant="ghost" 
           size="sm"
-          onClick={() => window.history.back()}
+          onClick={() => router?.push(`/`)}
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
