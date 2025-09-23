@@ -12,7 +12,7 @@ import PrivateRoute from '@/utils/private-route-customer'
 
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import QRCode from 'react-qr-code'
 
 const TwoFaSetupPage = () => {
@@ -51,7 +51,9 @@ const TwoFaSetupPage = () => {
 
 
                     <div className='space-y-2'>
-                        <OtpVerification/>
+                        <Suspense>
+                            <OtpVerification/>
+                        </Suspense>
                     </div>
                 </CardContent>
             </Card>

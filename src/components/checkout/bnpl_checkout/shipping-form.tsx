@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Truck, MapPin, ArrowLeft } from "lucide-react";
+import { Truck, MapPin, ArrowLeft, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { CheckoutStep } from "@/app/checkout/checkoutContent";
 import { useMutation } from "@tanstack/react-query";
@@ -17,6 +17,7 @@ import { useCart } from "@/store/cart";
 import { useLocationStore } from "@/store/locationStore";
 import axiosCustomer from "@/utils/fetch-function-customer";
 import { formatPrice } from "@/utils/helperfns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 
 const formSchema = z.object({
@@ -48,6 +49,7 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
     formState: { errors },
     setValue,
     watch,
+    reset
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,6 +63,8 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
     },
   });
 
+  const [pendingModal,setPendingModal] = useState(false)
+
   const [checkoutData,setCheckoutData] = useState<any>(null)
          useEffect(() => {
         const stored = sessionStorage.getItem('checkout');
@@ -69,7 +73,7 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
         }
       }, []);
 
-  const {isPending,mutate} = useMutation({
+  const {isPending,mutate,data} = useMutation({
     mutationFn: (data:any)=>axiosCustomer({
         url: '/ecommerce/submit-order',
         method: 'POST',
@@ -77,10 +81,25 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
     }),
     onSuccess: (data)=>{
         if (data?.data?.responseCode!=='000') {
+            if (data?.data?.responseCode==='PP') {
+              setPendingModal(true)
+              return
+            }
             toast?.error(data?.data?.responseMessage)
             return
         }
         toast?.success(data?.data?.responseMessage)
+        reset({
+                agreeTerms:false,
+                city: '',
+                country:'',
+                fullName:'',
+                landmark:'',
+                shippingMethod:'delivery',
+                state:'',
+                street:'',
+                zipCode:''
+              })
     },
     onError: (error)=>{
         toast.error('Something went wrong!')
@@ -104,12 +123,12 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
         channel: "WEB",
         cartId: checkoutData?.orderNo,
         orderDate: "",
-        totalAmount: checkoutData?.totalAmount/3,
+        totalAmount: checkoutData?.payingAmount,
         totalDiscount: 0,
         deliveryOption: data?.shippingMethod,
         paymentMethod: "BNPL",
         couponCode: "",
-        ccy: checkoutData?.ccy,
+        ccy: checkoutData?.payingCurrency,
         deliveryFee: 0,
         geolocation: location ? `${location?.latitude}, ${location?.longitude}` : '',
         deviceId: customer?.deviceID,
@@ -134,6 +153,45 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
     mutate(payload)
   };
 
+  console.log(data);
+  
+
+  const {mutate:checkStatus,isPending:checkingStatus} = useMutation({
+          mutationFn: ()=>axiosCustomer({
+              url: 'tran-master/tsq',
+              params: {
+                  externalRefNo: data?.data?.orderNo
+              }
+          }),
+          onSuccess: (data)=>{
+              if (data?.data?.responseCode === 'PP') {
+                return
+              }
+              if (data?.data?.responseCode!=='000') {
+                  toast?.error(data?.data?.responseMessage)
+                  return
+              }
+              // setCurrentStep('success')
+              // setStep('success')
+              toast.success(data?.data?.responseMessage)
+              setPendingModal(false)
+              reset({
+                agreeTerms:false,
+                city: '',
+                country:'',
+                fullName:'',
+                landmark:'',
+                shippingMethod:'delivery',
+                state:'',
+                street:'',
+                zipCode:''
+              })
+          },
+          onError: ()=>{
+              toast.error('something went wrong')
+          }
+      })
+
 
 
   const handleShippingMethodChange = (method: "delivery" | "pickup") => {
@@ -142,7 +200,8 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
   };
 
   return (
-    <div className="w-full">
+    <>
+      <div className="w-full">
       <div className="flex items-center gap-1 mb-8">
         <button className="h-fit" onClick={()=>setCurrentStep('cart')}><ArrowLeft/></button>
         <h1 className="text-2xl font-semibold text-checkout-text">Checkout</h1>
@@ -307,10 +366,35 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
 
           {/* Submit Button for Development/Testing */}
           <Button type="submit" disabled={isPending} className="mt-6 w-full bg-accent md:w-full">
-            {isPending ? `Please wait`: `Pay now ${formatPrice(checkoutData?.totalAmount/3,checkoutData?.ccy)}`}
+            {isPending ? `Please wait`: `Pay now`}
           </Button>
         </div>
       </form>
     </div>
+
+    <Dialog open={pendingModal} onOpenChange={setPendingModal}>
+      <DialogContent>
+            <DialogHeader className="flex flex-col items-center gap-y-3">
+              <DialogTitle className="sr-only">Pending State</DialogTitle>
+              <div className="flex justify-center mb-4">
+            <Clock className="w-16 h-16 text-yellow-500" />
+          </div>
+          <h2 className="text-2xl font-bold">Transaction Processing</h2>
+        </DialogHeader>
+
+        <div className="flex gap-4">
+                    {/* <Button variant="outline" onClick={onCancel} className="flex-1">
+                      Cancel
+                    </Button> */}
+                    <Button disabled = {checkingStatus} onClick={()=>checkStatus()} className="flex-1 bg-accent">
+                      {checkingStatus ? `Please wait..` : `Check Transaction Status`}
+                    </Button>
+                  </div>
+
+        </DialogContent>           
+    </Dialog>
+    </>
   );
 };
+
+// ${formatPrice(checkoutData?.totalAmount/3,checkoutData?.ccy)}

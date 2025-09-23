@@ -39,7 +39,7 @@ export const LoginForm = ({ setIsOpen }: LoginProps) => {
         reset: resetOTP
     } = useForm<OTPForm>();
     const searchParams = useSearchParams()
-    const { refresh } = useRouter()
+    const { refresh,push } = useRouter()
     const [loginStep, setLoginStep] = useState<'credentials' | 'otp'>('credentials')
     const [loginData, setLoginData] = useState<FormData | null>(null);
     const storeCode = searchParams.get('storeCode') || ''
