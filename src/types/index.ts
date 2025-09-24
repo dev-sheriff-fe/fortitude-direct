@@ -130,7 +130,7 @@ export interface UserProfile {
   partnerLink?: string;
   customerId?: string;
   customerTier?: string;
-  kycStatus?: string | null;
+  kycStatus?: string[] | null;
   kycTierStatus?: string;
   notificationMessage?: string | null;
   chatSessionToken?: string;
@@ -139,6 +139,7 @@ export interface UserProfile {
   twoFaSetupRequired?: 'Y' | 'N' | null;
   twoFaLinkData?: string | null;
   twoFaReferenceNo?: string | null;
+  storeCode?: string | null;
 }
 
 export interface Attachment {

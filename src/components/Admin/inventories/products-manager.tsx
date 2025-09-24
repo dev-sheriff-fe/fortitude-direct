@@ -65,7 +65,7 @@ const ProductsManager = () => {
         url: '/ecommerce/products/list',
         params: {
           name: '',
-          storeCode: user?.storeCode,
+          storeCode: user?.storeCode || 'STO445',
           entityCode: user?.entityCode,
           tag: '',
           pageNumber: 1,

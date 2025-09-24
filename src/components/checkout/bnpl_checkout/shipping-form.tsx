@@ -134,7 +134,7 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
         deviceId: customer?.deviceID,
         orderSatus: "",
         paymentStatus: "",
-        storeCode: "STO445",
+        storeCode: customer?.storeCode || "STO445",
         customerName: data?.fullName,
         username: customer?.username,
         deliveryAddress: {
