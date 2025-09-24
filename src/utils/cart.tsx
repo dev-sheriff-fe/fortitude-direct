@@ -40,7 +40,7 @@ const Cart = () => {
             }
             sessionStorage.setItem('checkout', JSON.stringify(data?.data))
             toast.success(data?.data?.desc || data?.data?.responseMessage || 'Order submitted successfully!')
-            router.push(`/checkout?storeCode=STO445&orderNo=${data?.data?.orderNo}`)
+            router.push(`/checkout?storeCode=${storeCode || 'STO445'}&orderNo=${data?.data?.orderNo}`)
         },
         onError: (error) => {
             toast.error('An error occurred while submitting the order.')

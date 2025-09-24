@@ -7,12 +7,14 @@ import FilterHeader from "@/components/gadgets/filter-header";
 import ProductsGrid from "@/components/gadgets/products-grid";
 import CartTriggerDesktop from "@/components/ui/cart-trigger-desktop";
 import { Suspense, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Home() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const storeCode = searchParams ? searchParams.get('storeCode') || 'STO445' : 'STO445';
   useEffect(()=>{
-    router?.push(`?storeCode=STO445`)
+    router?.push(`?storeCode=${storeCode}`)
   },[router])
   return (
     <main className="w-full flex-1 flex">

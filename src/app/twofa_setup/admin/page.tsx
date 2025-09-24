@@ -4,7 +4,7 @@
 import { OtpVerification } from '@/components/twofa_setup/admin/otp-verification'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import useUser from '@/store/userStore'
-import { logout } from '@/utils/auth-utils-customer'
+import { logout } from '@/utils/auth-utils'
 
 import { BUSINESS_MANAGER } from '@/utils/constants'
 import PrivateRoute from '@/utils/private-route'

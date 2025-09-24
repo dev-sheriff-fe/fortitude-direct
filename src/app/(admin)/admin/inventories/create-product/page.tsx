@@ -79,12 +79,12 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
       setEditingProductId(idParam);
     }
   }, [searchParams]);
-
+  const storeCode = user?.storeCode || 'STO445'
   // Fetch product details for editing
   const { data: productData, isLoading: isLoadingProduct } = useQuery({
     queryKey: ['product-detail', editingProductId],
     queryFn: () => axiosInstance.request({
-      url: '/ecommerce/products/list?name=&storeCode=STO445&entityCode=H2P&tag=&pageNumber=1&pageSize=200',
+      url: `/ecommerce/products/list?name=&storeCode=${storeCode}&entityCode=${user?.entityCode}&tag=&pageNumber=1&pageSize=200`,
       method: 'GET',
       params: {
         code: editingProductId
@@ -149,7 +149,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
         base64Image: "",
         imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values?.imageURL) || ""),
         costPrice: values?.costPrice,
-        storeId: user?.storeCode || '',
+        storeId: user?.storeCode || 'STO445',
         barCode: values?.barCode,
         brand: values?.brand,
         ccy: values?.ccy || 'NGN'
