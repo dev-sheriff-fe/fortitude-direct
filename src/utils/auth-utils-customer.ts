@@ -62,7 +62,7 @@ export const logout = () => {
 
   Cookie.remove(AUTH_CRED_CUSTOMER);
   if (typeof window !== 'undefined') {
-    // window.location.href = `/admin-login`;
+    window.location.href = `/customer-login`;
     window.localStorage.removeItem('customer_store');
     window.localStorage.removeItem(TOKEN_CUSTOMER);
     window.location.reload();

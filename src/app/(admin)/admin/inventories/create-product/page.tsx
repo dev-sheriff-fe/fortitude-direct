@@ -84,84 +84,90 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
   const { data: productData, isLoading: isLoadingProduct } = useQuery({
     queryKey: ['product-detail', editingProductId],
     queryFn: () => axiosInstance.request({
-      url: '/ecommerce/products/list?name=&storeCode=STO445&entityCode=H2P&tag=&pageNumber=1&pageSize=200',
+      url: '/products/getById',
+      // ?name=&storeCode=STO445&entityCode=H2P&tag=&pageNumber=1&pageSize=200
       method: 'GET',
       params: {
-        code: editingProductId
+        // code: editingProductId,
+        id: editingProductId
       }
     }),
     enabled: !!editingProductId && isEditMode,
   });
 
-  // Populate form when product data is fetched
-  useEffect(() => {
-    if (productData?.data && isEditMode) {
-      const product = productData.data;
-      const productObj = {
-        productId: product?.id || product?.productId || "",
-        productName: product?.name || product?.productName || "",
-        productDescription: product?.description || product?.productDescription || "",
-        productCategory: product?.category || product?.productCategory || "",
-        productCode: product?.code || product?.productCode || "",
-        productPrice: product?.salePrice || product?.productPrice || "",
-        stockQuantity: product?.qtyInStore || product?.stockQuantity || 0,
-        unitQuantity: product?.unit || product?.unitQuantity || "",
-        imageURL: product?.picture || product?.imageURL || "",
-        costPrice: product?.costPrice || "",
-        storeId: product?.storeId || user?.storeCode || "",
-        barCode: product?.barCode || "",
-        brand: product?.brand || "",
-        ccy: product?.ccy || 'NGN'
-      };
-      reset(productObj);
-    } else if (!isEditMode) {
-      // Reset to default values for create mode
-      reset({
-        productId: "",
-        productName: "",
-        productDescription: "",
-        productCategory: "",
-        productCode: "",
-        productPrice: "",
-        stockQuantity: 0,
-        unitQuantity: "",
-        imageURL: "",
-        costPrice: "",
-        storeId: user?.storeCode || "",
-        barCode: "",
-        brand: "",
-        ccy: "NGN"
-      });
-    }
-  }, [productData, isEditMode, user, reset]);
+useEffect(() => {
+  if (productData?.data && isEditMode) {
+    const product = productData.data.productDto; // Access the nested productDto
+    console.log('Product data received:', product); // Debug log
+    
+    const productObj = {
+      productId: product?.id?.toString() || "",
+      productName: product?.name || "",
+      productDescription: product?.description || "",
+      productCategory: product?.category || "",
+      productCode: product?.code || "",
+      productPrice: product?.salePrice?.toString() || "",
+      stockQuantity: product?.qtyInStore || 0,
+      unitQuantity: product?.unit || "",
+      imageURL: product?.picture || "",
+      costPrice: product?.costPrice?.toString() || "",
+      storeId: user?.storeCode || "",
+      barCode: product?.barCode || "",
+      brand: product?.brand || "",
+      ccy: product?.ccy || 'NGN'
+    };
+    
+    console.log('Form data to be set:', productObj); // Debug log
+    reset(productObj);
+  } else if (!isEditMode) {
+    // Reset to default values for create mode
+    reset({
+      productId: "",
+      productName: "",
+      productDescription: "",
+      productCategory: "",
+      productCode: "",
+      productPrice: "",
+      stockQuantity: 0,
+      unitQuantity: "",
+      imageURL: "",
+      costPrice: "",
+      storeId: user?.storeCode || "",
+      barCode: "",
+      brand: "",
+      ccy: "NGN"
+    });
+  }
+}, [productData, isEditMode, user, reset]);
 
-  const onSubmitForm = async (values: ProductFormData) => {
-    try {
-      const payload = {
-        productId: isEditMode ? (editingProductId || product?.id || product?.productId) : null,
-        productName: values?.productName,
-        productDescription: values?.productDescription,
-        productCategory: values?.productCategory,
-        productCode: values?.productCode,
-        productPrice: values?.productPrice,
-        stockQuantity: values?.stockQuantity,
-        unitQuantity: values?.unitQuantity,
-        base64Image: "",
-        imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values?.imageURL) || ""),
-        costPrice: values?.costPrice,
-        storeId: user?.storeCode || '',
-        barCode: values?.barCode,
-        brand: values?.brand,
-        ccy: values?.ccy || 'NGN'
-      };
+const onSubmitForm = async (values: ProductFormData) => {
+  try {
+    const payload = {
+      productId: isEditMode ? editingProductId : null,
+      productName: values.productName,
+      productDescription: values.productDescription,
+      productCategory: values.productCategory,
+      productCode: values.productCode,
+      productPrice: values.productPrice,
+      stockQuantity: values.stockQuantity,
+      unitQuantity: values.unitQuantity,
+      base64Image: "",
+      imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values.imageURL) || ""),
+      costPrice: values.costPrice,
+      storeId: user?.storeCode || '',
+      barCode: values.barCode,
+      brand: values.brand,
+      ccy: values.ccy || 'NGN'
+    };
 
-      await saveProduct(payload);
-      toast.success(isEditMode ? 'Product updated successfully' : 'Product created successfully');
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product`);
-    }
-  };
+    console.log('Submitting payload:', payload); // Debug log
+    await saveProduct(payload);
+    toast.success(isEditMode ? 'Product updated successfully' : 'Product created successfully');
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product`);
+  }
+};
 
   if (isLoadingProduct) {
     return (

@@ -5,15 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import Image from "next/image"
-import posIcon from "@/assets/login-image.png"
+import posIcon from "@/assets/ecommerce-svg.jpg"
 import { useMutation } from "@tanstack/react-query"
-
-// import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
 import { toast } from "sonner"
-// import useUser from "@/global_states/userStore"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
-import useUser from "@/store/userStore"
+
 import useCustomer from "@/store/customerStore"
 import { hasAccess, setAuthCredentials } from "@/utils/auth-utils-customer"
 import axiosCustomer from "@/utils/fetch-function-no-auth"
@@ -21,47 +18,59 @@ import axiosCustomer from "@/utils/fetch-function-no-auth"
 export function SignInForm() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const { setUser } = useUser()
   const { push } = useRouter()
-  const {setCustomer} = useCustomer()
-   const { mutate, isPending } = useMutation({
-        mutationFn: (data: any) => axiosCustomer.request({
-            url: '/ecommerce/login',
-            method: 'POST',
-            data,
-        }),
-        onSuccess: (data) => {
-            localStorage.setItem("token_customer", data.data.ticketID)
-            localStorage.setItem("customer_store", JSON.stringify(data.data))
-            setCustomer(data?.data)
-            if (data?.data?.ticketID) {
-                if (hasAccess([data?.data.userRole], ["CUSTOMER"])) {
-                    setAuthCredentials(data?.data.ticketID, ['CUSTOMER'])
-                    push('/dashboard')
-                    return
-                }
-                toast.error("Not enough permission")
-            } else {
-                toast.error("Wrong credentials")
-            }
-        },
-        onError: (error) => {
-            console.log(error);
-        }
-    })
-    const onSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        const payload = {
-            username: username,
-            password: password,
-            entityCode: 'H2P',
-            language: 'en',
-            channelType: 'WEB',
-            deviceId: ''
-        }
+  const { setCustomer } = useCustomer()
+  const searchParams = useSearchParams()
+  
+  // Get the return URL from query parameters, default to dashboard
+  const returnUrl = searchParams.get('returnUrl') || '/dashboard'
 
-        mutate(payload)
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: any) => axiosCustomer.request({
+      url: '/ecommerce/login',
+      method: 'POST',
+      data,
+    }),
+    onSuccess: (data) => {
+      localStorage.setItem("token_customer", data.data.ticketID)
+      localStorage.setItem("customer_store", JSON.stringify(data.data))
+      setCustomer(data?.data)
+      
+      if (data?.data?.ticketID) {
+        if (hasAccess([data?.data.userRole], ["CUSTOMER"])) {
+          setAuthCredentials(data?.data.ticketID, ['CUSTOMER'])
+            if (data?.data?.twoFaSetupRequired === 'Y') {
+              push(`/twofa_setup/customer`)
+              return
+            }
+          // Redirect to the original intended page or dashboard
+          push(decodeURIComponent(returnUrl))
+          return
+        }
+        toast.error("Not enough permission")
+      } else {
+        toast.error("Wrong credentials")
+      }
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.error("Login failed. Please try again.")
     }
+  })
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const payload = {
+      username: username,
+      password: password,
+      entityCode: 'H2P',
+      language: 'en',
+      channelType: 'WEB',
+      deviceId: ''
+    }
+
+    mutate(payload)
+  }
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -112,7 +121,7 @@ export function SignInForm() {
             <Button
               type="submit"
               className="w-full bg-accent hover:bg-accent/70 text-white py-3 rounded-md font-medium"
-              disabled= {isPending}
+              disabled={isPending}
             >
               {isPending ? "Please wait" : "Sign In"}
             </Button>
@@ -122,7 +131,7 @@ export function SignInForm() {
             <span className="text-sm text-gray-600">Don&apos;t have an account? </span>
             <Link
               href="/customer-onboarding"
-              className="text-sm text-accent hover:text-accent/70"
+              className="text-sm text-blue-600 hover:text-accent/70"
             >
               Sign up
             </Link>

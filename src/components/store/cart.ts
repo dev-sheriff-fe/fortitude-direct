@@ -21,6 +21,7 @@ export interface MenuItem {
 export interface CartItem extends MenuItem {
   quantity: number;
   subTotal: number;
+  price: number;
 }
 
 interface CartStore {

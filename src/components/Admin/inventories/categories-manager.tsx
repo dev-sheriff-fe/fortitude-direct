@@ -10,7 +10,7 @@ import CategoriesTable from "./categories-table";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import useUser from "@/store/userStore";
-import UploadBulkForm from "../../../app/upload";
+import UploadBulkForm from "../../upload/upload";
 import Link from "next/link"; // Import Next.js Link
 import CreateCategoryPage from "@/app/(admin)/admin/inventories/create-category/page";
 

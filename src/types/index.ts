@@ -98,6 +98,10 @@ export interface LoggedInUser {
   walletBalance?: number;
   walletType?: number;
   twoFaLinked?: string;
+  pinSet?: boolean;
+  twoFaSetupRequired?: 'Y' | 'N' | null;
+  twoFaLinkData?: string | null;
+  twoFaReferenceNo?: string | null;
 }
 
 export interface UserProfile {
@@ -132,6 +136,9 @@ export interface UserProfile {
   chatSessionToken?: string;
   onboardType?: string | null;
   pinSet?: boolean;
+  twoFaSetupRequired?: 'Y' | 'N' | null;
+  twoFaLinkData?: string | null;
+  twoFaReferenceNo?: string | null;
 }
 
 export interface Attachment {

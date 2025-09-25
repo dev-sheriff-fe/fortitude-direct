@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import Image from "next/image"
-import posIcon from "@/assets/login-image.png"
+import posIcon from "@/assets/ecommerce-svg.jpg"
 import { useMutation } from "@tanstack/react-query"
 
 // import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
 import { toast } from "sonner"
 // import useUser from "@/global_states/userStore"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
 import useUser from "@/store/userStore"
 import axiosInstanceNoAuth from "@/utils/fetch-function-auth"
@@ -21,8 +21,10 @@ export function SignInForm() {
   const [password, setPassword] = useState("")
   const { setUser } = useUser()
   const { push } = useRouter()
-
-const loginMutation = useMutation({
+  const searchParams = useSearchParams()
+  // Get the return URL from query parameters, default to dashboard
+  const returnUrl = searchParams.get('returnUrl') || '/admin'
+  const loginMutation = useMutation({
     mutationFn: ({ username, password }: { username: string; password: string }) =>
       axiosInstanceNoAuth.post("/usermanager/weblogin", {
         username: username,
@@ -39,7 +41,11 @@ const loginMutation = useMutation({
       if (data?.data?.ticketID) {
         if (hasAccess([data?.data.userRole], ["BUSINESS_MANAGER"])) {
           setAuthCredentials(data?.data.ticketID, ['BUSINESS_MANAGER'])
-          push("/admin")
+          if (data?.data?.twoFaSetupRequired === 'Y') {
+            push(`/twofa_setup/admin`)
+            return
+          }
+          push(decodeURIComponent(returnUrl))
           return
         }
         toast.error("Not enough permission")
@@ -102,7 +108,7 @@ const loginMutation = useMutation({
             <Button
               type="submit"
               className="w-full bg-accent hover:bg-accent/70 text-white py-3 rounded-md font-medium"
-              disabled= {loginMutation?.isPending}
+              disabled={loginMutation?.isPending}
             >
               {loginMutation?.isPending ? "Please wait" : "Sign In"}
             </Button>

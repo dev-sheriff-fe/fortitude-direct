@@ -9,7 +9,8 @@ import ProductsTable from "./products-table";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import useUser from "@/store/userStore";
-import UploadBulkForm from "../../../app/upload";
+import UploadBulkForm from "../../upload/upload";
+import UploadImage from "../../upload/upload-images";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -37,6 +38,7 @@ const ProductsManager = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+  const [isBulkUploadImagesOpen, setIsBulkUploadImagesOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const { user } = useUser();
@@ -49,7 +51,7 @@ const ProductsManager = () => {
   useEffect(() => {
     const editParam = searchParams.get('edit');
     const idParam = searchParams.get('id');
-    
+
     if (editParam === 'true' && idParam) {
       setIsEditMode(true);
       setEditingProductId(idParam);
@@ -80,8 +82,8 @@ const ProductsManager = () => {
   // };
 
   const handleEditDetails = (product: Product) => {
-  router.push(`/admin/inventories/create-product?edit=true&id=${product.code}`);
-};
+    router.push(`/admin/inventories/create-product?edit=true&id=${product.id}`);
+  };
 
   console.log(data);
 
@@ -148,15 +150,30 @@ const ProductsManager = () => {
               <DialogHeader>
                 <DialogTitle></DialogTitle>
               </DialogHeader>
-              {/* <UploadBulkModal
-                open={isBulkUploadOpen}
-                onClose={() => setIsBulkUploadOpen(false)}
-                uploadType="products"
-              /> */}
               <UploadBulkForm
                 uploadType="products"
                 onSuccess={() => setIsBulkUploadOpen(false)}
                 onCancel={() => setIsBulkUploadOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+
+          {/* Bulk Image product Button */}
+          <Dialog open={isBulkUploadImagesOpen} onOpenChange={setIsBulkUploadImagesOpen}>
+            <DialogTrigger asChild>
+              <Button className="transition-smooth" variant="outline">
+                <Upload className="h-4 w-4 mr-2" />
+                Bulk Upload Images
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle></DialogTitle>
+              </DialogHeader>
+              <UploadImage
+                uploadType="product_images"
+                onSuccess={() => setIsBulkUploadImagesOpen(false)}
+                onCancel={() => setIsBulkUploadImagesOpen(false)}
               />
             </DialogContent>
 
@@ -168,7 +185,7 @@ const ProductsManager = () => {
             </Button> */}
 
           {/* Add Product Button */}
-           <Link href="/admin/inventories/create-product" passHref>
+          <Link href="/admin/inventories/create-product" passHref>
             <Button className="transition-smooth" variant="secondary">
               <Plus className="h-4 w-4 mr-2" />
               Add Product
@@ -237,12 +254,12 @@ const ProductsManager = () => {
           <h3 className="text-lg font-medium mb-2">No products yet</h3>
           <p className="text-muted-foreground mb-4">Get started by creating your first product</p>
           <div className="flex gap-3 justify-center">
-          <Link href="/admin/inventories/create-product" passHref>
-            <Button className="transition-smooth" variant="secondary">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Product
-            </Button>
-          </Link>
+            <Link href="/admin/inventories/create-product" passHref>
+              <Button className="transition-smooth" variant="secondary">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Product
+              </Button>
+            </Link>
             <Button onClick={() => setIsBulkUploadOpen(true)} variant="outline">
               <Upload className="h-4 w-4 mr-2" />
               Bulk Upload
