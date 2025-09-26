@@ -13,7 +13,8 @@ export default function Footer() {
     { name: "Home", href: "/home" },
     { name: "About Us", href: "/about" },
     { name: "Shop", href: "/shop" },
-    { name: "Blogs", href: "/blogs" },
+    // { name: "Blogs", href: "/blogs" },
+    { name: "Privacy Policy", href: "/privacy" },
     { name: "Contact", href: "/contact" }
   ]
   
@@ -120,16 +121,16 @@ export default function Footer() {
                   href="tel:+2348000000000" 
                   className="text-gray-300 hover:text-[#d8480b] transition-colors"
                 >
-                  +234 800-000-0000, +234 800-000-0000
+                  +234 707-855-3444, +234 800-000-0000
                 </a>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 text-[#d8480b] mr-3 flex-shrink-0" />
                 <a 
-                  href="mailto:support@fortitude.com" 
+                  href="mailto:info@fortitudeiot.com" 
                   className="text-gray-300 hover:text-[#d8480b] transition-colors"
                 >
-                  support@fortitude.com
+                  info@fortitudeiot.com
                 </a>
               </li>
             </ul>

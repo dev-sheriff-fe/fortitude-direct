@@ -69,7 +69,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
 
   const watchedImageURL = watch("imageURL");
 
-  // Check if we're in edit mode from URL params
   useEffect(() => {
     const editParam = searchParams.get('edit');
     const idParam = searchParams.get('id');
@@ -79,89 +78,93 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
       setEditingProductId(idParam);
     }
   }, [searchParams]);
-  const storeCode = user?.storeCode || 'STO445'
-  // Fetch product details for editing
+
   const { data: productData, isLoading: isLoadingProduct } = useQuery({
     queryKey: ['product-detail', editingProductId],
     queryFn: () => axiosInstance.request({
-      url: `/ecommerce/products/list?name=&storeCode=${storeCode}&entityCode=${user?.entityCode}&tag=&pageNumber=1&pageSize=200`,
+      url: '/products/getById',
+      // ?name=&storeCode=STO445&entityCode=H2P&tag=&pageNumber=1&pageSize=200
       method: 'GET',
       params: {
-        code: editingProductId
+        // code: editingProductId,
+        id: editingProductId
       }
     }),
     enabled: !!editingProductId && isEditMode,
   });
 
-  // Populate form when product data is fetched
-  useEffect(() => {
-    if (productData?.data && isEditMode) {
-      const product = productData.data;
-      const productObj = {
-        productId: product?.id || product?.productId || "",
-        productName: product?.name || product?.productName || "",
-        productDescription: product?.description || product?.productDescription || "",
-        productCategory: product?.category || product?.productCategory || "",
-        productCode: product?.code || product?.productCode || "",
-        productPrice: product?.salePrice || product?.productPrice || "",
-        stockQuantity: product?.qtyInStore || product?.stockQuantity || 0,
-        unitQuantity: product?.unit || product?.unitQuantity || "",
-        imageURL: product?.picture || product?.imageURL || "",
-        costPrice: product?.costPrice || "",
-        storeId: product?.storeId || user?.storeCode || "",
-        barCode: product?.barCode || "",
-        brand: product?.brand || "",
-        ccy: product?.ccy || 'NGN'
-      };
-      reset(productObj);
-    } else if (!isEditMode) {
-      // Reset to default values for create mode
-      reset({
-        productId: "",
-        productName: "",
-        productDescription: "",
-        productCategory: "",
-        productCode: "",
-        productPrice: "",
-        stockQuantity: 0,
-        unitQuantity: "",
-        imageURL: "",
-        costPrice: "",
-        storeId: user?.storeCode || "",
-        barCode: "",
-        brand: "",
-        ccy: "NGN"
-      });
-    }
-  }, [productData, isEditMode, user, reset]);
+useEffect(() => {
+  if (productData?.data && isEditMode) {
+    const product = productData.data.productDto; // Access the nested productDto
+    console.log('Product data received:', product); // Debug log
+    
+    const productObj = {
+      productId: product?.id?.toString() || "",
+      productName: product?.name || "",
+      productDescription: product?.description || "",
+      productCategory: product?.category || "",
+      productCode: product?.code || "",
+      productPrice: product?.salePrice?.toString() || "",
+      stockQuantity: product?.qtyInStore || 0,
+      unitQuantity: product?.unit || "",
+      imageURL: product?.picture || "",
+      costPrice: product?.costPrice?.toString() || "",
+      storeId: user?.storeCode || "",
+      barCode: product?.barCode || "",
+      brand: product?.brand || "",
+      ccy: product?.ccy || 'NGN'
+    };
+    
+    console.log('Form data to be set:', productObj);
+    reset(productObj);
+  } else if (!isEditMode) {
+    reset({
+      productId: "",
+      productName: "",
+      productDescription: "",
+      productCategory: "",
+      productCode: "",
+      productPrice: "",
+      stockQuantity: 0,
+      unitQuantity: "",
+      imageURL: "",
+      costPrice: "",
+      storeId: user?.storeCode || "",
+      barCode: "",
+      brand: "",
+      ccy: "NGN"
+    });
+  }
+}, [productData, isEditMode, user, reset]);
 
-  const onSubmitForm = async (values: ProductFormData) => {
-    try {
-      const payload = {
-        productId: isEditMode ? (editingProductId || product?.id || product?.productId) : null,
-        productName: values?.productName,
-        productDescription: values?.productDescription,
-        productCategory: values?.productCategory,
-        productCode: values?.productCode,
-        productPrice: values?.productPrice,
-        stockQuantity: values?.stockQuantity,
-        unitQuantity: values?.unitQuantity,
-        base64Image: "",
-        imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values?.imageURL) || ""),
-        costPrice: values?.costPrice,
-        storeId: user?.storeCode || 'STO445',
-        barCode: values?.barCode,
-        brand: values?.brand,
-        ccy: values?.ccy || 'NGN'
-      };
+const onSubmitForm = async (values: ProductFormData) => {
+  try {
+    const payload = {
+      productId: isEditMode ? editingProductId : null,
+      productName: values.productName,
+      productDescription: values.productDescription,
+      productCategory: values.productCategory,
+      productCode: values.productCode,
+      productPrice: values.productPrice,
+      stockQuantity: values.stockQuantity,
+      unitQuantity: values.unitQuantity,
+      base64Image: "",
+      imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values.imageURL) || ""),
+      costPrice: values.costPrice,
+      storeId: user?.storeCode || '',
+      barCode: values.barCode,
+      brand: values.brand,
+      ccy: values.ccy || 'NGN'
+    };
 
-      await saveProduct(payload);
-      toast.success(isEditMode ? 'Product updated successfully' : 'Product created successfully');
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product`);
-    }
-  };
+    console.log('Submitting payload:', payload);
+    await saveProduct(payload);
+    toast.success(isEditMode ? 'Product updated successfully' : 'Product created successfully');
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product`);
+  }
+};
 
   if (isLoadingProduct) {
     return (
@@ -175,7 +178,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header with back button */}
       <div className="flex items-center mb-6">
         <Button 
           variant="ghost" 
@@ -205,7 +207,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
 
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Basic Information */}
           <Card className="border-accent/20 border-2 shadow-md">
             <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -274,7 +275,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
             </CardContent>
           </Card>
 
-          {/* Codes and IDs */}
           <Card className="border-accent/20 border-2 shadow-md">
             <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -316,7 +316,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
             </CardContent>
           </Card>
 
-          {/* Pricing */}
           <Card className="border-accent/20 border-2 shadow-md">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -393,7 +392,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
             </CardContent>
           </Card>
 
-          {/* Inventory */}
           <Card className="border-accent/20 border-2 shadow-md">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -438,7 +436,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
           </Card>
         </div>
 
-        {/* Image Upload */}
         <Card className="mt-8 border-accent/20 border-2 shadow-md">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -457,7 +454,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
           </CardContent>
         </Card>
 
-        {/* Action Buttons */}
         <div className="flex justify-end gap-4 pt-8 mt-8 border-t border-accent/20">
           <Button 
             type="button" 

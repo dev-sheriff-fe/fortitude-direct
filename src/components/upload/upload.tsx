@@ -8,7 +8,6 @@ import { X, Download, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import axiosInstance from "@/utils/fetch-function";
-import useUser from '@/store/userStore';
 
 interface UploadBulkFormProps {
   uploadType: 'products' | 'categories';
@@ -38,7 +37,7 @@ interface BulkUploadRequest {
 
 const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
-  const {user} = useUser()
+
   const { register, handleSubmit, watch, formState: { errors }, setValue, resetField } = useForm<UploadFormData>({
     mode: 'onChange'
   });
@@ -86,18 +85,15 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
     setIsUploading(true);
 
     try {
-      // First upload the file to get fileRef
       const fileUploadFormData = new FormData();
       fileUploadFormData.append('file', file);
 
-      // Set appropriate headers
       const headers = {
         'x-source-code': 'WEB',
         'FileType': uploadType === 'products' ? 'PRODUCT' : 'PRODUCT_CATEGORY',
         'Content-Type': 'multipart/form-data'
       };
 
-      // Upload file endpoint
       const fileUploadResponse = await axiosInstance.post<FileUploadResponse>(
         '/fileuploadservice/uploadfile',
         fileUploadFormData,
@@ -105,7 +101,7 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
           headers,
           params: {
             entityCode: 'H2P',
-            storeCode: user?.storeCode || 'STO445',
+            storeCode: 'STO445',
             FILETYPE: uploadType === 'products' ? 'PRODUCT' : 'PRODUCT_CATEGORY',
 
           }
@@ -121,7 +117,6 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
         throw new Error('File reference not received');
       }
 
-      // Then make the bulk upload request with the fileRef
       const bulkUploadRequest: BulkUploadRequest = {
         requestReference: new Date().getTime().toString(),
         fileType: uploadType === 'products' ? 'PRODUCT' : 'PRODUCT_CATEGORY',
@@ -147,7 +142,6 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
 
       toast.success(`${uploadType.charAt(0).toUpperCase() + uploadType.slice(1)} uploaded successfully`);
 
-      // Reset the form after successful upload
       resetField('file');
       onSuccess?.();
     } catch (error: any) {
@@ -159,7 +153,6 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
     }
   };
 
-  // Get appropriate text based on upload type
   const getTitle = () => {
     return uploadType === 'products'
       ? 'Bulk Upload Products'
@@ -178,7 +171,6 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
       : 'PRODUCT CATEGORY';
   };
 
-  // Clear file selection when canceling
   const handleCancel = () => {
     resetField('file');
     onCancel?.();

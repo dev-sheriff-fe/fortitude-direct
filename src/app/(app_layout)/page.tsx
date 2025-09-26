@@ -7,8 +7,6 @@ export const metadata:Metadata = {
   title: process?.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p' ? 'Help2pay | home' : 'Fortitude | home'
 }
 
-
-
 const HomePage = () => {
   
   if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p') {

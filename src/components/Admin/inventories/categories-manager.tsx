@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Edit, Search, Grid, List, Upload } from "lucide-react";
@@ -10,9 +10,11 @@ import CategoriesTable from "./categories-table";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import useUser from "@/store/userStore";
-import UploadBulkForm from "../../../app/upload";
-import Link from "next/link"; // Import Next.js Link
+import UploadBulkForm from "../../upload/upload";
+import UploadImage from "../../upload/upload-images";
+import Link from "next/link";
 import CreateCategoryPage from "@/app/(admin)/admin/inventories/create-category/page";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export interface Category {
   id: number;
@@ -32,6 +34,23 @@ const CategoriesManager = () => {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const { user } = useUser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [isBulkUploadImagesOpen, setIsBulkUploadImagesOpen] = useState(false);
+
+
+  useEffect(() => {
+    const editParam = searchParams.get('edit');
+    const idParam = searchParams.get('id');
+
+    if (editParam === 'true' && idParam) {
+      setIsEditMode(true);
+      setEditingCategoryId(idParam);
+      router.push(`/admin/inventories/create-category?edit=true&id=${idParam}`);
+    }
+  }, [searchParams, router]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['categories'],
@@ -48,7 +67,6 @@ const CategoriesManager = () => {
     })
   });
 
-  // Filter categories based on search term
   const filteredCategories = useMemo(() => {
     if (!data?.data?.categories) return [];
 
@@ -63,7 +81,7 @@ const CategoriesManager = () => {
   }, [data?.data?.categories, searchTerm]);
 
   const handleEditCategory = (category: Category) => {
-    setEditingCategory(category);
+    router.push(`/admin/inventories/create-category?edit=true&id=${category.id}`);
   };
 
   if (isLoading) {
@@ -133,7 +151,27 @@ const CategoriesManager = () => {
             </DialogContent>
           </Dialog>
 
-          {/* Replace Dialog with Link to the new page */}
+          {/* Bulk Image product Button */}
+          <Dialog open={isBulkUploadImagesOpen} onOpenChange={setIsBulkUploadImagesOpen}>
+            <DialogTrigger asChild>
+              <Button className="transition-smooth" variant="outline">
+                <Upload className="h-4 w-4 mr-2" />
+                Bulk Upload Images
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle></DialogTitle>
+              </DialogHeader>
+              <UploadImage
+                uploadType="category_images"
+                onSuccess={() => setIsBulkUploadImagesOpen(false)}
+                onCancel={() => setIsBulkUploadImagesOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+
+          {/* Add Category Button */}
           <Link href="/admin/inventories/create-category" passHref>
             <Button className="transition-smooth" variant="secondary">
               <Plus className="h-4 w-4 mr-2" />
@@ -143,7 +181,6 @@ const CategoriesManager = () => {
         </div>
       </div>
 
-      {/* Rest of your component remains the same */}
       {/* Categories Content */}
       {viewMode === "grid" ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -220,7 +257,6 @@ const CategoriesManager = () => {
         />
       )}
 
-      {/* Edit Dialog - Keep this for inline editing if needed */}
       <Dialog open={!!editingCategory} onOpenChange={() => setEditingCategory(null)}>
         <DialogContent className="min-w-[70vw] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
