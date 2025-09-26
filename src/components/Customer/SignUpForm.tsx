@@ -18,6 +18,8 @@ import PasswordDetails from "./onboarding/PasswordDetails"
 import LocationDetails from "./onboarding/LocationDetails"
 import { formatDateToDDMMYYYY } from "@/utils/helperfns"
 import axiosCustomer from "@/utils/fetch-function-no-auth"
+import Link from "next/link"
+import { OtpVerification } from "./otp-verification"
 
 
 export interface FormData {
@@ -36,6 +38,7 @@ export interface FormData {
 
 export function SignUpForm() {
   const [currentStep, setCurrentStep] = useState(1)
+  const [onboardStep,setOnBoardStep] = useState<'register'|'otp'>('register')
   const totalSteps = 4
   const router = useRouter()
 
@@ -79,9 +82,10 @@ export function SignUpForm() {
           onSuccess: (data)=>{
               if (data?.data?.code!=='000') {
                   toast.error(data?.data?.desc || "An error occurred");
-                  router.push(`/customer-login`)
                   return;
               }
+              // router.push(`/customer-login`)
+              setOnBoardStep('otp')
               toast.success("Registration successful! Please login.");
               
           },
@@ -214,7 +218,9 @@ export function SignUpForm() {
     }
   }
 
-  
+  const handleBackToRegistration = () => {
+    setOnBoardStep('register')
+  }
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -223,7 +229,15 @@ export function SignUpForm() {
 
       {/* Left side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-8">
-        <div className="w-full max-w-md space-y-6">
+        {
+          onboardStep === 'otp'
+          ? 
+          <OtpVerification
+          onBack={handleBackToRegistration}
+          email={getValues('email')}
+          />
+          :
+          <div className="w-full max-w-md space-y-6">
           <div className="space-y-2">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">ONBOARDING</h1>
             <p className="text-gray-600 text-sm leading-relaxed">
@@ -293,7 +307,18 @@ export function SignUpForm() {
               Step {currentStep} of {totalSteps}
             </span>
           </div>
+
+          <div className="text-center">
+            <span className="text-sm text-gray-600">Already registered? </span>
+            <Link
+              href="/customer-login"
+              className="text-sm text-blue-600 hover:text-blue-700"
+            >
+              Sign in
+            </Link>
+          </div>
         </div>
+        }
       </div>
 
       {/* Right side - Illustration */}

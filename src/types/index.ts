@@ -98,6 +98,10 @@ export interface LoggedInUser {
   walletBalance?: number;
   walletType?: number;
   twoFaLinked?: string;
+  pinSet?: boolean;
+  twoFaSetupRequired?: 'Y' | 'N' | null;
+  twoFaLinkData?: string | null;
+  twoFaReferenceNo?: string | null;
 }
 
 export interface UserProfile {
@@ -126,16 +130,94 @@ export interface UserProfile {
   partnerLink?: string;
   customerId?: string;
   customerTier?: string;
-  kycStatus?: string | null;
+  kycStatus?: string[] | null;
   kycTierStatus?: string;
   notificationMessage?: string | null;
   chatSessionToken?: string;
   onboardType?: string | null;
   pinSet?: boolean;
+  twoFaSetupRequired?: 'Y' | 'N' | null;
+  twoFaLinkData?: string | null;
+  twoFaReferenceNo?: string | null;
+  storeCode?: string | null;
 }
 
 export interface Attachment {
   thumbnail: string;
   original: string;
   id?: string;
+}
+
+export interface PaymentPlanResponse {
+  responseCode: string;
+  responseMessage: string;
+  paymentPlanSummary: PaymentPlanSummary;
+}
+
+export interface PaymentPlanSummary {
+  orderId: string;
+  totalAmount: number;
+  totalAmountDisplay: string;
+  currency: string;
+  installments: Installment[];
+  paymentPlanText: string;
+  firstPaymentDate: string;
+  installmentAmount: number;
+  installmentAmountDisplay: string;
+  creditLimitUsed: string;
+  remainingCreditLimit: string;
+}
+
+export interface Installment {
+  installmentNumber: number;
+  scheduleDate: string;
+  scheduleAmount: number;
+  paymentStatus: string;
+  paymentRef: string;
+  scheduleDisplayText: string;
+  amountDisplay: string;
+}
+
+export type PaymentStatus = 'paid' | 'pending' | 'overdue' | 'upcoming';
+
+export interface PaymentRequest {
+  orderId: string;
+  paymentRef: string;
+  amount: number;
+}
+
+export interface PaymentResponse {
+  success: boolean;
+  message: string;
+  transactionId?: string;
+}
+
+
+export interface ScoreDetail {
+  parameterCode: string;
+  parameterName: string;
+  weight: number;
+  score: number;
+  comment: string;
+}
+
+export interface CreditScoreResponse {
+  responseCode: string;
+  responseMessage: string;
+  username: string;
+  entityCode: string;
+  scoreDetails: ScoreDetail[];
+  rating: string;
+  totalScore: number;
+  approvedAmount: number;
+}
+
+export type ScoreRating = 'EXCELLENT' | 'GOOD' | 'FAIR' | 'POOR';
+
+export interface ScoreConfig {
+  rating: ScoreRating;
+  color: string;
+  description: string;
+  minScore: number;
+  maxScore: number;
 }

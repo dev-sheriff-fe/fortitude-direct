@@ -124,7 +124,7 @@ const getStatusIcon = (status: string): React.ReactNode => {
 const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   data,
-  itemsPerPage = 5,
+  itemsPerPage = 4,
   onViewDetails
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -405,7 +405,7 @@ export default function OrderHistory(): React.ReactElement {
       url: '/customer-dashboard/fetch-recent-orders',
       method: 'GET',
       params: {
-        storeCode: "STO445",
+        storeCode: customer?.storeCode || "STO445",
         entityCode: customer?.entityCode
       }
     })
@@ -431,7 +431,7 @@ export default function OrderHistory(): React.ReactElement {
       render: (items: CartItem[], record: Order) => {
         const firstItem = items[0];
         return (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 whitespace-nowrap">
             <div className="w-20 h-10 relative rounded-md overflow-hidden">
               <Image
                 src={firstItem.picture || `${placeholder.src}`}
@@ -457,7 +457,7 @@ export default function OrderHistory(): React.ReactElement {
       key: 'id',
       width: 180,
       render: (text: string, record: Order) => (
-        <div>
+        <div className='whitespace-nowrap'>
           <p className="text-sm font-semibold text-gray-900">{text}</p>
           <p className="text-xs text-gray-500">{record.orderDate}</p>
         </div>
@@ -469,7 +469,7 @@ export default function OrderHistory(): React.ReactElement {
       key: 'customer',
       width: 150,
       render: (text: string) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 whitespace-nowrap">
           <Avatar className="w-8 h-8">
             <AvatarFallback className="bg-blue-500 text-white text-xs">
               {text.split(' ').map(n => n[0]).join('')}
@@ -487,7 +487,7 @@ export default function OrderHistory(): React.ReactElement {
       key: 'amount',
       width: 100,
       render: (text: number, record: Order) => (
-        <span className="text-sm font-semibold text-green-600">
+        <span className="text-sm font-semibold text-green-600 whitespace-nowrap">
           {record.ccy} {text.toFixed(2)}
         </span>
       ),
@@ -535,7 +535,7 @@ export default function OrderHistory(): React.ReactElement {
   ];
 
   return (
-    <Card className="border-gray-200 shadow-sm">
+    <Card className="border-gray-200 shadow-sm h-fit">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base lg:text-lg font-semibold text-gray-900">

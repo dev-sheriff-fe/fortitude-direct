@@ -1,11 +1,14 @@
 'use client'
 import React from 'react';
-import { Search, Bell, User } from 'lucide-react';
+import { Search, Bell, User, Menu } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { logout } from '@/utils/auth-utils-customer';
 import useCustomer from '@/store/customerStore';
+import { Button } from '../ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import SidebarMobile from './sidebar-mobile';
 
 
 const formatCurrentDate = () => {
@@ -30,9 +33,21 @@ export const DashboardHeader = () => {
   return (
     <header className="bg-white border-b border-border px-4 lg:px-6 py-3 lg:py-4 w-full">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg lg:text-2xl font-semibold text-accent">{customer?.firstname}</h1>
+        <div className='flex gap-3 items-center'>
+          <Sheet>
+            <SheetTrigger asChild className='lg:hidden'>
+                  <Button className='bg-transparent text-gray-500'>
+                <Menu className='w-6 h-6'/>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side='left'>
+              <SidebarMobile/>
+            </SheetContent>
+          </Sheet>
+          <div>
+            <h1 className="text-lg lg:text-2xl font-semibold text-accent">{customer?.firstname}</h1>
           <p className='text-xs text-muted-foreground'>{currentDate}</p>
+          </div>
         </div>
         <div className='flex items-center gap-4 lg:gap-6'>
           <svg width="21" height="27" viewBox="0 0 21 27" fill="none" xmlns="http://www.w3.org/2000/svg">

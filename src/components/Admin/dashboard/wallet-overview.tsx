@@ -364,6 +364,8 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
   );
 };
 
+
+
 // Helper function for class names
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
 
@@ -383,7 +385,7 @@ export const WalletOverview = () => {
         // merchantCode: user?.merchantCode,
         // datePeriod: getCurrentDate(),
         datePeriod: "",
-        storeCode: "STO445",
+        storeCode: user?.storeCode || 'STO445',
         username: user?.username,
         entityCode: user?.entityCode
       }
@@ -397,7 +399,8 @@ export const WalletOverview = () => {
       url: '/coinwallet/balance',
       params: {
         username: user?.username,
-        entityCode: user?.entityCode
+        entityCode: user?.entityCode,
+        storeCode: user?.storeCode || 'STO445'
       }
     })
   })
@@ -433,7 +436,7 @@ export const WalletOverview = () => {
       method: 'GET',
       params: {
         storeCode: user?.storeCode,
-        entityCode: user?.entityCode
+        entityCode: user?.entityCode || 'STO445'
       }
     })
   })

@@ -11,7 +11,7 @@ type PersonalProps = {
 const Work = ({ form }: PersonalProps) => {
   return (
     <>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid lg:grid-cols-2 gap-4">
         <FormField
             control={form.control}
             name="employer"
@@ -35,7 +35,7 @@ const Work = ({ form }: PersonalProps) => {
             <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                 <SelectTrigger>
-                    <SelectValue placeholder="Select your employment status" />
+                    <SelectValue placeholder="Select Employment Status" />
                 </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -156,6 +156,20 @@ const Work = ({ form }: PersonalProps) => {
                 <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
             </Select>
+            <FormMessage />
+            </FormItem>
+        )}
+        />
+
+        <FormField
+        control={form.control}
+        name="totalAmount"
+        render={({ field }) => (
+            <FormItem>
+            <FormLabel>Loan Amount</FormLabel>
+            <FormControl>
+                <Input type="number" placeholder="1000" {...field} />
+            </FormControl>
             <FormMessage />
             </FormItem>
         )}

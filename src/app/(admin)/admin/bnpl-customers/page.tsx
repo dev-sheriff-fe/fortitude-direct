@@ -124,7 +124,7 @@ const CreditAssessment = () => {
         <div className="space-y-1">
           <div className="font-semibold text-foreground">Score: {record.creditScore?.toFixed(2)}</div>
           <div className="font-semibold text-foreground">
-            Limit: ${record.creditLimit.toLocaleString()}
+            Limit: {record.creditLimit.toLocaleString()}
           </div>
           <div className={`font-bold text-sm ${getGradingColor(record.grading)}`}>
             Grade: {record.grading}

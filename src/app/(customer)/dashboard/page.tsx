@@ -1,13 +1,13 @@
-'use client'
 
 import OrderHistory from '@/components/Customer/dashboard/recent-orders'
 import TransactionHistory from '@/components/Customer/dashboard/recent-transactions'
 import { WalletOverview } from '@/components/Customer/dashboard/wallet-overview'
+import { Metadata } from 'next'
 import React from 'react'
 
-// const WalletOverview = dynamic(() => import('@/components/Admin/dashboard/wallet-overview' as any),{
-//   ssr: true
-// })
+export const metadata: Metadata = {
+  title: 'Customer Dashboard'
+}
 const CustomerDashboard = () => {
 
   return (
