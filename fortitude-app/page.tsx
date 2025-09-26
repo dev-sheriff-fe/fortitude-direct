@@ -9,14 +9,21 @@ import { useQuery } from "@tanstack/react-query";
 import mouse from "@/components/images/mouse.png";
 import watch from "@/components/images/watch.png";
 import { useRouter, useSearchParams } from "next/navigation";
+import ProductDetailsModal from '@/utils/product-details';
 
 
 export default function HomeFortitude() {
-const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
+  const [dealsOfTheWeek, setDealsOfTheWeek] = useState<ProductProps[]>([]);
+  const [allProducts, setAllProducts] = useState<ProductProps[]>([]);
+
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedCategory = searchParams ? searchParams.get('category') || '' : '';
   const storeCode = searchParams ? searchParams.get('storeCode') || 'STO445' : 'STO445';
+  const [selectedProduct, setSelectedProduct] = useState<ProductProps | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!searchParams?.get('storeCode')) {
@@ -43,11 +50,46 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
     }
   });
 
+  const { data: allProductsData, isLoading: allProductsLoading } = useQuery({
+    queryKey: ["all-products", storeCode],
+    queryFn: () => {
+      return axiosInstance.request({
+        method: "GET",
+        url: '/ecommerce/products/list',
+        params: {
+          name: '',
+          storeCode: storeCode,
+          entityCode: 'H2P',
+          category: '',
+          tag: '',
+          pageNumber: 1,
+          pageSize: 100
+        }
+      }).then(response => response.data)
+    }
+  });
+
   useEffect(() => {
     if (data?.products) {
       setFeaturedProducts(data.products.slice(0, 12));
     }
   }, [data]);
+
+  useEffect(() => {
+    if (allProductsData?.products) {
+      // Select 4 random products for deals of the week
+      const randomProducts = [...allProductsData.products]
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 4);
+      setDealsOfTheWeek(randomProducts);
+    }
+  }, [allProductsData]);
+
+  useEffect(() => {
+    if (allProductsData?.products) {
+      setAllProducts(allProductsData.products);
+    }
+  }, [allProductsData]);
 
   const deals = [
     {
@@ -66,7 +108,7 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
 
   const CategoryFilterIndicator = () => {
     if (!selectedCategory) return null;
-    
+
     return (
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -91,7 +133,7 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-12 px-4 mt-50">
+      <div className="container mx-auto py-12 px-4 mt-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, index) => (
             <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-gray-100 animate-pulse">
@@ -109,14 +151,14 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
 
   if (error) {
     return (
-      <div className="container mx-auto py-12 px-4 mt-50 text-center">
+      <div className="container mx-auto py-12 px-4 mt-10 text-center">
         <p className="text-red-500">Error loading products. Please try again later.</p>
       </div>
     );
   }
 
   return (
-    <><div className="container mx-auto py-12 px-4 md:px-6 mt-50">
+    <><div className="container mx-auto py-12 px-4 md:px-6">
       <HeroSlider />
 
       <div className="py-12">
@@ -138,7 +180,7 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
               <div>
                 <h3 className="text-lg font-semibold mb-2">Delivery from 30 min</h3>
                 <p className="text-gray-600 text-sm">
-                  Lorem ipsum dolor sit amet consectetur. Mus viverra at mi quam diam in nulla sit nec.
+                  Get your orders delivered quickly and reliably, right to your doorstep. Enjoy fast delivery starting from just 30 minutes.
                 </p>
               </div>
             </div>
@@ -159,7 +201,7 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
               <div>
                 <h3 className="text-lg font-semibold mb-2">Quality assurance</h3>
                 <p className="text-gray-600 text-sm">
-                  Lorem ipsum dolor sit amet consectetur. Vestibulum nec tincidunt dolor consequat.
+                  We guarantee the quality of our products. Each item is carefully selected and inspected to ensure it meets our high standards before reaching you.
                 </p>
               </div>
             </div>
@@ -180,7 +222,7 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
               <div>
                 <h3 className="text-lg font-semibold mb-2">100% Secure Payment</h3>
                 <p className="text-gray-600 text-sm">
-                  Lorem ipsum dolor sit amet consectetur. laculis integer aliquam nec a sed ultrices.
+                  Shop with confidence knowing that your payment information is protected with advanced security measures. We use secure payment gateways to ensure your transactions are safe and encrypted.
                 </p>
               </div>
             </div>
@@ -189,69 +231,20 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
       </div>
     </div>
 
-      {/* <div className="container mx-auto py-12 px-4">
-      <div className="mb-8 py-5 border-b border-[#e7eaee] flex justify-between items-center">
-        <h1 className="text-3xl font-bold ">Deals of the Week</h1>
-        <span className="font-semibold text-[#d8480b]">View All →</span>
-      </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, index) => (
-            <div key={`keyboard-${index}`} className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-              <div className="bg-[#d8480b] text-white text-xs font-semibold px-2 py-1 rounded-full inline-block mb-4">
-                On Sale
-              </div>
-              <div>
-                <img src={keyboard.src} alt="TNC Gaming Keyboard" className="w-full h-32 object-cover mb-4 rounded-md" />
-              </div>
-              <h3 className="text-lg mb-2 flex justify-center text-[#535357]">TNC Gaming Keyboard</h3>
-              <div className="flex items-center gap-2 flex justify-center">
-                <span className="text-lg font-bold mb-2 text-[#d8480b]">$120.00 USD</span>
-              </div>
-              <div className="flex items-center gap-2 mb-7 flex justify-center">
-                <span className="text-sm text-[#88888d] line-through">$140.00 USD</span>
-              </div>
-              <button className="w-full bg-white text-black py-2 px-4 rounded-3xl hover:bg-black hover:text-white transition border-3 border-black hover:border-[#d8480b] font-semibold">
-                Add to Cart
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-          {deals.slice(1).map((deal, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md border border-gray-100">
-              <div className="flex items-center gap-4">
-                <div>
-                  <img src={deal.image.src} alt={deal.title} className="w-[700px] h-[400px] object-cover rounded-md" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-4 text-[#0c2d57]">{deal.title}</h3>
-                  <p className="mb-6 text-[#5c728e]">{deal.description}</p>
-                  <button className="text-black font-semibold hover:underline flex items-center gap-1 bg-[#d8480b] text-white py-2 px-4 rounded-3xl transition">
-                    {deal.cta}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div> */}
-
       <div className="container mx-auto py-12 px-4">
         <div className="mb-8 py-5 border-b border-[#e7eaee] flex justify-between items-center">
           <h1 className="text-3xl font-bold">Deals of the Week</h1>
           <span className="font-semibold text-[#d8480b]">View All →</span>
         </div>
 
-        <CategoryFilterIndicator />
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.slice(0, 4).map((product) => (
+          {dealsOfTheWeek.slice(0, 4).map((product) => (
             <ProductCard
               key={product.id}
               product={product}
               onClick={() => {
-                console.log('Product clicked:', product);
+                setSelectedProduct(product);
+                setIsModalOpen(true);
               }}
             />
           ))}
@@ -278,7 +271,7 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
       </div>
 
 
-      <div className="container mx-auto py-12 px-4 mt-12">
+      <div className="container mx-auto py-8 px-4 mb-12">
         <div className="mb-8 py-5 border-b border-[#e7eaee] flex justify-between items-center">
           <div className="font-semibold text-xs md:text-lg flex items-center md:gap-4 text-[#5c728e]">
             <span>New Arrivals</span>
@@ -291,22 +284,30 @@ const [featuredProducts, setFeaturedProducts] = useState<ProductProps[]>([]);
 
         <CategoryFilterIndicator />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.slice(4, 12).map((product) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-30">
+          {featuredProducts.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
               onClick={() => {
-                console.log('Product clicked:', product);
+                setSelectedProduct(product);
+                setIsModalOpen(true);
               }}
             />
           ))}
         </div>
 
+
         <div className="mt-20 mb-30">
           <TestimonialSlider />
         </div>
       </div>
+
+      <ProductDetailsModal
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
+        product={selectedProduct}
+      />
     </>
   );
 } 
