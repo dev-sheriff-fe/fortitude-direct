@@ -300,8 +300,8 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                     <div key={index} className="flex items-center gap-3 p-2 border rounded-lg">
                       <div className="w-12 h-12 relative rounded-md overflow-hidden">
                         <Image
-                          src={item.picture || `${placeholder.src}`}
-                          alt={item.itemName}
+                          src={item?.picture || `${placeholder.src}`}
+                          alt={item?.itemName}
                           fill
                           className="object-cover"
                           onError={(e) => {
@@ -350,7 +350,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
 
 // Mobile Order Card Component
 const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails }) => {
-  const firstItem = order.cartItems[0];
+  const firstItem = order?.cartItems[0];
 
   return (
     <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
@@ -368,8 +368,8 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 relative rounded-md overflow-hidden">
           <Image
-            src={firstItem.picture || `${placeholder.src}`}
-            alt={firstItem.itemName}
+            src={firstItem?.picture || `${placeholder.src}`}
+            alt={firstItem?.itemName}
             fill
             className="object-cover"
             onError={(e) => {
@@ -444,17 +444,17 @@ export default function OrderHistory(): React.ReactElement {
           <div className="flex items-center gap-3">
             <div className="w-20 h-10 relative rounded-md overflow-hidden">
               <Image
-                src={firstItem.picture || `${placeholder.src}`}
+                src={firstItem?.picture || `${placeholder.src}`}
                 alt={firstItem.itemName}
                 fill
                 className="object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = `${placeholder.src}`;
+                  (e.target as HTMLImageElement).src = `${placeholder?.src}`;
                 }}
               />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">{firstItem.itemName}</p>
+              <p className="text-sm font-medium text-gray-900">{firstItem?.itemName}</p>
               <p className="text-xs text-gray-500">Cart: {items.length} item{items.length !== 1 ? 's' : ''}</p>
             </div>
           </div>
