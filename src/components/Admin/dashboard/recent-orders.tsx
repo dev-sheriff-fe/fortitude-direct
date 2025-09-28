@@ -356,12 +356,12 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
     <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold text-gray-900">{order.cartId}</p>
+          <p className="text-sm font-semibold text-gray-900">{order?.cartId}</p>
           <p className="text-xs text-gray-500">{order.orderDate}</p>
         </div>
-        <Badge className={`${getStatusColor(order.orderSatus)} text-xs px-2 py-1 flex items-center gap-1`}>
-          {getStatusIcon(order.orderSatus)}
-          {order.orderSatus}
+        <Badge className={`${getStatusColor(order?.orderSatus)} text-xs px-2 py-1 flex items-center gap-1`}>
+          {getStatusIcon(order?.orderSatus)}
+          {order?.orderSatus}
         </Badge>
       </div>
 
@@ -378,9 +378,9 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
           />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-900">{firstItem.itemName}</p>
+          <p className="text-sm font-medium text-gray-900">{firstItem?.itemName}</p>
           <p className="text-xs text-gray-500">
-            {order.cartItems.length} item{order.cartItems.length !== 1 ? 's' : ''} • {order.ccy} {order.totalAmount.toFixed(2)}
+            {order?.cartItems?.length} item{order?.cartItems?.length !== 1 ? 's' : ''} • {order?.ccy} {order?.totalAmount?.toFixed(2)}
           </p>
         </div>
       </div>
@@ -389,10 +389,10 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
         <div className="flex items-center gap-3">
           <Avatar className="w-6 h-6">
             <AvatarFallback className="bg-blue-500 text-white text-xs">
-              {order.customerName.split(' ').map(n => n[0]).join('')}
+              {order?.customerName.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
-          <p className="text-xs text-gray-600">{order.customerName}</p>
+          <p className="text-xs text-gray-600">{order?.customerName}</p>
         </div>
         <Button
           variant="ghost"
@@ -445,7 +445,7 @@ export default function OrderHistory(): React.ReactElement {
             <div className="w-20 h-10 relative rounded-md overflow-hidden">
               <Image
                 src={firstItem?.picture || `${placeholder.src}`}
-                alt={firstItem.itemName}
+                alt={firstItem?.itemName}
                 fill
                 className="object-cover"
                 onError={(e) => {
@@ -455,7 +455,7 @@ export default function OrderHistory(): React.ReactElement {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">{firstItem?.itemName}</p>
-              <p className="text-xs text-gray-500">Cart: {items.length} item{items.length !== 1 ? 's' : ''}</p>
+              <p className="text-xs text-gray-500">Cart: {items?.length} item{items?.length !== 1 ? 's' : ''}</p>
             </div>
           </div>
         );
@@ -469,7 +469,7 @@ export default function OrderHistory(): React.ReactElement {
       render: (text: string, record: Order) => (
         <div>
           <p className="text-sm font-semibold text-gray-900">{text}</p>
-          <p className="text-xs text-gray-500">{record.orderDate}</p>
+          <p className="text-xs text-gray-500">{record?.orderDate}</p>
         </div>
       ),
     },
@@ -498,7 +498,7 @@ export default function OrderHistory(): React.ReactElement {
       width: 100,
       render: (text: number, record: Order) => (
         <span className="text-sm font-semibold text-green-600 whitespace-nowrap">
-          {record.ccy} {text.toFixed(2)}
+          {record?.ccy} {text.toFixed(2)}
         </span>
       ),
     },
@@ -576,7 +576,7 @@ export default function OrderHistory(): React.ReactElement {
             <div className="block lg:hidden space-y-4">
               {orders.map((order) => (
                 <MobileOrderCard
-                  key={order.cartId}
+                  key={order?.cartId}
                   order={order}
                   onViewDetails={handleViewDetails}
                 />
