@@ -61,7 +61,7 @@ export const DashboardSidebar = () => {
         </div>
       </div>
 
-      {/* Navigation */}
+      {/* Navigaon */}
       <nav className="flex-1 py-4 lg:py-6 px-3 lg:px-4">
         <ul className="space-y-1 lg:space-y-2">
           {navigationItems.map((item) => (
