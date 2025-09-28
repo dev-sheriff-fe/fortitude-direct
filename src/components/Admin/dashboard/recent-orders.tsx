@@ -17,6 +17,9 @@ import {
 } from "@/components/ui/dialog";
 import Image from 'next/image';
 import placeholder from "@/components/images/placeholder-product.webp"
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialogCancel } from '@radix-ui/react-alert-dialog';
+import ConfirmPayment from './confirmPayment';
 
 
 // Type definitions based on the new API response
@@ -42,7 +45,7 @@ interface DeliveryAddress {
   addressType: string;
 }
 
-interface Order {
+export interface Order {
   channel: string | null;
   cartId: string;
   orderDate: string;
@@ -129,6 +132,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -246,7 +250,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
 
       {/* Order Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl h-full  overflow-y-auto">
           <DialogHeader className='flex flex-col'>
             <DialogTitle>Order Details - {selectedOrder?.cartId}</DialogTitle>
             <DialogDescription>
@@ -315,6 +319,13 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                     </div>
                   ))}
                 </div>
+                <AlertDialog onOpenChange={setIsAlertOpen} open={isAlertOpen}>
+                  <AlertDialogTrigger className='w-full bg-accent text-white mt-4 p-2 rounded-md'>Confirm Payment</AlertDialogTrigger>
+                  <ConfirmPayment
+                   selectedOrder={selectedOrder}
+                   setIsAlertOpen={setIsAlertOpen}
+                  />
+                </AlertDialog>
               </div>
 
               {selectedOrder.deliveryAddress && (
@@ -468,7 +479,7 @@ export default function OrderHistory(): React.ReactElement {
       key: 'customer',
       width: 150,
       render: (text: string) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 whitespace-nowrap">
           <Avatar className="w-8 h-8">
             <AvatarFallback className="bg-blue-500 text-white text-xs">
               {text.split(' ').map(n => n[0]).join('')}
@@ -486,7 +497,7 @@ export default function OrderHistory(): React.ReactElement {
       key: 'amount',
       width: 100,
       render: (text: number, record: Order) => (
-        <span className="text-sm font-semibold text-green-600">
+        <span className="text-sm font-semibold text-green-600 whitespace-nowrap">
           {record.ccy} {text.toFixed(2)}
         </span>
       ),
