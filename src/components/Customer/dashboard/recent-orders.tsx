@@ -268,11 +268,11 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Total Amount:</p>
-                  <p className="text-sm font-semibold">{selectedOrder.ccy} {selectedOrder.totalAmount.toFixed(2)}</p>
+                  <p className="text-sm font-semibold">{selectedOrder?.ccy} {selectedOrder?.totalAmount.toFixed(2)}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Payment Method:</p>
-                  <p className="text-sm">{selectedOrder.paymentMethod || 'Not specified'}</p>
+                  <p className="text-sm">{selectedOrder?.paymentMethod || 'Not specified'}</p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Order Status:</p>
@@ -283,9 +283,9 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Payment Status:</p>
-                  <Badge className={`${getStatusColor(selectedOrder.paymentStatus)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
-                    {getStatusIcon(selectedOrder.paymentStatus)}
-                    {selectedOrder.paymentStatus}
+                  <Badge className={`${getStatusColor(selectedOrder?.paymentStatus)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
+                    {getStatusIcon(selectedOrder?.paymentStatus)}
+                    {selectedOrder?.paymentStatus}?
                   </Badge>
                 </div>
               </div>
@@ -297,8 +297,8 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                     <div key={index} className="flex items-center gap-3 p-2 border rounded-lg">
                       <div className="w-12 h-12 relative rounded-md overflow-hidden">
                         <Image
-                          src={item.picture || `${placeholder.src}`}
-                          alt={item.itemName}
+                          src={item?.picture || `${placeholder.src}`}
+                          alt={item?.itemName}
                           fill
                           className="object-cover"
                           onError={(e) => {
@@ -307,11 +307,11 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                         />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium">{item.itemName}</p>
-                        <p className="text-xs text-gray-500">Qty: {item.quantity} | {selectedOrder.ccy} {item.price.toFixed(2)} each</p>
+                        <p className="text-sm font-medium">{item?.itemName}</p>
+                        <p className="text-xs text-gray-500">Qty: {item?.quantity} | {selectedOrder.ccy} {item?.price.toFixed(2)} each</p>
                       </div>
                       <div className="text-sm font-semibold">
-                        {selectedOrder.ccy} {item.amount.toFixed(2)}
+                        {selectedOrder.ccy} {item?.amount.toFixed(2)}
                       </div>
                     </div>
                   ))}
@@ -358,8 +358,8 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 relative rounded-md overflow-hidden">
           <Image
-            src={firstItem.picture || `${placeholder.src}`}
-            alt={firstItem.itemName}
+            src={firstItem?.picture || `${placeholder.src}`}
+            alt={firstItem?.itemName}
             fill
             className="object-cover"
             onError={(e) => {
