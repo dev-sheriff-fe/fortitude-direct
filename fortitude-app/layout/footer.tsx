@@ -2,7 +2,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin, LoaderCircle, ArrowRight } from "lucide-react"
-import logo from "@/components/images/LogoWhite.png"
+import logo from "@/components/images/direct-logo.png"
 import { useState } from "react"
 import playstore from "@/components/images/playstore.png"
 import appstore from "@/components/images/appstore.png"
@@ -72,8 +72,8 @@ export default function Footer() {
       <div className="container mx-auto py-16 relative z-0"> {/* Added relative and z-0 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mt-20 md:mt-0"> {/* Added mt-20 for spacing below newsletter */}
           {/* Company Info */}
-          <div className="space-y-6">
-            <Link href="/" className="inline-block">
+          <div className="space-y-6 ">
+            <Link href="/" className="inline-block bg-white/20 p-2 rounded-lg">
               <Image
                 src={logo}
                 alt="Fortitude Logo"

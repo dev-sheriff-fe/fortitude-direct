@@ -11,6 +11,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import useGetLookup from "@/app/hooks/useGetLookup";
+
 
 interface StaffFormData {
   username: string;
@@ -33,18 +35,17 @@ interface StaffFormData {
   entityCode: string;
 }
 
-interface LookupItem {
-  id: string;
-  name: string;
-  description: string;
-}
-
 export default function CreateStaffPage() {
   const searchParams = useSearchParams();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingUsername, setEditingUsername] = useState<string | null>(null);
   const { user } = useUser();
   const router = useRouter();
+
+  // Use the custom lookup hook for all dropdowns
+  const userRolesOptions = useGetLookup('USER_ROLE');
+  const branchCodesOptions = useGetLookup('BRANCH_CODE');
+  const statusOptions = useGetLookup('STATUS');
 
   const [formData, setFormData] = useState<StaffFormData>({
     username: '',
@@ -65,43 +66,6 @@ export default function CreateStaffPage() {
     deviceId: '0001',
     channelType: 'POS',
     entityCode: 'H2P',
-  });
-
-  // Fetch lookup data
-  const { data: userRolesData } = useQuery({
-    queryKey: ['userRoles'],
-    queryFn: () =>
-      axiosInstance.get('lookupdata/getdatabycategorycode/USER_ROLE?entityCode=H2P'),
-    select: (data) =>
-      data.data.map((item: any) => ({
-        id: item.lookupCode,
-        name: item.lookupName,
-        description: item.lookupDesc,
-      })),
-  });
-
-  const { data: branchCodesData } = useQuery({
-    queryKey: ['branchCodes'],
-    queryFn: () =>
-      axiosInstance.get('lookupdata/getdatabycategorycode/BRANCH_CODE?entityCode=H2P'),
-    select: (data) =>
-      data.data.map((item: any) => ({
-        id: item.lookupCode,
-        name: item.lookupName,
-        description: item.lookupDesc,
-      })),
-  });
-
-  const { data: statusData } = useQuery({
-    queryKey: ['status'],
-    queryFn: () =>
-      axiosInstance.get('lookupdata/getdatabycategorycode/STATUS?entityCode=H2P'),
-    select: (data) =>
-      data.data.map((item: any) => ({
-        id: item.lookupCode,
-        name: item.lookupName,
-        description: item.lookupDesc,
-      })),
   });
 
   // Fetch staff details for editing
@@ -187,6 +151,7 @@ export default function CreateStaffPage() {
       username: isEditMode ? (editingUsername || '') : formData.username,
       merchantCode: user?.merchantCode || '',
       storeCode: user?.storeCode || '',
+      bvn: '00000000000', // Placeholder BVN
     };
     
     createStaffMutation.mutate(payload);
@@ -374,13 +339,16 @@ export default function CreateStaffPage() {
                       <SelectValue placeholder="Select user role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {userRolesData?.map((role: LookupItem) => (
+                      {userRolesOptions.map((role) => (
                         <SelectItem key={role.id} value={role.id}>
                           {role.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {userRolesOptions.length === 0 && (
+                    <p className="text-xs text-muted-foreground">Loading user roles...</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -393,13 +361,16 @@ export default function CreateStaffPage() {
                       <SelectValue placeholder="Select branch code" />
                     </SelectTrigger>
                     <SelectContent>
-                      {branchCodesData?.map((branch: LookupItem) => (
+                      {branchCodesOptions.map((branch) => (
                         <SelectItem key={branch.id} value={branch.id}>
                           {branch.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {branchCodesOptions.length === 0 && (
+                    <p className="text-xs text-muted-foreground">Loading branch codes...</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -412,13 +383,16 @@ export default function CreateStaffPage() {
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      {statusData?.map((status: LookupItem) => (
+                      {statusOptions.map((status) => (
                         <SelectItem key={status.id} value={status.id}>
                           {status.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {statusOptions.length === 0 && (
+                    <p className="text-xs text-muted-foreground">Loading status options...</p>
+                  )}
                 </div>
               </div>
             </div>

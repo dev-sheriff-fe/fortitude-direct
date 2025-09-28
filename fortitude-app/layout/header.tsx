@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Menu, X, ChevronDown, Search, PhoneCall, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
-import logo from "@/components/images/LogoOrange.png"
+import logo from "@/components/images/direct-logo.png"
 import { useCategories } from '@/app/hooks/useCategories'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CartIconWithBadge } from '@/utils/cart-with-badge'

@@ -346,8 +346,10 @@ export default function StaffsPage() {
             method: 'GET',
             params: {
                 pageNumber: 1,
+                pageSize: 10,
                 merchantCode: user?.merchantCode,
-                storeCode: user?.storeCode
+                storeCode: user?.storeCode,
+                entityCode: 'H2P',
             }
         })
     });
