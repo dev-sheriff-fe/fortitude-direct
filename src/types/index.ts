@@ -221,3 +221,8 @@ export interface ScoreConfig {
   minScore: number;
   maxScore: number;
 }
+
+export interface SelectOption {
+  id: string;
+  name: string;
+}

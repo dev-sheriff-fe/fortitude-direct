@@ -12,7 +12,7 @@ interface CircularProgressProps {
 const CircularProgress: React.FC<CircularProgressProps> = ({
   score,
   maxScore = 100,
-  size = 200,
+  size = 100,
   strokeWidth = 12,
   className
 }) => {
@@ -63,7 +63,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
       
       {/* Score display in center */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="text-5xl font-bold text-foreground">
+        <div className="text-3xl font-bold text-foreground">
           {score}
         </div>
       </div>
