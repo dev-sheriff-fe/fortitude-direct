@@ -18,12 +18,14 @@ import { useLocationStore } from "@/store/locationStore";
 import axiosCustomer from "@/utils/fetch-function-customer";
 import { formatPrice } from "@/utils/helperfns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import useGetLookup from "@/app/hooks/useGetLookup";
 
 
 const formSchema = z.object({
   shippingMethod: z.enum(["delivery", "pickup"]).default("delivery")?.optional(),
   fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
   country: z.string().min(1, "Please select a country"),
+  addressType: z.string().min(1, "Please select address type").optional(),
   city: z.string().optional(),
   state: z.string().optional(),
   zipCode: z.string().optional(),
@@ -63,6 +65,10 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
     },
   });
 
+  const addressTypeOptions = useGetLookup('ADDRESS_TYPE')
+
+  console.log(addressTypeOptions);
+  
   const [pendingModal,setPendingModal] = useState(false)
 
   const [checkoutData,setCheckoutData] = useState<any>(null)
@@ -145,7 +151,7 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
             city: data?.city,
             state: data?.state,
             country: data?.country,
-            addressType: "string"
+            addressType: data?.addressType || 'WAREHOUSE'
         },
         cartItems: orderItems
     }
@@ -250,7 +256,38 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
                 <p className="text-destructive text-sm mt-1">{errors.fullName.message}</p>
               )}
             </div>
-
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="w-full">
+              <Label htmlFor="addressType" className="text-checkout-text text-sm font-medium">
+                Address Type *
+              </Label>
+              <Controller
+                name="addressType"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className={`mt-1 ${errors.addressType ? "border-destructive" : ""} w-full`}>
+                      <SelectValue placeholder="Choose address type" />
+                    </SelectTrigger>
+                    <SelectContent className="w-full">
+                      {
+                        addressTypeOptions.map((option)=>(
+                          <SelectItem key={option.id} value={option.id}>{option.name}</SelectItem>
+                        ))
+                      }
+                      {/* <SelectItem value="NG">Nigeria</SelectItem>
+                      <SelectItem value="US">United States</SelectItem>
+                      <SelectItem value="CA">Canada</SelectItem>
+                      <SelectItem value="UK">United Kingdom</SelectItem> */}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.country && (
+                <p className="text-destructive text-sm mt-1">{errors.country.message}</p>
+              )}
+            </div>
             <div className="w-full">
               <Label htmlFor="country" className="text-checkout-text text-sm font-medium">
                 Country *
@@ -260,10 +297,10 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
                 control={control}
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className={`mt-1 ${errors.country ? "border-destructive" : ""}`}>
+                    <SelectTrigger className={`mt-1 ${errors.country ? "border-destructive" : ""} w-full`}>
                       <SelectValue placeholder="Choose country" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="w-full">
                       <SelectItem value="NG">Nigeria</SelectItem>
                       <SelectItem value="US">United States</SelectItem>
                       <SelectItem value="CA">Canada</SelectItem>
@@ -275,6 +312,7 @@ export const ShippingForm = ({setCurrentStep}: {setCurrentStep: (currentStep:Che
               {errors.country && (
                 <p className="text-destructive text-sm mt-1">{errors.country.message}</p>
               )}
+            </div>
             </div>
 
             <div>

@@ -17,6 +17,9 @@ import {
 } from "@/components/ui/dialog";
 import Image from 'next/image';
 import placeholder from "@/components/images/placeholder-product.webp"
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialogCancel } from '@radix-ui/react-alert-dialog';
+import ConfirmPayment from './confirmPayment';
 
 
 // Type definitions based on the new API response
@@ -42,7 +45,7 @@ interface DeliveryAddress {
   addressType: string;
 }
 
-interface Order {
+export interface Order {
   channel: string | null;
   cartId: string;
   orderDate: string;
@@ -129,6 +132,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -246,7 +250,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
 
       {/* Order Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl h-full  overflow-y-auto">
           <DialogHeader className='flex flex-col'>
             <DialogTitle>Order Details - {selectedOrder?.cartId}</DialogTitle>
             <DialogDescription>
@@ -296,8 +300,8 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                     <div key={index} className="flex items-center gap-3 p-2 border rounded-lg">
                       <div className="w-12 h-12 relative rounded-md overflow-hidden">
                         <Image
-                          src={item.picture || `${placeholder.src}`}
-                          alt={item.itemName}
+                          src={item?.picture || `${placeholder.src}`}
+                          alt={item?.itemName}
                           fill
                           className="object-cover"
                           onError={(e) => {
@@ -315,6 +319,13 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                     </div>
                   ))}
                 </div>
+                <AlertDialog onOpenChange={setIsAlertOpen} open={isAlertOpen}>
+                  <AlertDialogTrigger className='w-full bg-accent text-white mt-4 p-2 rounded-md'>Confirm Payment</AlertDialogTrigger>
+                  <ConfirmPayment
+                   selectedOrder={selectedOrder}
+                   setIsAlertOpen={setIsAlertOpen}
+                  />
+                </AlertDialog>
               </div>
 
               {selectedOrder.deliveryAddress && (
@@ -339,26 +350,26 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
 
 // Mobile Order Card Component
 const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails }) => {
-  const firstItem = order.cartItems[0];
+  const firstItem = order?.cartItems[0];
 
   return (
     <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold text-gray-900">{order.cartId}</p>
+          <p className="text-sm font-semibold text-gray-900">{order?.cartId}</p>
           <p className="text-xs text-gray-500">{order.orderDate}</p>
         </div>
-        <Badge className={`${getStatusColor(order.orderSatus)} text-xs px-2 py-1 flex items-center gap-1`}>
-          {getStatusIcon(order.orderSatus)}
-          {order.orderSatus}
+        <Badge className={`${getStatusColor(order?.orderSatus)} text-xs px-2 py-1 flex items-center gap-1`}>
+          {getStatusIcon(order?.orderSatus)}
+          {order?.orderSatus}
         </Badge>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 relative rounded-md overflow-hidden">
           <Image
-            src={firstItem.picture || `${placeholder.src}`}
-            alt={firstItem.itemName}
+            src={firstItem?.picture || `${placeholder.src}`}
+            alt={firstItem?.itemName}
             fill
             className="object-cover"
             onError={(e) => {
@@ -367,9 +378,9 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
           />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-900">{firstItem.itemName}</p>
+          <p className="text-sm font-medium text-gray-900">{firstItem?.itemName}</p>
           <p className="text-xs text-gray-500">
-            {order.cartItems.length} item{order.cartItems.length !== 1 ? 's' : ''} • {order.ccy} {order.totalAmount.toFixed(2)}
+            {order?.cartItems?.length} item{order?.cartItems?.length !== 1 ? 's' : ''} • {order?.ccy} {order?.totalAmount?.toFixed(2)}
           </p>
         </div>
       </div>
@@ -378,10 +389,10 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
         <div className="flex items-center gap-3">
           <Avatar className="w-6 h-6">
             <AvatarFallback className="bg-blue-500 text-white text-xs">
-              {order.customerName.split(' ').map(n => n[0]).join('')}
+              {order?.customerName.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
-          <p className="text-xs text-gray-600">{order.customerName}</p>
+          <p className="text-xs text-gray-600">{order?.customerName}</p>
         </div>
         <Button
           variant="ghost"
@@ -433,18 +444,18 @@ export default function OrderHistory(): React.ReactElement {
           <div className="flex items-center gap-3">
             <div className="w-20 h-10 relative rounded-md overflow-hidden">
               <Image
-                src={firstItem.picture || `${placeholder.src}`}
-                alt={firstItem.itemName}
+                src={firstItem?.picture || `${placeholder.src}`}
+                alt={firstItem?.itemName}
                 fill
                 className="object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = `${placeholder.src}`;
+                  (e.target as HTMLImageElement).src = `${placeholder?.src}`;
                 }}
               />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">{firstItem.itemName}</p>
-              <p className="text-xs text-gray-500">Cart: {items.length} item{items.length !== 1 ? 's' : ''}</p>
+              <p className="text-sm font-medium text-gray-900">{firstItem?.itemName}</p>
+              <p className="text-xs text-gray-500">Cart: {items?.length} item{items?.length !== 1 ? 's' : ''}</p>
             </div>
           </div>
         );
@@ -458,7 +469,7 @@ export default function OrderHistory(): React.ReactElement {
       render: (text: string, record: Order) => (
         <div>
           <p className="text-sm font-semibold text-gray-900">{text}</p>
-          <p className="text-xs text-gray-500">{record.orderDate}</p>
+          <p className="text-xs text-gray-500">{record?.orderDate}</p>
         </div>
       ),
     },
@@ -468,7 +479,7 @@ export default function OrderHistory(): React.ReactElement {
       key: 'customer',
       width: 150,
       render: (text: string) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 whitespace-nowrap">
           <Avatar className="w-8 h-8">
             <AvatarFallback className="bg-blue-500 text-white text-xs">
               {text.split(' ').map(n => n[0]).join('')}
@@ -486,8 +497,8 @@ export default function OrderHistory(): React.ReactElement {
       key: 'amount',
       width: 100,
       render: (text: number, record: Order) => (
-        <span className="text-sm font-semibold text-green-600">
-          {record.ccy} {text.toFixed(2)}
+        <span className="text-sm font-semibold text-green-600 whitespace-nowrap">
+          {record?.ccy} {text.toFixed(2)}
         </span>
       ),
     },
@@ -565,7 +576,7 @@ export default function OrderHistory(): React.ReactElement {
             <div className="block lg:hidden space-y-4">
               {orders.map((order) => (
                 <MobileOrderCard
-                  key={order.cartId}
+                  key={order?.cartId}
                   order={order}
                   onViewDetails={handleViewDetails}
                 />

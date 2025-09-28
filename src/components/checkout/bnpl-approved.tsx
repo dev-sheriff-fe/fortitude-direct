@@ -39,7 +39,7 @@ const BNPLApproved = ({setBnplStep,score,setSelectedPayment}:Props) => {
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <h2 className="text-2xl font-bold text-green-600">Credit Approved!</h2>
+              <h2 className="text-2xl font-bold text-green-600">Credit Processing!</h2>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8">
@@ -54,6 +54,7 @@ const BNPLApproved = ({setBnplStep,score,setSelectedPayment}:Props) => {
                 <CardContent className="space-y-4">
                   <div className="text-center p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
                     <div className="text-4xl font-bold text-green-600 mb-2">{Math.ceil(score.score)}</div>
+                    <h3 className='text-xl font-semibold text-center'>{score?.responseMessage}</h3>
                     <div className="text-lg font-semibold text-gray-700">{score.tier}</div>
                     <div className={`mt-2 bg-green-100 text-green-800 ${score?.rating==='GOOD'&&'text-blue-600 bg-blue-100'} ${score?.rating==='BAD'&&'bg-red-100'} w-fit p-1 mx-auto rounded-sm`}>
                       {score?.rating}
@@ -95,7 +96,7 @@ const BNPLApproved = ({setBnplStep,score,setSelectedPayment}:Props) => {
 
               {/* Complete Purchase */}
               <PaymentSchedulePreview
-              totalAmount={score?.approvedLimit}
+              totalAmount={score?.approvedLimit || getCartTotal()}
               />
             </div>
           </div>

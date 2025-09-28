@@ -5,7 +5,7 @@ import { CheckoutStep } from '@/app/checkout/checkoutContent'
 
 const BnplManager = ({setCurrentStep}: {setCurrentStep:(currentStep:CheckoutStep)=>void}) => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f7f7f7]">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
           {/* Left Column - Shipping Form */}
