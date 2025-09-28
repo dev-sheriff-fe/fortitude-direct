@@ -16,8 +16,8 @@ const Cart = () => {
     const ccy = mainCcy()
     const totalAmount = cart.reduce((total, item) => total + item.subTotal, 0)
     const router = useRouter()
-    const {customer} = useCustomer()
-    const [isOpen,setIsOpen] = useState(false)
+    const { customer } = useCustomer()
+    const [isOpen, setIsOpen] = useState(false)
     const rand = generateRandomNumber(15)
     const currentDate = getCurrentDate()
     const searchParams = useSearchParams()
@@ -47,13 +47,13 @@ const Cart = () => {
         }
     })
 
-const submitOrder = () =>{
+    const submitOrder = () => {
 
         if (!customer) {
             setIsOpen(true)
             return
         }
-        const orderItems = cart.map(item=>({
+        const orderItems = cart.map(item => ({
             itemCode: item?.code,
             itemName: item?.name,
             price: item?.salePrice,
@@ -78,15 +78,15 @@ const submitOrder = () =>{
             orderSatus: "",
             paymentStatus: "",
             deliveryAddress: {
-            id: 0,
-            street: "",
-            landmark: "",
-            postCode: "",
-            city: "",
-            state: "",
-            country: "",
-            addressType: ""
-        },
+                id: 0,
+                street: "",
+                landmark: "",
+                postCode: "",
+                city: "",
+                state: "",
+                country: "",
+                addressType: ""
+            },
             cartItems: orderItems
         }
 

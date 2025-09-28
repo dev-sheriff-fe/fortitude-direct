@@ -21,7 +21,7 @@ export function SignInForm() {
   const { push } = useRouter()
   const { setCustomer } = useCustomer()
   const searchParams = useSearchParams()
-  
+
   // Get the return URL from query parameters, default to dashboard
   const returnUrl = searchParams.get('returnUrl') || '/dashboard'
 
@@ -35,14 +35,14 @@ export function SignInForm() {
       localStorage.setItem("token_customer", data.data.ticketID)
       localStorage.setItem("customer_store", JSON.stringify(data.data))
       setCustomer(data?.data)
-      
+
       if (data?.data?.ticketID) {
         if (hasAccess([data?.data.userRole], ["CUSTOMER"])) {
           setAuthCredentials(data?.data.ticketID, ['CUSTOMER'])
-            if (data?.data?.twoFaSetupRequired === 'Y') {
-              push(`/twofa_setup/customer`)
-              return
-            }
+          if (data?.data?.twoFaSetupRequired === 'Y') {
+            push(`/twofa_setup/customer`)
+            return
+          }
           // Redirect to the original intended page or dashboard
           push(decodeURIComponent(returnUrl))
           return

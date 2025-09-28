@@ -12,7 +12,7 @@ import { CartIconWithBadge } from '@/utils/cart-with-badge'
 import CartTriggerDesktop from '@/utils/cart-trigger'
 import CustomerLoginModal from "../../src/components/ui/customer-login-modal";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import Cart from '@/utils/cart' // Make sure this path is correct
+import Cart from '@/utils/cart'
 
 const mainNavItems = [
   {
@@ -122,12 +122,9 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Rest of the header content - Scrolls normally */}
       <div className="pt-16 bg-white">
-        {/* Main header content */}
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
             <Link href="/" className="relative z-10">
               <Image
                 src={logo}
@@ -138,7 +135,6 @@ export default function Header() {
                 priority />
             </Link>
 
-            {/* Search bar - hidden on mobile */}
             <div className="hidden md:block">
               <div className="relative">
                 <input

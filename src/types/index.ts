@@ -21,6 +21,26 @@ export interface ProductProps {
   usdPrice?: number;
 }
 
+export interface ScoreDetail {
+  parameterCode: string;
+  parameterName: string;
+  weight: number;
+  score: number;
+  comment: string;
+}
+
+
+export interface CreditScoreResponse {
+  responseCode: string;
+  responseMessage: string;
+  username: string;
+  entityCode: string;
+  scoreDetails: ScoreDetail[];
+  rating: string;
+  totalScore: number;
+  approvedAmount: number;
+}
+
 export interface Category {
   id?: number;
   code?: string;

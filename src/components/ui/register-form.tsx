@@ -29,31 +29,31 @@ type FormData = {
 }
 
 const otpSchema = z.object({
-  otp: z.string()
-    .min(1, 'OTP is required')
-    .regex(/^\d{4}$/, 'OTP must be exactly 6 digits')
+    otp: z.string()
+        .min(1, 'OTP is required')
+        .regex(/^\d{4}$/, 'OTP must be exactly 6 digits')
 });
 
 type OTPForm = z.infer<typeof otpSchema>;
 
- const RegisterForm = ({ setState }: RegisterProps) => {
+const RegisterForm = ({ setState }: RegisterProps) => {
 
     const { register, handleSubmit, getValues } = useForm<FormData>()
-     const {
-    register: registerOTP,
-    handleSubmit: handleSubmitOTP,
-    formState: { errors: otpErrors },
-    getValues: getValuesOTP,
-    reset: resetOTP
-  } = useForm<OTPForm>({
-    resolver: zodResolver(otpSchema)
-  });
+    const {
+        register: registerOTP,
+        handleSubmit: handleSubmitOTP,
+        formState: { errors: otpErrors },
+        getValues: getValuesOTP,
+        reset: resetOTP
+    } = useForm<OTPForm>({
+        resolver: zodResolver(otpSchema)
+    });
     const searchParams = useSearchParams()
     const storeCode = searchParams.get('storeCode') || ''
     const [registerStep, setRegisterStep] = useState<'credentials' | 'otp'>('credentials')
     const [registerData, setRegisterData] = useState('');
-    const {mutate,isPending} = useMutation({
-        mutationFn: (data:any)=>axiosCustomer.request({
+    const { mutate, isPending } = useMutation({
+        mutationFn: (data: any) => axiosCustomer.request({
             url: '/ecommerce/customer/simple-onboard',
             method: 'POST',
             data,
@@ -63,8 +63,8 @@ type OTPForm = z.infer<typeof otpSchema>;
                 'x-client-secret': 'TST03722175625334233555707073458615741827171811840881'
             }
         }),
-        onSuccess: (data)=>{
-            if (data?.data?.code!=='000') {
+        onSuccess: (data) => {
+            if (data?.data?.code !== '000') {
                 toast.error(data?.data?.desc || "An error occurred");
                 return;
             }
@@ -72,31 +72,31 @@ type OTPForm = z.infer<typeof otpSchema>;
             setRegisterData(getValues('email'))
             setRegisterStep('otp');
         },
-        onError: (error)=>{
+        onError: (error) => {
             console.log(error);
         }
     })
 
-    const {mutate: verifyOtp, isPending: isVerifying} = useMutation({
-        mutationFn: (data:any) =>axiosCustomer.request({
+    const { mutate: verifyOtp, isPending: isVerifying } = useMutation({
+        mutationFn: (data: any) => axiosCustomer.request({
             url: '/ecommerce/customer/verify-otp',
             method: 'POST',
             data
         }),
-          onSuccess: (data)=>{
-            if (data?.data?.code!=='000') {
+        onSuccess: (data) => {
+            if (data?.data?.code !== '000') {
                 toast.error(data?.data?.desc || "An error occurred");
                 return;
             }
             toast.success("Verification successful! Please login.");
             setState('login');
         },
-        onError: (error)=>{
+        onError: (error) => {
             console.log(error);
         }
     })
 
-    const onSubmit = (value: FormData) =>{
+    const onSubmit = (value: FormData) => {
         const payload = {
             firstname: value?.firstName,
             customerType: "",
@@ -124,128 +124,128 @@ type OTPForm = z.infer<typeof otpSchema>;
         mutate(payload)
     }
 
-   const submitOtp = () => {
-       const payload = {
-           otp: getValuesOTP('otp'),
-           email: registerData
-       }
-
-       verifyOtp(payload)
-   }
-
-  return (
-    <div className='space-y-3'>
-        {
-            registerStep === 'credentials' ? (
-              <>
-                 <DialogHeader className='flex flex-col'>
-            <DialogTitle className="text-2xl text-center font-medium">Join Us Today!</DialogTitle>
-            <DialogDescription className="text-sm text-center">Please enter your credentials to continue</DialogDescription>
-        </DialogHeader>
-
-        <form className='grid md:grid-cols-2 gap-4' onSubmit={handleSubmit(onSubmit)}>
-            <div className='space-y-3'>
-                <Label>First Name</Label>
-            
-                <Input
-                    type="text"
-                    {...register('firstName')}
-                    placeholder="First Name"
-                    className="mb-4 mt-2"
-                />
-            </div>
-            <div className='space-y-3'>
-                <Label>Last Name</Label>
-            
-                <Input
-                    type="text"
-                    {...register('lastName')}
-                    placeholder="Last Name"
-                    className="mb-4 mt-2"
-                />
-            </div>
-
-            <div className='space-y-3'>
-                <Label>Email Address</Label>
-            
-                <Input
-                    type="email"
-                    {...register('email')}
-                    placeholder="Email"
-                    className="mb-4 mt-2"
-                />
-            </div>
-
-            <div className='space-y-3'>
-                <Label>Mobile Number</Label>
-            
-                <Input
-                    type="text"
-                    {...register('mobile')}
-                    placeholder="Mobile Number"
-                    className="mb-4 mt-2"
-                />
-            </div>
-
-            <div className='space-y-3'>
-                <Label>Password</Label>
-            
-                <Input
-                    type="password"
-                    {...register('password')}
-                    placeholder="Password"
-                    className="mb-4 mt-2"
-                />
-            </div>
-
-            <div className='space-y-3'>
-                <Label>Delivery Address</Label>
-            
-                <Input
-                    type="text"
-                    {...register('address')}
-                    placeholder="Delivery Address"
-                    className="mb-4 mt-2"
-                />
-            </div>
-
-            <Button type='submit' className='bg-accent md:col-span-2 text-white' disabled={isPending}>{isPending ? 'Registering...' : 'Register'}</Button>
-        </form>
-
-        <p className='text-sm text-center'>
-            Already registered?{' '}
-            <button className="text-accent underline" onClick={() => setState('login')}>
-                Login
-            </button>
-        </p>
-              </>
-            )
-            :
-            <div>
-                <DialogHeader className='flex flex-col'>
-                    <DialogTitle className="text-2xl text-center font-medium">Verify OTP</DialogTitle>
-                    <DialogDescription className="text-sm text-center">Please enter the OTP sent to your email</DialogDescription>
-                </DialogHeader>
-
-                <form className='flex flex-col gap-4' onSubmit={handleSubmitOTP(submitOtp)}>
-                    <div className='space-y-1'>
-                        <Label>OTP</Label>
-
-                        <Input
-                            type="text"
-                            {...registerOTP('otp')}
-                            placeholder="Enter OTP"
-                            className="mb-4"
-                            maxLength={4}
-                        />
-                    </div>
-
-                    <Button type='submit' className='bg-accent text-white' disabled={isVerifying}>{isVerifying ? 'Verifying...' : 'Verify OTP'}</Button>
-                </form>
-            </div>
+    const submitOtp = () => {
+        const payload = {
+            otp: getValuesOTP('otp'),
+            email: registerData
         }
-    </div>
-  )
+
+        verifyOtp(payload)
+    }
+
+    return (
+        <div className='space-y-3'>
+            {
+                registerStep === 'credentials' ? (
+                    <>
+                        <DialogHeader className='flex flex-col'>
+                            <DialogTitle className="text-2xl text-center font-medium">Join Us Today!</DialogTitle>
+                            <DialogDescription className="text-sm text-center">Please enter your credentials to continue</DialogDescription>
+                        </DialogHeader>
+
+                        <form className='grid md:grid-cols-2 gap-4' onSubmit={handleSubmit(onSubmit)}>
+                            <div className='space-y-3'>
+                                <Label>First Name</Label>
+
+                                <Input
+                                    type="text"
+                                    {...register('firstName')}
+                                    placeholder="First Name"
+                                    className="mb-4 mt-2"
+                                />
+                            </div>
+                            <div className='space-y-3'>
+                                <Label>Last Name</Label>
+
+                                <Input
+                                    type="text"
+                                    {...register('lastName')}
+                                    placeholder="Last Name"
+                                    className="mb-4 mt-2"
+                                />
+                            </div>
+
+                            <div className='space-y-3'>
+                                <Label>Email Address</Label>
+
+                                <Input
+                                    type="email"
+                                    {...register('email')}
+                                    placeholder="Email"
+                                    className="mb-4 mt-2"
+                                />
+                            </div>
+
+                            <div className='space-y-3'>
+                                <Label>Mobile Number</Label>
+
+                                <Input
+                                    type="text"
+                                    {...register('mobile')}
+                                    placeholder="Mobile Number"
+                                    className="mb-4 mt-2"
+                                />
+                            </div>
+
+                            <div className='space-y-3'>
+                                <Label>Password</Label>
+
+                                <Input
+                                    type="password"
+                                    {...register('password')}
+                                    placeholder="Password"
+                                    className="mb-4 mt-2"
+                                />
+                            </div>
+
+                            <div className='space-y-3'>
+                                <Label>Delivery Address</Label>
+
+                                <Input
+                                    type="text"
+                                    {...register('address')}
+                                    placeholder="Delivery Address"
+                                    className="mb-4 mt-2"
+                                />
+                            </div>
+
+                            <Button type='submit' className='bg-accent md:col-span-2 text-white' disabled={isPending}>{isPending ? 'Registering...' : 'Register'}</Button>
+                        </form>
+
+                        <p className='text-sm text-center'>
+                            Already registered?{' '}
+                            <button className="text-accent underline" onClick={() => setState('login')}>
+                                Login
+                            </button>
+                        </p>
+                    </>
+                )
+                    :
+                    <div>
+                        <DialogHeader className='flex flex-col'>
+                            <DialogTitle className="text-2xl text-center font-medium">Verify OTP</DialogTitle>
+                            <DialogDescription className="text-sm text-center">Please enter the OTP sent to your email</DialogDescription>
+                        </DialogHeader>
+
+                        <form className='flex flex-col gap-4' onSubmit={handleSubmitOTP(submitOtp)}>
+                            <div className='space-y-1'>
+                                <Label>OTP</Label>
+
+                                <Input
+                                    type="text"
+                                    {...registerOTP('otp')}
+                                    placeholder="Enter OTP"
+                                    className="mb-4"
+                                    maxLength={4}
+                                />
+                            </div>
+
+                            <Button type='submit' className='bg-accent text-white' disabled={isVerifying}>{isVerifying ? 'Verifying...' : 'Verify OTP'}</Button>
+                        </form>
+                    </div>
+            }
+        </div>
+    )
 }
 
 export default RegisterForm

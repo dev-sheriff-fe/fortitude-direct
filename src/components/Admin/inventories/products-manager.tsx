@@ -47,7 +47,6 @@ const ProductsManager = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
 
-  // Check if we're in edit mode from URL params
   useEffect(() => {
     const editParam = searchParams.get('edit');
     const idParam = searchParams.get('id');

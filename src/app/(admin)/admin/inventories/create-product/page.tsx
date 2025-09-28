@@ -69,7 +69,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
 
   const watchedImageURL = watch("imageURL");
 
-  // Check if we're in edit mode from URL params
   useEffect(() => {
     const editParam = searchParams.get('edit');
     const idParam = searchParams.get('id');
@@ -80,7 +79,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
     }
   }, [searchParams]);
 
-  // Fetch product details for editing
   const { data: productData, isLoading: isLoadingProduct } = useQuery({
     queryKey: ['product-detail', editingProductId],
     queryFn: () => axiosInstance.request({
@@ -117,10 +115,9 @@ useEffect(() => {
       ccy: product?.ccy || 'NGN'
     };
     
-    console.log('Form data to be set:', productObj); // Debug log
+    console.log('Form data to be set:', productObj);
     reset(productObj);
   } else if (!isEditMode) {
-    // Reset to default values for create mode
     reset({
       productId: "",
       productName: "",
@@ -160,7 +157,7 @@ const onSubmitForm = async (values: ProductFormData) => {
       ccy: values.ccy || 'NGN'
     };
 
-    console.log('Submitting payload:', payload); // Debug log
+    console.log('Submitting payload:', payload);
     await saveProduct(payload);
     toast.success(isEditMode ? 'Product updated successfully' : 'Product created successfully');
   } catch (error) {
@@ -181,7 +178,6 @@ const onSubmitForm = async (values: ProductFormData) => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header with back button */}
       <div className="flex items-center mb-6">
         <Button 
           variant="ghost" 
@@ -211,7 +207,6 @@ const onSubmitForm = async (values: ProductFormData) => {
 
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Basic Information */}
           <Card className="border-accent/20 border-2 shadow-md">
             <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -280,7 +275,6 @@ const onSubmitForm = async (values: ProductFormData) => {
             </CardContent>
           </Card>
 
-          {/* Codes and IDs */}
           <Card className="border-accent/20 border-2 shadow-md">
             <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -322,7 +316,6 @@ const onSubmitForm = async (values: ProductFormData) => {
             </CardContent>
           </Card>
 
-          {/* Pricing */}
           <Card className="border-accent/20 border-2 shadow-md">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -399,7 +392,6 @@ const onSubmitForm = async (values: ProductFormData) => {
             </CardContent>
           </Card>
 
-          {/* Inventory */}
           <Card className="border-accent/20 border-2 shadow-md">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -444,7 +436,6 @@ const onSubmitForm = async (values: ProductFormData) => {
           </Card>
         </div>
 
-        {/* Image Upload */}
         <Card className="mt-8 border-accent/20 border-2 shadow-md">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -463,7 +454,6 @@ const onSubmitForm = async (values: ProductFormData) => {
           </CardContent>
         </Card>
 
-        {/* Action Buttons */}
         <div className="flex justify-end gap-4 pt-8 mt-8 border-t border-accent/20">
           <Button 
             type="button" 

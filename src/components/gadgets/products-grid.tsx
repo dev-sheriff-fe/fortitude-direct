@@ -11,72 +11,72 @@ import { Button } from "../ui/button"
 import axiosInstanceNoAuth from "@/utils/fetch-function-auth"
 
 const ProductsGrid = () => {
-    // This component displays a grid of products
-    const searchParams = useSearchParams();
-    const category = searchParams.get('category') || ''
-    const name = searchParams.get('name') || ''
-    const storeCode = searchParams.get('storeCode') || ''
-    const [modalProduct, setModalProduct] = useState<ProductProps | null>(null)
-    const [isOpen, setIsOpen] = useState(false)
-    const [retryProducts,setRetryProducts] = useState(false)
-    const retryFn = () =>{
-        setRetryProducts(!retryProducts)
-      }
-    
-   const { data,isLoading, error } = useQuery({
-  queryKey: ["products",category,name,retryProducts],
-  queryFn: () => {
-    return axiosInstanceNoAuth.request({
-      method: "GET",
-      url: '/ecommerce/products/list',
-      params: {
-        name,
-        storeCode,
-        entityCode: 'H2P',
-        category,
-        tag: '',
-        pageNumber: 1,
-        pageSize: 200
-      }
-    })
-    .then(response => response.data)
+  // This component displays a grid of products
+  const searchParams = useSearchParams();
+  const category = searchParams.get('category') || ''
+  const name = searchParams.get('name') || ''
+  const storeCode = searchParams.get('storeCode') || ''
+  const [modalProduct, setModalProduct] = useState<ProductProps | null>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [retryProducts, setRetryProducts] = useState(false)
+  const retryFn = () => {
+    setRetryProducts(!retryProducts)
   }
-});
 
-    if (isLoading) return <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {
-            [1, 2, 3, 4, 5, 6].map((item) => (
-                <div key={item} className="animate-pulse h-[356px] bg-gray-200 rounded-md mb-2"></div>
-            ))
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["products", category, name, retryProducts],
+    queryFn: () => {
+      return axiosInstanceNoAuth.request({
+        method: "GET",
+        url: '/ecommerce/products/list',
+        params: {
+          name,
+          storeCode,
+          entityCode: 'H2P',
+          category,
+          tag: '',
+          pageNumber: 1,
+          pageSize: 200
         }
-    </div>
-    
+      })
+        .then(response => response.data)
+    }
+  });
 
-  
-    if (error) return (
+  if (isLoading) return <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+    {
+      [1, 2, 3, 4, 5, 6].map((item) => (
+        <div key={item} className="animate-pulse h-[356px] bg-gray-200 rounded-md mb-2"></div>
+      ))
+    }
+  </div>
+
+
+
+  if (error) return (
     <div className='hidden lg:flex flex-col items-center justify-center l lg:sticky lg:max-h-screen'>
       <div className="p-4">Error loading products</div>
       <Button className='bg-accent text-white' onClick={retryFn}>Retry</Button>
     </div>
   )
 
-    console.log(isOpen);
-    
+  console.log(isOpen);
+
 
   return (
     <div className='p-4'>
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-3">
-          {data?.products?.map((product:ProductProps) => (
-            <Product key={product.id} product={product} onClick={() => {
-              setModalProduct(product);
-              setIsOpen(true);
-            }} />
-          ))}
-        </div>
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-3">
+        {data?.products?.map((product: ProductProps) => (
+          <Product key={product.id} product={product} onClick={() => {
+            setModalProduct(product);
+            setIsOpen(true);
+          }} />
+        ))}
+      </div>
 
-        {
-          isOpen && <Suspense><ProductDetail product={modalProduct} setIsOpen={setIsOpen} /></Suspense>
-        }
+      {
+        isOpen && <Suspense><ProductDetail product={modalProduct} setIsOpen={setIsOpen} /></Suspense>
+      }
     </div>
   )
 }

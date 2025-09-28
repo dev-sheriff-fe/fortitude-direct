@@ -201,7 +201,7 @@
 // //     const [showAdminButton, setShowAdminButton] = useState(false);
 // //     const [customerData, setCustomerData] = useState<any>(null);
 // //     const storeCode = searchParams.get('storeCode') || ''
-    
+
 // //     const { mutate, isPending } = useMutation({
 // //         mutationFn: (data: any) => axiosCustomer.request({
 // //             url: '/ecommerce/login',
@@ -213,7 +213,7 @@
 // //             localStorage.setItem("customer_store", JSON.stringify(data.data))
 // //             setCustomer(data?.data)
 // //             setCustomerData(data?.data)
-            
+
 // //             if (data?.data?.ticketID) {
 // //                 if (hasAccess([data?.data.userRole], ["CUSTOMER"])) {
 // //                     setAuthCredentials(data?.data.ticketID, ['CUSTOMER'])
@@ -230,7 +230,7 @@
 // //             console.log(error);
 // //         }
 // //     })
-    
+
 // //     const onSubmit = (value: FormData) => {
 // //         const payload = {
 // //             username: value?.username,
@@ -243,13 +243,13 @@
 
 // //         mutate(payload)
 // //     }
-    
+
 // //     const handleGoToAdmin = () => {
 // //         if (customerData) {
 // //             // Store the customer credentials for admin access
 // //             localStorage.setItem("token_store_admin", customerData.ticketID);
 // //             localStorage.setItem("user_store", JSON.stringify(customerData));
-            
+
 // //             // Redirect to customer-admin
 // //             push('/customer-admin');
 // //             setIsOpen(false);
@@ -291,7 +291,7 @@
 // //                             </div>
 
 // //                             <Button type='submit' className='bg-accent text-white'>{isPending ? 'Logging in...' : 'Login'}</Button>
-                            
+
 // //                             {/* Show admin button only after successful login */}
 // //                             {showAdminButton && (
 // //                                 <Button 

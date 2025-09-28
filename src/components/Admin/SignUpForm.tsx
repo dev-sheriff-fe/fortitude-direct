@@ -109,7 +109,7 @@ export function SignUpForm() {
   }
 
   const { mutate, isPending } = useMutation({
-    mutationFn: ()=> axiosInstanceNoAuth.request({
+    mutationFn: () => axiosInstanceNoAuth.request({
       url: 'business/onboard',
       method: 'POST',
       data: {
@@ -142,18 +142,18 @@ export function SignUpForm() {
       }
     }),
     onSuccess: (response) => {
-        if (response?.data?.code === '000') {
-          toast.success(response?.data?.desc ?? 'Registration successful');
-          // Open liveness page in new tab
-          window.open(`/liveness?id=${response?.data?.id}`, '_blank');
-          return
-        } else {
-          toast.error(response.data?.desc);
-        }
-      },
-      onError: (error: any) => {
-        toast.error(error?.response?.data?.message ?? 'An error occurred');
-      },
+      if (response?.data?.code === '000') {
+        toast.success(response?.data?.desc ?? 'Registration successful');
+        // Open liveness page in new tab
+        window.open(`/liveness?id=${response?.data?.id}`, '_blank');
+        return
+      } else {
+        toast.error(response.data?.desc);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message ?? 'An error occurred');
+    },
   })
   const onSubmit = (data: FormData) => {
     console.log("Form submitted:", data)
@@ -163,32 +163,32 @@ export function SignUpForm() {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-       return <BusinessInformation
-            errors={errors}
-            register={register}
-            setValue={setValue}
-            watchedValues={watchedValues}
+        return <BusinessInformation
+          errors={errors}
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
         />
-        
+
 
       case 2:
-       return <ContactDetails
-            errors={errors}
-            register={register}
-       />
+        return <ContactDetails
+          errors={errors}
+          register={register}
+        />
 
       case 3:
         return <PasswordDetails
-            errors={errors}
-            register={register}
-            watch={watch}
+          errors={errors}
+          register={register}
+          watch={watch}
         />
       case 4:
-       return <LocationDetails
-            errors={errors}
-            register={register}
-            setValue={setValue}
-            watchedValues={watchedValues}
+        return <LocationDetails
+          errors={errors}
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
         />
 
       default:
@@ -211,7 +211,7 @@ export function SignUpForm() {
     }
   }
 
-  
+
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -235,9 +235,8 @@ export function SignUpForm() {
               {[1, 2, 3, 4].map((step, index) => (
                 <div key={step} className="flex items-center">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium relative z-10 ${
-                      step <= currentStep ? "bg-accent text-white" : "bg-gray-200 text-gray-600"
-                    }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium relative z-10 ${step <= currentStep ? "bg-accent text-white" : "bg-gray-200 text-gray-600"
+                      }`}
                   >
                     {step}
                   </div>

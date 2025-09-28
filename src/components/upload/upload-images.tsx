@@ -82,17 +82,17 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
     if (!files) return;
 
     const newImagePreviews: ImagePreview[] = [];
-    
+
     Array.from(files).forEach(file => {
       const validationError = validateFile(file);
       if (validationError) {
         toast.error(validationError);
         return;
       }
-      
+
       const previewUrl = URL.createObjectURL(file);
       const code = getCodeFromFileName(file.name);
-      
+
       newImagePreviews.push({
         id: Math.random().toString(36).substr(2, 9),
         url: previewUrl,
@@ -100,7 +100,7 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
         code: code
       });
     });
-    
+
     setImagePreviews(prev => [...prev, ...newImagePreviews]);
   };
 
@@ -128,7 +128,7 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
         fileUploadFormData.append('file', imagePreview.file);
 
         const codeParamName = uploadType === 'product_images' ? 'productCode' : 'categoryCode';
-        
+
         const headers = {
           'x-source-code': 'WEB',
           'FileType': uploadType === 'product_images' ? 'PRODUCT_IMAGE' : 'PRODUCT_CATEGORY_IMAGE',
@@ -202,8 +202,8 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
 
   // Get appropriate text based on upload type
   const getTitle = () => {
-    return uploadType === 'product_images' 
-      ? 'Upload Product Images' 
+    return uploadType === 'product_images'
+      ? 'Upload Product Images'
       : 'Upload Category Images';
   };
 
@@ -212,8 +212,8 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
   };
 
   const getFileTypeLabel = () => {
-    return uploadType === 'product_images' 
-      ? 'PRODUCT IMAGE' 
+    return uploadType === 'product_images'
+      ? 'PRODUCT IMAGE'
       : 'PRODUCT CATEGORY IMAGE';
   };
 
@@ -269,9 +269,9 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
                 <div className="grid grid-cols-3 gap-2">
                   {imagePreviews.map((preview) => (
                     <div key={preview.id} className="relative group">
-                      <img 
-                        src={preview.url} 
-                        alt="Preview" 
+                      <img
+                        src={preview.url}
+                        alt="Preview"
                         className="w-full h-24 object-cover rounded-lg"
                       />
                       <button
