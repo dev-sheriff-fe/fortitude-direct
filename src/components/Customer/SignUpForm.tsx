@@ -322,7 +322,7 @@ export function SignUpForm() {
         }
       </div>
 
-      {/* Right side - Illustration */}
+      {/* Right side - Illustraton */}
       <div className="hidden lg:flex lg:w-1/2 bg-gray-100 items-center justify-center p-8">
         <div className="w-full h-full flex items-center justify-center">
           <Image
