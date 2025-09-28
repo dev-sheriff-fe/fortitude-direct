@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import Image from "next/image"
-import posIcon from "@/assets/ecommerce-svg.jpg"
+// import posIcon from "@/assets/ecommerce-svg.jpg"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -21,9 +21,10 @@ export function SignInForm() {
   const { push } = useRouter()
   const { setCustomer } = useCustomer()
   const searchParams = useSearchParams()
-  
-  // Get the return URL from query parameters, default to dashboard
+
   const returnUrl = searchParams.get('returnUrl') || '/dashboard'
+
+  const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: any) => axiosCustomer.request({
@@ -35,14 +36,14 @@ export function SignInForm() {
       localStorage.setItem("token_customer", data.data.ticketID)
       localStorage.setItem("customer_store", JSON.stringify(data.data))
       setCustomer(data?.data)
-      
+
       if (data?.data?.ticketID) {
         if (hasAccess([data?.data.userRole], ["CUSTOMER"])) {
           setAuthCredentials(data?.data.ticketID, ['CUSTOMER'])
-            if (data?.data?.twoFaSetupRequired === 'Y') {
-              push(`/twofa_setup/customer`)
-              return
-            }
+          if (data?.data?.twoFaSetupRequired === 'Y') {
+            push(`/twofa_setup/customer`)
+            return
+          }
           // Redirect to the original intended page or dashboard
           push(decodeURIComponent(returnUrl))
           return
@@ -75,7 +76,7 @@ export function SignInForm() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Blue header bar */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-blue-600"></div>
+      <div className="absolute top-0 left-0 right-0 h-2 bg-accent"></div>
 
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-12">
@@ -120,7 +121,7 @@ export function SignInForm() {
 
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium"
+              className="w-full bg-accent hover:bg-accent/70 text-white py-3 rounded-md font-medium"
               disabled={isPending}
             >
               {isPending ? "Please wait" : "Sign In"}
@@ -131,7 +132,7 @@ export function SignInForm() {
             <span className="text-sm text-gray-600">Don&apos;t have an account? </span>
             <Link
               href="/customer-onboarding"
-              className="text-sm text-blue-600 hover:text-blue-700"
+              className="text-sm text-accent hover:text-accent/70"
             >
               Sign up
             </Link>
@@ -142,8 +143,10 @@ export function SignInForm() {
       {/* Right side - Illustration */}
       <div className="hidden lg:flex lg:w-1/2 bg-gray-100 items-center justify-center p-8">
         <Image
-          src={posIcon}
+          src={bannerUrl}
           alt="POS System Illustration"
+          width={600}
+          height={600}
           className="max-w-full max-h-full object-contain"
         />
       </div>

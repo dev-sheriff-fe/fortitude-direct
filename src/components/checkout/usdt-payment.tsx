@@ -286,7 +286,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
               <ArrowLeft className="w-4 h-4" />
             </Button>
             
-            <div className='flex items-center gap-2'>
+            <div className='flex items-center gap-2 bg-white/20 p-2 rounded-md'>
               <Image
                 src={logoWhite}
                 alt="Logo"

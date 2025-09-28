@@ -49,7 +49,7 @@ export const DashboardSidebar = () => {
     >
       <div className="p-4 lg:p-6 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center ">
+          <div className="flex items-center justify-center bg-white/20 p-2 rounded-md">
             <Image
               src={logoUrl || 'logo.png'}
               alt='logo'

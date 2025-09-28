@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Download, Plus, Search, Eye, Phone, Mail, User, Edit } from 'lucide-react';
+import { Download, Plus, Search, Eye, Edit, Trash2, Settings } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/utils/fetch-function';
 import useUser from '@/store/userStore';
@@ -19,19 +18,17 @@ import { Input } from "@/components/ui/input";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-interface Staff {
+interface StoreSetting {
     id: number;
-    username: string;
-    firstname: string;
-    lastname: string;
-    email: string;
-    mobileNo: string;
-    userRole: string;
-    branchCode: string;
+    settingCode: string;
+    settingType: string;
+    description: string;
+    value: string;
     status: string;
     merchantCode: string;
     storeCode: string;
     createdAt: string;
+    updatedAt: string;
 }
 
 interface Column {
@@ -39,7 +36,7 @@ interface Column {
     dataIndex: string;
     key: string;
     width?: number;
-    render?: (value: any, record: Staff, index: number) => React.ReactNode;
+    render?: (value: any, record: StoreSetting, index: number) => React.ReactNode;
 }
 
 const getStatusColor = (status: string): string => {
@@ -59,8 +56,19 @@ const getDisplayValue = (value: any): string => {
     return value?.toString() || 'N/A';
 };
 
-const getInitials = (firstName: string, lastName: string): string => {
-    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+const getSettingTypeColor = (type: string): string => {
+    switch (type?.toLowerCase()) {
+        case 'business_hours':
+            return 'bg-blue-100 text-blue-800';
+        case 'payment_methods':
+            return 'bg-green-100 text-green-800';
+        case 'shipping_options':
+            return 'bg-purple-100 text-purple-800';
+        case 'general':
+            return 'bg-gray-100 text-gray-800';
+        default:
+            return 'bg-orange-100 text-orange-800';
+    }
 };
 
 const DynamicTable = ({
@@ -71,13 +79,13 @@ const DynamicTable = ({
     onEditDetails
 }: {
     columns: Column[];
-    data: Staff[];
+    data: StoreSetting[];
     itemsPerPage?: number;
-    onViewDetails: (staff: Staff) => void;
-    onEditDetails: (staff: Staff) => void;
+    onViewDetails: (setting: StoreSetting) => void;
+    onEditDetails: (setting: StoreSetting) => void;
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+    const [selectedSetting, setSelectedSetting] = useState<StoreSetting | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -85,10 +93,10 @@ const DynamicTable = ({
     const endIndex = startIndex + itemsPerPage;
     const currentData = data.slice(startIndex, endIndex);
 
-    const handleViewDetails = (staff: Staff) => {
-        setSelectedStaff(staff);
+    const handleViewDetails = (setting: StoreSetting) => {
+        setSelectedSetting(setting);
         setIsModalOpen(true);
-        onViewDetails(staff);
+        onViewDetails(setting);
     };
 
     const handlePageChange = (page: number) => {
@@ -101,7 +109,7 @@ const DynamicTable = ({
         if (col.key === 'actions') {
             return {
                 ...col,
-                render: (text: string, record: Staff) => (
+                render: (text: string, record: StoreSetting) => (
                     <div className="flex gap-1">
                         <Button
                             variant="ghost"
@@ -152,8 +160,8 @@ const DynamicTable = ({
                                 {columnsWithHandler.map((column) => (
                                     <td key={column.key} className="p-3 text-sm">
                                         {column.render
-                                            ? column.render(item[column.dataIndex as keyof Staff], item, index)
-                                            : getDisplayValue(item[column.dataIndex as keyof Staff])
+                                            ? column.render(item[column.dataIndex as keyof StoreSetting], item, index)
+                                            : getDisplayValue(item[column.dataIndex as keyof StoreSetting])
                                         }
                                     </td>
                                 ))}
@@ -165,7 +173,7 @@ const DynamicTable = ({
 
             <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4">
                 <p className="text-sm text-gray-500">
-                    Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Staff
+                    Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Settings
                 </p>
                 <div className="flex items-center gap-2">
                     <Button
@@ -205,75 +213,77 @@ const DynamicTable = ({
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader className='flex flex-col'>
-                        <DialogTitle>Staff Details - {selectedStaff?.firstname} {selectedStaff?.lastname}</DialogTitle>
+                        <DialogTitle>Setting Details - {selectedSetting?.settingCode || 'N/A'}</DialogTitle>
                         <DialogDescription>
-                            Detailed information about the selected staff member
+                            Detailed information about the store setting
                         </DialogDescription>
                     </DialogHeader>
 
-                    {selectedStaff && (
+                    {selectedSetting && (
                         <div className="py-4">
-                            <div className="flex items-center gap-4 mb-6">
-                                <Avatar className="w-20 h-20">
-                                    <AvatarFallback className="text-lg">
-                                        {getInitials(selectedStaff.firstname, selectedStaff.lastname)}
-                                    </AvatarFallback>
-                                </Avatar>
+                            <div className="flex items-center justify-between mb-6">
                                 <div>
-                                    <h3 className="text-lg font-semibold">
-                                        {getDisplayValue(selectedStaff.firstname)} {getDisplayValue(selectedStaff.lastname)}
-                                    </h3>
-                                    <p className="text-sm text-gray-500">@{getDisplayValue(selectedStaff.username)}</p>
-                                    <Badge className={`${getStatusColor(selectedStaff.status)} text-xs px-2 py-1 mt-1 w-fit`}>
-                                        {getDisplayValue(selectedStaff.status)}
-                                    </Badge>
+                                    <h3 className="text-lg font-semibold">{getDisplayValue(selectedSetting.settingCode)}</h3>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <Badge className={`${getSettingTypeColor(selectedSetting.settingType)} text-xs px-2 py-1`}>
+                                            {getDisplayValue(selectedSetting.settingType)}
+                                        </Badge>
+                                        <Badge className={`${getStatusColor(selectedSetting.status)} text-xs px-2 py-1`}>
+                                            {getDisplayValue(selectedSetting.status)}
+                                        </Badge>
+                                    </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div className="space-y-2">
-                                    <p className="text-sm font-medium">Username:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedStaff.username)}</p>
+                                    <p className="text-sm font-medium">Setting Code:</p>
+                                    <p className="text-sm font-mono bg-gray-50 p-2 rounded">{getDisplayValue(selectedSetting.settingCode)}</p>
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="text-sm font-medium">User Role:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedStaff.userRole)}</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium">Branch Code:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedStaff.branchCode)}</p>
+                                    <p className="text-sm font-medium">Setting Type:</p>
+                                    <p className="text-sm">{getDisplayValue(selectedSetting.settingType)}</p>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium">Store Code:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedStaff.storeCode)}</p>
+                                    <p className="text-sm">{getDisplayValue(selectedSetting.storeCode)}</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-sm font-medium">Merchant Code:</p>
+                                    <p className="text-sm">{getDisplayValue(selectedSetting.merchantCode)}</p>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium">Status:</p>
-                                    <Badge className={`${getStatusColor(selectedStaff.status)} text-xs px-2 py-1 w-fit`}>
-                                        {getDisplayValue(selectedStaff.status)}
+                                    <Badge className={`${getStatusColor(selectedSetting.status)} text-xs px-2 py-1 w-fit`}>
+                                        {getDisplayValue(selectedSetting.status)}
                                     </Badge>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium">Created At:</p>
-                                    <p className="text-sm">{new Date(selectedStaff.createdAt).toLocaleDateString()}</p>
                                 </div>
                             </div>
 
+                            <div className="border-t pt-4">
+                                <h4 className="font-medium mb-3">Description</h4>
+                                <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">
+                                    {getDisplayValue(selectedSetting.description)}
+                                </p>
+                            </div>
+
                             <div className="border-t pt-4 mt-4">
-                                <h4 className="font-medium mb-3">Contact Information</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {selectedStaff.mobileNo && (
-                                        <div className="flex items-center gap-2">
-                                            <Phone className="w-4 h-4 text-gray-500" />
-                                            <p className="text-sm">{getDisplayValue(selectedStaff.mobileNo)}</p>
-                                        </div>
-                                    )}
-                                    {selectedStaff.email && (
-                                        <div className="flex items-center gap-2">
-                                            <Mail className="w-4 h-4 text-gray-500" />
-                                            <p className="text-sm">{getDisplayValue(selectedStaff.email)}</p>
-                                        </div>
-                                    )}
+                                <h4 className="font-medium mb-3">Setting Value</h4>
+                                <div className="bg-gray-50 p-3 rounded">
+                                    <pre className="text-sm whitespace-pre-wrap break-words">
+                                        {getDisplayValue(selectedSetting.value)}
+                                    </pre>
+                                </div>
+                            </div>
+
+                            <div className="border-t pt-4 mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <p className="text-sm font-medium">Created At:</p>
+                                    <p className="text-sm">{new Date(selectedSetting.createdAt).toLocaleString()}</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-sm font-medium">Updated At:</p>
+                                    <p className="text-sm">{new Date(selectedSetting.updatedAt).toLocaleString()}</p>
                                 </div>
                             </div>
                         </div>
@@ -284,50 +294,43 @@ const DynamicTable = ({
     );
 };
 
-const MobileStaffCard = ({ staff, onViewDetails }: { staff: Staff; onViewDetails: (staff: Staff) => void }) => {
+const MobileSettingCard = ({ setting, onViewDetails }: { setting: StoreSetting; onViewDetails: (setting: StoreSetting) => void }) => {
     return (
         <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <Avatar className="w-12 h-12">
-                        <AvatarFallback>
-                            {getInitials(staff.firstname, staff.lastname)}
-                        </AvatarFallback>
-                    </Avatar>
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Settings className="w-5 h-5 text-blue-600" />
+                    </div>
                     <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                            {getDisplayValue(staff.firstname)} {getDisplayValue(staff.lastname)}
-                        </p>
-                        <p className="text-xs text-gray-500">@{getDisplayValue(staff.username)}</p>
+                        <p className="text-sm font-semibold text-gray-900">{getDisplayValue(setting.settingCode)}</p>
+                        <p className="text-xs text-gray-500">{getDisplayValue(setting.settingType)}</p>
                     </div>
                 </div>
-                <Badge className={`${getStatusColor(staff.status)} text-xs px-2 py-1`}>
-                    {getDisplayValue(staff.status)}
+                <Badge className={`${getStatusColor(setting.status)} text-xs px-2 py-1`}>
+                    {getDisplayValue(setting.status)}
                 </Badge>
             </div>
 
-            <div className="text-sm text-gray-600 flex items-center gap-2">
-                <User className="w-4 h-4" />
-                <span>{getDisplayValue(staff.userRole)}</span>
+            <div className="text-sm text-gray-600">
+                <p className="line-clamp-2">{getDisplayValue(setting.description)}</p>
             </div>
 
-            {staff.mobileNo && (
-                <div className="text-sm text-gray-600 flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    <span>{getDisplayValue(staff.mobileNo)}</span>
-                </div>
-            )}
+            <div className="text-sm text-gray-600">
+                <p className="font-medium">Value:</p>
+                <p className="text-xs bg-white p-2 rounded mt-1 line-clamp-2">{getDisplayValue(setting.value)}</p>
+            </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                 <div>
                     <p className="text-xs text-gray-500">Store Code</p>
-                    <p className="text-sm font-medium">{getDisplayValue(staff.storeCode)}</p>
+                    <p className="text-sm font-medium">{getDisplayValue(setting.storeCode)}</p>
                 </div>
                 <Button
                     variant="ghost"
                     size="sm"
                     className="p-1"
-                    onClick={() => onViewDetails(staff)}
+                    onClick={() => onViewDetails(setting)}
                 >
                     <Eye className="w-5 h-5" />
                 </Button>
@@ -336,16 +339,15 @@ const MobileStaffCard = ({ staff, onViewDetails }: { staff: Staff; onViewDetails
     );
 };
 
-export default function StaffsPage() {
+export default function StoreSettingsPage() {
     const { user } = useUser();
     const router = useRouter();
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ['staffs-list'],
+        queryKey: ['store-settings-list'],
         queryFn: () => axiosInstance.request({
-            url: '/usermanager/getUserMasterList',
+            url: '/store-settings/list',
             method: 'GET',
             params: {
-                pageNumber: 1,
                 merchantCode: user?.merchantCode,
                 storeCode: user?.storeCode
             }
@@ -353,74 +355,71 @@ export default function StaffsPage() {
     });
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+    const [selectedSetting, setSelectedSetting] = useState<StoreSetting | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const staffs: Staff[] = data?.data?.data || [];
-    const filteredStaffs = staffs.filter(staff =>
-        staff.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.mobileNo.toLowerCase().includes(searchTerm.toLowerCase())
+    const settings: StoreSetting[] = data?.data?.data || [];
+    const filteredSettings = settings.filter(setting =>
+        setting.settingCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        setting.settingType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        setting.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        setting.value.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleViewDetails = (staff: Staff) => {
-        setSelectedStaff(staff);
+    const handleViewDetails = (setting: StoreSetting) => {
+        setSelectedSetting(setting);
         setIsModalOpen(true);
     };
 
-    const handleEditDetails = (staff: Staff) => {
-        router.push(`/admin/staffs/create-staff?edit=true&id=${staff.username}`);
+    const handleEditDetails = (setting: StoreSetting) => {
+        router.push(`/admin/settings/add-settings?edit=true&id=${setting.id}`);
     };
 
     const columns: Column[] = [
         {
-            title: 'Staff',
-            dataIndex: 'firstname',
-            key: 'staff',
+            title: 'Setting Code',
+            dataIndex: 'settingCode',
+            key: 'settingCode',
             width: 200,
-            render: (text: string, record: Staff) => (
+            render: (text: string, record: StoreSetting) => (
                 <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10">
-                        <AvatarFallback>
-                            {getInitials(record.firstname, record.lastname)}
-                        </AvatarFallback>
-                    </Avatar>
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Settings className="w-4 h-4 text-blue-600" />
+                    </div>
                     <div>
-                        <p className="text-sm font-medium text-gray-900">
-                            {getDisplayValue(record.firstname)} {getDisplayValue(record.lastname)}
-                        </p>
-                        <p className="text-xs text-gray-500">@{getDisplayValue(record.username)}</p>
+                        <p className="text-sm font-medium text-gray-900">{getDisplayValue(text)}</p>
+                        <Badge className={`${getSettingTypeColor(record.settingType)} text-xs px-2 py-0 mt-1`}>
+                            {getDisplayValue(record.settingType)}
+                        </Badge>
                     </div>
                 </div>
             ),
         },
         {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
+            title: 'Type',
+            dataIndex: 'settingType',
+            key: 'type',
+            width: 150,
+            render: (text: string) => (
+                <p className="text-sm capitalize">{getDisplayValue(text).replace(/_/g, ' ').toLowerCase()}</p>
+            ),
+        },
+        {
+            title: 'Description',
+            dataIndex: 'description',
+            key: 'description',
+            width: 250,
+            render: (text: string) => (
+                <p className="text-sm line-clamp-2">{getDisplayValue(text)}</p>
+            ),
+        },
+        {
+            title: 'Value',
+            dataIndex: 'value',
+            key: 'value',
             width: 200,
             render: (text: string) => (
-                <p className="text-sm">{getDisplayValue(text)}</p>
-            ),
-        },
-        {
-            title: 'Phone',
-            dataIndex: 'mobileNo',
-            key: 'mobileNo',
-            width: 150,
-            render: (text: string) => (
-                <p className="text-sm">{getDisplayValue(text)}</p>
-            ),
-        },
-        {
-            title: 'Role',
-            dataIndex: 'userRole',
-            key: 'role',
-            width: 150,
-            render: (text: string) => (
-                <p className="text-sm font-medium">{getDisplayValue(text)}</p>
+                <p className="text-sm line-clamp-2 font-mono">{getDisplayValue(text)}</p>
             ),
         },
         {
@@ -439,7 +438,7 @@ export default function StaffsPage() {
             dataIndex: 'actions',
             key: 'actions',
             width: 100,
-            render: (text: string, record: Staff) => (
+            render: (text: string, record: StoreSetting) => (
                 <div className="flex gap-1">
                     <Button
                         variant="ghost"
@@ -469,16 +468,16 @@ export default function StaffsPage() {
                     <div className="flex items-center gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-foreground mb-2">
-                                Staff Management
+                                Store Settings
                             </h1>
                             <p className="text-muted-foreground">
-                                View and manage your staff members
+                                Manage your store configuration and preferences
                             </p>
                         </div>
                     </div>
                     <div className="text-right">
-                        <p className="text-2xl font-bold text-foreground">{staffs.length}</p>
-                        <p className="text-sm text-muted-foreground">Total Staff</p>
+                        <p className="text-2xl font-bold text-foreground">{settings.length}</p>
+                        <p className="text-sm text-muted-foreground">Total Settings</p>
                     </div>
                 </div>
 
@@ -487,7 +486,7 @@ export default function StaffsPage() {
                         <div className="relative flex-1 max-w-sm w-full">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="Search staff..."
+                                placeholder="Search settings..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="pl-10"
@@ -495,10 +494,10 @@ export default function StaffsPage() {
                         </div>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <Link href="/admin/staffs/create-staff" className="w-full sm:w-auto">
+                            <Link href="/admin/settings/add-settings" className="w-full sm:w-auto">
                                 <Button className="w-full sm:w-auto gap-2">
                                     <Plus className="w-4 h-4" />
-                                    Add Staff
+                                    Add Setting
                                 </Button>
                             </Link>
                             <Button variant="outline" className="gap-2">
@@ -512,7 +511,7 @@ export default function StaffsPage() {
                         <CardHeader>
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-lg font-semibold text-gray-900">
-                                    Staff List
+                                    Store Settings List
                                 </CardTitle>
                                 <Button variant="outline" size="sm" onClick={() => refetch()}>
                                     Refresh
@@ -522,29 +521,35 @@ export default function StaffsPage() {
                         <CardContent>
                             {isLoading ? (
                                 <div className="flex justify-center items-center h-40">
-                                    <p className="text-gray-500">Loading staff...</p>
+                                    <p className="text-gray-500">Loading settings...</p>
                                 </div>
                             ) : error ? (
                                 <div className="flex justify-center items-center h-40">
-                                    <p className="text-red-500">Error loading staff</p>
+                                    <p className="text-red-500">Error loading settings</p>
                                 </div>
-                            ) : staffs.length === 0 ? (
+                            ) : settings.length === 0 ? (
                                 <div className="flex justify-center items-center h-40 flex-col gap-4">
-                                    <p className="text-gray-500">No staff members found</p>
-                                    <Link href="/admin/staffs/create-staff">
+                                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                                        <Settings className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <p className="text-gray-500">No store settings found</p>
+                                    <p className="text-sm text-gray-400 text-center max-w-md">
+                                        Configure your store by adding settings for business hours, payment methods, shipping options, and more.
+                                    </p>
+                                    <Link href="/admin/settings/add-settings">
                                         <Button className="gap-2">
                                             <Plus className="w-4 h-4" />
-                                            Add Your First Staff
+                                            Add Your First Setting
                                         </Button>
                                     </Link>
                                 </div>
                             ) : (
                                 <>
                                     <div className="block lg:hidden space-y-4">
-                                        {filteredStaffs.map((staff) => (
-                                            <MobileStaffCard
-                                                key={staff.id}
-                                                staff={staff}
+                                        {filteredSettings.map((setting) => (
+                                            <MobileSettingCard
+                                                key={setting.id}
+                                                setting={setting}
                                                 onViewDetails={handleViewDetails}
                                             />
                                         ))}
@@ -553,7 +558,7 @@ export default function StaffsPage() {
                                     <div className="hidden lg:block">
                                         <DynamicTable
                                             columns={columns}
-                                            data={filteredStaffs}
+                                            data={filteredSettings}
                                             onViewDetails={handleViewDetails}
                                             onEditDetails={handleEditDetails}
                                         />

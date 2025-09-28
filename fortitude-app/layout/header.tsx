@@ -13,6 +13,7 @@ import CartTriggerDesktop from '@/utils/cart-trigger'
 import CustomerLoginModal from "../../src/components/ui/customer-login-modal";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Cart from '@/utils/cart'
+import { ta } from "zod/v4/locales";
 
 const mainNavItems = [
   {
@@ -30,6 +31,7 @@ const mainNavItems = [
   {
     title: "Account",
     href: "/customer-login",
+    target: "_blank",
   },
   {
     title: "Contact",
