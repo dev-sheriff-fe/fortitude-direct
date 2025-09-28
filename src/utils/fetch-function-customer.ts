@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { logout } from './auth-utils';
+import { logout } from './auth-utils-customer';
 
 const axiosCustomer = axios.create({
   baseURL:
@@ -38,9 +38,9 @@ axiosCustomer.interceptors.response.use(
     return response;
   },
   function (error: AxiosError) {
-    // if (error.response?.request.responseURL?.includes('admin-login')) {
-    //   return Promise.reject(error);
-    // }
+    if (error.response?.request.responseURL?.includes('customer-login')) {
+      return Promise.reject(error);
+    }
     if (error.response?.status === 401 || error.response?.status === 403) {
       logout();
     } else {

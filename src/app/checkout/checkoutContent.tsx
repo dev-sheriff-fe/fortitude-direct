@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { CreditCard, Wallet, Bot, CheckCircle, Copy, AlertCircle, TrendingUp } from 'lucide-react';
+import { CreditCard, Wallet, Bot, CheckCircle, Copy,AlertCircle, TrendingUp, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/app/hooks/use-toast';
 import { useCart } from '@/store/cart';
 import { useForm } from 'react-hook-form';
@@ -21,6 +21,7 @@ import axiosInstance from '@/utils/fetch-function';
 import EscrowCheckout from '@/components/checkout/tron-payment';
 import axiosCustomer from '@/utils/fetch-function-customer';
 import RexpayPayment from '@/components/checkout/rexpay-payment';
+import BnplManager from '@/components/checkout/bnpl_checkout/bnpl-manager';
 
 export type PaymentMethod = 'card' | 'usdt' | 'bnpl' | 'bank' | 'tron' | 'rexpay' | null;
 export type CheckoutStep = 'cart' | 'payment' | 'processing' | 'success';
@@ -76,6 +77,7 @@ const CheckoutContent = () => {
   const storeCode = searchParams.get('storeCode') || ''
   console.log(storeCode);
 
+  // const [checkoutData,setCheckoutData] = useState(null)
 
   const { toast } = useToast();
 
@@ -161,8 +163,10 @@ const CheckoutContent = () => {
     //       <EscrowCheckout/>
     //     </Suspense>
     //   );
-    // }
 
+    // }
+    console.log(selectedPayment);
+    
     if (selectedPayment === 'bnpl') {
       if (bnplStep === 'registration') {
         return (
@@ -213,7 +217,6 @@ const CheckoutContent = () => {
           <Suspense>
             <BNPLApproved
               setBnplStep={setBnplStep}
-              setCurrentStep={setCurrentStep}
               score={score}
               setSelectedPayment={setSelectedPayment}
             />
@@ -255,6 +258,16 @@ const CheckoutContent = () => {
           </div>
         );
       }
+      return (
+        <div className='h-screen'>
+          {/* <button className='' onClick={()=>setCurrentStep('cart')}>
+            <ArrowLeft/>
+          </button> */}
+          <BnplManager
+            setCurrentStep= {setCurrentStep}
+          />
+      </div>
+      )     
     }
 
 

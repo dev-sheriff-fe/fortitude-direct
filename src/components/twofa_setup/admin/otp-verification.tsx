@@ -15,77 +15,69 @@ export function OtpVerification() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const router = useRouter()
-  const [regenerateRef, setRegenerateRef] = useState(false)
-  const { user, setUser } = useUser()
+  const [regenerateRef,setRegenerateRef] = useState(false)
+  const {user,setUser} = useUser()
+  // console.log(user);
   
-  // Get a safe QR code value that's never null
-  const getQrCodeValue = () => {
-    // First try the regenerated data
-    if (data?.data?.refNo) {
-      return data.data.refNo;
-    }
-    // Then try the user's twoFaLinkData
-    if (user?.twoFaLinkData) {
-      return user.twoFaLinkData;
-    }
-    // Fallback to empty string instead of null
-    return "";
-  }
-
-  const { isPending, mutate } = useMutation({
-    mutationFn: () => axiosInstance.request({
-      url: `/usermanager/validate-2fa-setup`,
-      method: 'POST',
-      params: {
-        referenceNo: user?.twoFaReferenceNo,
-        otp: otp.join(''),
-        username: user?.username,
-        // language: user?.language?.toUpperCase()
-      }
-    }),
-    onSuccess: (data) => {
-      if (data?.data?.code !== '000') {
-        if (data?.data?.code === 'EE1') {
-          toast.error(data?.data?.desc)
-          setRegenerateRef(true)
-          return
+  const {isPending,mutate} = useMutation({
+    mutationFn: ()=>axiosInstance.request({
+        url: `/usermanager/validate-2fa-setup`,
+        method: 'POST',
+        params: {
+            referenceNo: user?.twoFaReferenceNo,
+            otp: otp.join(''),
+            username: user?.username,
+            // language: user?.language?.toUpperCase()
         }
-        toast.error(data?.data?.desc)
-        return
-      }
-      
-      setUser({ ...user, twoFaSetupRequired: 'N' })
-      toast?.success(data?.data?.desc)
-      router?.push(`/admin`)
-    },
-    onError: (error) => {
-      console.log(error);
-      toast.error('Something went wrong!')
-    }
-  })
-
-  const { mutate: regenerateMutation, isPending: regenerating, data } = useMutation({
-    mutationFn: () => axiosInstance.request({
-      url: `/usermanager/refresh-2fa-setup`,
-      method: 'POST',
-      params: {
-        referenceNo: user?.twoFaReferenceNo,
-        username: user?.username
-      }
     }),
-    onSuccess: (data) => {
-      if (data?.data?.code !== '000') {
-        toast?.error(data?.data?.desc)
+    onSuccess: (data)=>{
+        if(data?.data?.code!=='000'){
+            if (data?.data?.code==='EE1') {
+                toast.error(data?.data?.desc)
+                setRegenerateRef(true)
+                return
+            }
+            toast.error(data?.data?.desc)
+            return
+        }
+        console.log(user);
+
+        setUser({...user,twoFaSetupRequired:'N'})
+        toast?.success(data?.data?.desc)
+        router?.push(`/admin`)
         return
-      }
-      toast?.success(data?.data?.desc)
     },
-    onError: (error) => {
-      toast?.error('Something went wrong!')
+    onError: (error) =>{
+        console.log(error);
+        toast.error('Something went wrong!')
     }
   })
 
-  const handleChange = (element: HTMLInputElement, index: number) => {
+  const {mutate:regenerateMutation, isPending:regenerating,data} = useMutation({
+    mutationFn: ()=>axiosInstance.request({
+        url: `/usermanager/refresh-2fa-setup`,
+        method: 'POST',
+        params: {
+            referenceNo: user?.twoFaReferenceNo,
+            username: user?.username
+        }
+    }),
+    onSuccess: (data)=>{
+        if (data?.data?.code!=='000') {
+            toast?.error(data?.data?.desc)
+            return
+        }
+        toast?.success(data?.data?.desc)
+        return
+    },
+    onError: (error)=>{
+        toast?.error('Something went wrong!')
+    }
+  })
+
+
+
+   const handleChange = (element: HTMLInputElement, index: number) => {
     if (isNaN(Number(element.value))) return false
 
     const newOtp = [...otp]
@@ -123,21 +115,21 @@ export function OtpVerification() {
 
   return (
     <>
-      <div className='w-full p-3 border rounded-md'>
-        {regenerating ? (
-          <div className="w-30 h-30 mx-auto bg-gray-100 animate-pulse"></div>
-        ) : (
-          <QRCode
-            value={getQrCodeValue()}
+        <div className='w-full p-3 border rounded-md'>
+           {regenerating
+           ?
+           <div className="w-30 h-30 mx-auto bg-gray-100 animate-pulse"></div>
+           :
+            <QRCode
+            value={data?.data?.refNo || user?.twoFaLinkData as string}
             className='w-30 h-30 mx-auto'
-          />
-        )}
-      </div>
-      
-      <div className="w-full max-w-md space-y-3">
-        <h3 className='font-semibold'>Verification Code</h3>
-        <div className="space-y-4">
-          <div className="flex gap-2">
+        />
+        }
+        </div>
+    <div className="w-full max-w-md space-y-3">
+      <h3 className='font-semibold'>Verification Code</h3>
+      <div className="space-y-4">
+         <div className="flex gap-2">
             {otp.map((digit, index) => (
               <Input
                 key={index}
@@ -152,29 +144,27 @@ export function OtpVerification() {
                 disabled={isPending}
               />
             ))}
-          </div>
+         </div>
 
-          <div className="space-y-4">
-            <Button
-              disabled={!isOtpComplete || isPending}
-              onClick={() => mutate()}
-              className="w-full bg-accent hover:bg-accent-foreground text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+        <div className="space-y-4">
+          <Button
+            disabled={!isOtpComplete || isPending}
+            onClick={()=>mutate()}
+            className="w-full bg-accent hover:bg-accent-foreground text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? "Verifying..." : "Verify Code"}
+          </Button>
+
+          {regenerateRef && <button 
+            className="flex text-[14px] items-center justify-center w-full text-accent cursor-pointer gap-1"
+            onClick={()=>regenerateMutation()}
+            disabled = {regenerating}
             >
-              {isPending ? "Verifying..." : "Verify Code"}
-            </Button>
-
-            {regenerateRef && (
-              <button 
-                className="flex text-[14px] items-center justify-center w-full text-accent cursor-pointer gap-1"
-                onClick={() => regenerateMutation()}
-                disabled={regenerating}
-              >
-                {regenerating ? `Please wait..` : <>Refresh <RefreshCcw className="h-4 w-4"/></>}
-              </button>
-            )}
-          </div>
+                {regenerating ? `Please wait..`:<>Refresh <RefreshCcw className="h-4 w-4"/></>}
+            </button>}
         </div>
       </div>
+    </div>
     </>
   )
 }

@@ -85,18 +85,15 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
     setIsUploading(true);
 
     try {
-      // First upload the file to get fileRef
       const fileUploadFormData = new FormData();
       fileUploadFormData.append('file', file);
 
-      // Set appropriate headers
       const headers = {
         'x-source-code': 'WEB',
         'FileType': uploadType === 'products' ? 'PRODUCT' : 'PRODUCT_CATEGORY',
         'Content-Type': 'multipart/form-data'
       };
 
-      // Upload file endpoint
       const fileUploadResponse = await axiosInstance.post<FileUploadResponse>(
         '/fileuploadservice/uploadfile',
         fileUploadFormData,
@@ -120,7 +117,6 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
         throw new Error('File reference not received');
       }
 
-      // Then make the bulk upload request with the fileRef
       const bulkUploadRequest: BulkUploadRequest = {
         requestReference: new Date().getTime().toString(),
         fileType: uploadType === 'products' ? 'PRODUCT' : 'PRODUCT_CATEGORY',
@@ -146,7 +142,6 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
 
       toast.success(`${uploadType.charAt(0).toUpperCase() + uploadType.slice(1)} uploaded successfully`);
 
-      // Reset the form after successful upload
       resetField('file');
       onSuccess?.();
     } catch (error: any) {
@@ -158,7 +153,6 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
     }
   };
 
-  // Get appropriate text based on upload type
   const getTitle = () => {
     return uploadType === 'products'
       ? 'Bulk Upload Products'
@@ -177,7 +171,6 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
       : 'PRODUCT CATEGORY';
   };
 
-  // Clear file selection when canceling
   const handleCancel = () => {
     resetField('file');
     onCancel?.();

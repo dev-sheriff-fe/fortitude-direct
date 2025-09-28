@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import posIcon from '@/assets/login-image.png'
+// import posIcon from '@/assets/ecommerce-svg.jpg'
 import Image from "next/image"
 import { useMutation } from "@tanstack/react-query"
 import axiosInstance from "@/utils/fetch-function"
@@ -41,6 +41,8 @@ export function SignUpForm() {
   const [onboardStep, setOnBoardStep] = useState<'register' | 'otp'>('register')
   const totalSteps = 4
   const router = useRouter()
+  const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
+
 
   const {
     register,
@@ -311,7 +313,7 @@ export function SignUpForm() {
                 <span className="text-sm text-gray-600">Already registered? </span>
                 <Link
                   href="/customer-login"
-                  className="text-sm text-blue-600 hover:text-accent/70"
+                  className="text-sm text-accent hover:text-blue-700"
                 >
                   Sign in
                 </Link>
@@ -324,8 +326,10 @@ export function SignUpForm() {
       <div className="hidden lg:flex lg:w-1/2 bg-gray-100 items-center justify-center p-8">
         <div className="w-full h-full flex items-center justify-center">
           <Image
-            src={posIcon}
+            src={bannerUrl}
             alt="POS System Illustration"
+            width={600}
+            height={600}
             className="max-w-full max-h-full object-contain"
           />
         </div>

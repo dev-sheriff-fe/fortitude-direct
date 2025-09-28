@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import Image from "next/image"
-import posIcon from "@/assets/ecommerce-svg.jpg"
+// import posIcon from "@/assets/ecommerce-svg.jpg"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -22,8 +22,9 @@ export function SignInForm() {
   const { setCustomer } = useCustomer()
   const searchParams = useSearchParams()
 
-  // Get the return URL from query parameters, default to dashboard
   const returnUrl = searchParams.get('returnUrl') || '/dashboard'
+
+  const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: any) => axiosCustomer.request({
@@ -131,7 +132,7 @@ export function SignInForm() {
             <span className="text-sm text-gray-600">Don&apos;t have an account? </span>
             <Link
               href="/customer-onboarding"
-              className="text-sm text-blue-600 hover:text-accent/70"
+              className="text-sm text-accent hover:text-accent/70"
             >
               Sign up
             </Link>
@@ -142,8 +143,10 @@ export function SignInForm() {
       {/* Right side - Illustration */}
       <div className="hidden lg:flex lg:w-1/2 bg-gray-100 items-center justify-center p-8">
         <Image
-          src={posIcon}
+          src={bannerUrl}
           alt="POS System Illustration"
+          width={600}
+          height={600}
           className="max-w-full max-h-full object-contain"
         />
       </div>

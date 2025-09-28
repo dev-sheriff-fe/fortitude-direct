@@ -290,12 +290,12 @@ const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPayme
             <Image
               src={logoWhite}
               alt="Logo"
-              width={40}
-              height={40}
+              width={100}
+              height={100}
               unoptimized
-              className="w-6 h-6 lg:w-8 lg:h-8 object-contain"
+              className="object-contain"
             />
-            <h2 className='text-lg lg:text-xl font-semibold'>Help2Pay</h2>
+            {/* <h2 className='text-lg lg:text-xl font-semibold'>Help2Pay</h2> */}
           </div>
         </div>
 

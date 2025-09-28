@@ -224,6 +224,7 @@ import { useForm } from 'react-hook-form';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import Image from "next/image";
 import rexpay from '@/components/images/rexpay.png'
+import { useRouter } from 'next/navigation';
 
 type CartViewProps = {
   handlePaymentSelect: (method: PaymentMethod) => void;
@@ -269,6 +270,8 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<DeliveryAddress | null>(null);
   const [selectedShipping, setSelectedShipping] = useState<string>('economy');
+  const router = useRouter()
+
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<AddressFormData>();
 
@@ -307,6 +310,7 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
       icon: '⚡'
     }
   ];
+
 
   useEffect(() => {
     const stored = sessionStorage.getItem('checkout');
@@ -508,8 +512,8 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
             <Card
               key={address.id}
               className={`cursor-pointer transition-all ${selectedAddress?.id === address.id
-                  ? 'border-accent bg-accent/5'
-                  : 'hover:shadow-md'
+                ? 'border-accent bg-accent/5'
+                : 'hover:shadow-md'
                 }`}
               onClick={() => setSelectedAddress(address)}
             >
@@ -556,8 +560,8 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
           <Card
             key={option.id}
             className={`cursor-pointer transition-all ${selectedShipping === option.id
-                ? 'border-accent bg-accent/5'
-                : 'hover:shadow-md'
+              ? 'border-accent bg-accent/5'
+              : 'hover:shadow-md'
               }`}
             onClick={() => setSelectedShipping(option.id)}
           >
@@ -581,7 +585,7 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
           </Card>
         ))}
       </RadioGroup>
-      </div>
+    </div>
   );
 
   const OrderSummary = () => {
@@ -620,7 +624,7 @@ const CartView = ({ handlePaymentSelect }: CartViewProps) => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => window.history.back()}
+          onClick={() => router?.push(`/`)}
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>

@@ -21,7 +21,8 @@ import {
   AlertTriangle,
   Camera,
   Eye,
-  ImageIcon
+  ImageIcon,
+  Banknote
 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -308,7 +309,7 @@ const CreditScoringScreen = () => {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-                <DollarSign className="h-4 w-4 mr-2" />
+                <Banknote className="h-4 w-4 mr-2" />
                 Credit Limit
               </CardTitle>
             </CardHeader>

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { getAuthCredentials, hasAccess } from './auth-utils';
 import Loader from '@/components/ui/loader';
 import AccessDeniedPage from '@/components/common/access-denied';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 // Define proper TypeScript interfaces
 interface PrivateRouteProps {
@@ -20,7 +20,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const { token, permissions } = getAuthCredentials();
-
+  const pathname = usePathname();
   console.log(permissions);
 
   console.log(token);
@@ -35,7 +35,9 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.replace(fallbackPath);
+      // Include current path as returnUrl parameter
+      const returnUrl = encodeURIComponent(pathname);
+      router.replace(`${fallbackPath}?returnUrl=${returnUrl}`);
       return;
     }
     

@@ -59,13 +59,14 @@ const CreditScoreDashboard: React.FC<CreditScoreDashboardProps> = ({
         <p className="text-muted-foreground">Based on your financial profile analysis</p>
       </div>
 
-      {/* Main Score Display */}
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+         {/* Main Score Display */}
       <Card className="p-8 bg-card border-0 shadow-lg">
         <div className="flex flex-col items-center space-y-6">
           <CircularProgress 
             score={data?.totalScore} 
             maxScore={100}
-            size={240}
+            size={100}
             strokeWidth={16}
           />
           
@@ -90,7 +91,7 @@ const CreditScoreDashboard: React.FC<CreditScoreDashboardProps> = ({
 
       {/* Approved Amount */}
       {data?.approvedAmount > 0 && (
-        <Card className="p-6 bg-card border-0 shadow-sm card-gradient">
+        <Card className="p-6 bg-card border-0 shadow-sm card-gradient flex items-center justify-center">
           <div className="text-center space-y-2">
             <h3 className="text-lg font-semibold text-foreground">Approved Credit Limit</h3>
             <div className="text-3xl font-bold text-accent">
@@ -103,6 +104,8 @@ const CreditScoreDashboard: React.FC<CreditScoreDashboardProps> = ({
         </Card>
       )}
 
+      </div>
+     
       {/* Score Breakdown */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-foreground text-center">Score Breakdown</h2>

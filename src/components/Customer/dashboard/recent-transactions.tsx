@@ -59,7 +59,7 @@ const getStatusColor = (status: string): string => {
 const DynamicTable: React.FC<DynamicTableProps> = ({ 
   columns, 
   data, 
-  itemsPerPage = 5,
+  itemsPerPage = 6,
   onViewDetails 
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -273,7 +273,7 @@ export default function TransactionHistory(): React.ReactElement {
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: Transaction) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 whitespace-nowrap">
           <Avatar className="w-8 h-8">
             <AvatarFallback className="bg-blue-500 text-white text-xs">
               {text ? text.split(' ').map(n => n[0]).join('') : 'N/A'}
@@ -331,7 +331,7 @@ export default function TransactionHistory(): React.ReactElement {
   ];
 
   return (
-    <Card className="border-gray-200 shadow-sm">
+    <Card className="border-gray-200 shadow-sm h-fit">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base lg:text-lg font-semibold text-gray-900">

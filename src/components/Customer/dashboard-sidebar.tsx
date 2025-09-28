@@ -9,9 +9,10 @@ import {
   EyeOff,
   Send,
   ClipboardList,
-  CalendarClockIcon,
+  Clock,
   ListOrdered,
-  Clock
+  LucideCurrency,
+  CalendarClockIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -39,10 +40,16 @@ export const DashboardSidebar = () => {
   const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL;
 
   return (
-    <div className="w-full bg-accent h-full flex flex-col">
+    <div 
+    className="w-full bg-accent h-full flex flex-col overflow-y-scroll"
+    style={{
+      scrollbarWidth: 'none',
+      scrollbarColor: 'transparent',
+    }}
+    >
       <div className="p-4 lg:p-6 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center ">
+          <div className="flex items-center justify-center bg-white/20 p-2 rounded-md">
             <Image
               src={logoUrl || 'logo.png'}
               alt='logo'

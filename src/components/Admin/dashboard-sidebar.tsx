@@ -5,7 +5,8 @@ import {
   Box,
   StoreIcon,
   UsersRoundIcon,
-  Clock
+  Clock,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -20,19 +21,21 @@ const navigationItems = [
   { name: 'Orders', href: '/admin/orders', icon: Clock },
   { name: 'Stores', href: '/admin/stores', icon: StoreIcon },
   { name: 'Staffs', href: '/admin/staffs', icon: UsersRoundIcon },
+  { name: 'Store Settings', href: '/admin/settings', icon: Settings },
+
 ];
 
 export const DashboardSidebar = () => {
   const pathname = usePathname()
   const { user } = useUser()
-  
+
   const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL;
 
   return (
     <div className="w-full bg-accent h-full flex flex-col">
       <div className="p-4 lg:p-6 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center ">
+          <div className="flex items-center justify-center bg-white/20 p-2 rounded-md">
             <Image
               src={logoUrl || 'logo.png'}
               alt='logo'

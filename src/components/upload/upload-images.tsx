@@ -55,13 +55,11 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
     document.body.removeChild(link);
   };
 
-  // Function to extract code from filename (remove extension)
   const getCodeFromFileName = (fileName: string): string => {
     return fileName.replace(/\.[^/.]+$/, "");
   };
 
   const validateFile = (file: File) => {
-    // Validate image files
     const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
     const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
 
@@ -76,13 +74,12 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
     return null;
   };
 
-  // Handle file input change for image uploads (creates previews)
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
     const newImagePreviews: ImagePreview[] = [];
-
+    
     Array.from(files).forEach(file => {
       const validationError = validateFile(file);
       if (validationError) {
@@ -100,7 +97,6 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
         code: code
       });
     });
-
     setImagePreviews(prev => [...prev, ...newImagePreviews]);
   };
 
@@ -128,7 +124,6 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
         fileUploadFormData.append('file', imagePreview.file);
 
         const codeParamName = uploadType === 'product_images' ? 'productCode' : 'categoryCode';
-
         const headers = {
           'x-source-code': 'WEB',
           'FileType': uploadType === 'product_images' ? 'PRODUCT_IMAGE' : 'PRODUCT_CATEGORY_IMAGE',
