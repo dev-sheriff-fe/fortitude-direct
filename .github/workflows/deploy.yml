@@ -38,6 +38,8 @@ jobs:
               --build-arg NEXT_PUBLIC_ACCENT_COLOR=${{ secrets.NEXT_PUBLIC_ACCENT_COLOR }} \
               --build-arg NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR=${{ secrets.NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR }} \
               --build-arg NEXT_PUBLIC_LOGO_URL=${{ secrets.NEXT_PUBLIC_LOGO_URL }} \
+              --build-arg NEXT_PUBLIC_BANNER_URL=${{ secrets.NEXT_PUBLIC_BANNER_URL }} \
+              --build-arg NEXT_PUBLIC_FONT_FAMILY=${{ secrets.NEXT_PUBLIC_FONT_FAMILY }} \
               --no-cache -t nextjs-app:latest .
 
             # Run container (runtime vars optional, already baked in)
