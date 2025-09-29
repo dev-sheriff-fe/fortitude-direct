@@ -1,20 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import axiosCustomer from "@/utils/fetch-function-customer";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle, Clock } from "lucide-react";
 import { useState } from "react";
+import { UseFormReset } from "react-hook-form";
 import { toast } from "sonner";
+import { TransferFormData } from "./send-money-from";
 
 interface SuccessModalProps {
   onLogin: () => void;
   onCancel: () => void;
   payloadInfo: any;
   setCurrentStep: (currentStep:"form" | "confirm" | "verify" | "success" | "pending") =>void
+  reset: UseFormReset<TransferFormData>
 }
 
-export const PendingModal = ({ onLogin, onCancel, payloadInfo,setCurrentStep }: SuccessModalProps) => {
+export const PendingModal = ({ onLogin, onCancel, payloadInfo,setCurrentStep,reset}: SuccessModalProps) => {
   const [step,setStep] = useState<'pending'|'success'>('pending')
+  const queryClient = useQueryClient()
     const {mutate,isPending,data} = useMutation({
         mutationFn: ()=>axiosCustomer({
             url: 'tran-master/tsq',
@@ -32,6 +36,10 @@ export const PendingModal = ({ onLogin, onCancel, payloadInfo,setCurrentStep }: 
             }
             // setCurrentStep('success')
             setStep('success')
+            reset()
+            queryClient?.invalidateQueries({
+              queryKey: ['customer-balances','customer-recent-trans']
+            })
             toast.success(data?.data?.responseMessage)
         },
         onError: ()=>{

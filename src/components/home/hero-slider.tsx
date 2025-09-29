@@ -167,7 +167,7 @@ export default function HeroSlider() {
               x: { type: "spring", stiffness: 300, damping: 30 },
               opacity: { duration: 0.4 }
             }}
-            className="flex flex-col md:flex-row items-center gap-6 md:gap-8 lg:gap-12 z-10 w-full md:ml-15"
+            className="flex flex-col md:flex-row items-center gap-6 md:gap-8 lg:gap-12 z-5 w-full md:ml-15"
           >
             {/* Product image (left side on larger screens, top on mobile) */}
             <motion.div 
@@ -231,7 +231,7 @@ export default function HeroSlider() {
         </AnimatePresence>
 
         {/* Pagination dots - position based on screen size */}
-        <div className={`absolute ${isMobile ? 'bottom-4 left-1/2 transform -translate-x-1/2' : 'right-6 bottom-8'} flex gap-2 z-10`}>
+        <div className={`absolute ${isMobile ? 'bottom-4 left-1/2 transform -translate-x-1/2' : 'right-6 bottom-8'} flex gap-2 z-5`}>
           {slides.map((_, index) => (
             <button
               key={index}

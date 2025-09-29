@@ -5,7 +5,7 @@ import { ShoppingBag } from 'lucide-react';
 import { useCart } from '@/components/store/cart';
 
 interface CartIconWithBadgeProps {
-  onClick: () => void;
+  // onClick: () => void;
 }
 
 export const CartIconWithBadge = (props: CartIconWithBadgeProps) => {

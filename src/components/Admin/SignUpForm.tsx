@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import posIcon from '@/assets/ecommerce-svg.jpg'
+// import posIcon from '@/assets/ecommerce-svg.jpg'
 import Image from "next/image"
 import { useMutation } from "@tanstack/react-query"
 
@@ -36,6 +36,9 @@ export function SignUpForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const totalSteps = 4
   const router = useRouter()
+  const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
+
+
 
   const {
     register,
@@ -109,7 +112,7 @@ export function SignUpForm() {
   }
 
   const { mutate, isPending } = useMutation({
-    mutationFn: ()=> axiosInstanceNoAuth.request({
+    mutationFn: () => axiosInstanceNoAuth.request({
       url: 'business/onboard',
       method: 'POST',
       data: {
@@ -142,18 +145,18 @@ export function SignUpForm() {
       }
     }),
     onSuccess: (response) => {
-        if (response?.data?.code === '000') {
-          toast.success(response?.data?.desc ?? 'Registration successful');
-          // Open liveness page in new tab
-          window.open(`/liveness?id=${response?.data?.id}`, '_blank');
-          return
-        } else {
-          toast.error(response.data?.desc);
-        }
-      },
-      onError: (error: any) => {
-        toast.error(error?.response?.data?.message ?? 'An error occurred');
-      },
+      if (response?.data?.code === '000') {
+        toast.success(response?.data?.desc ?? 'Registration successful');
+        // Open liveness page in new tab
+        window.open(`/liveness?id=${response?.data?.id}`, '_blank');
+        return
+      } else {
+        toast.error(response.data?.desc);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message ?? 'An error occurred');
+    },
   })
   const onSubmit = (data: FormData) => {
     console.log("Form submitted:", data)
@@ -163,32 +166,32 @@ export function SignUpForm() {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-       return <BusinessInformation
-            errors={errors}
-            register={register}
-            setValue={setValue}
-            watchedValues={watchedValues}
+        return <BusinessInformation
+          errors={errors}
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
         />
-        
+
 
       case 2:
-       return <ContactDetails
-            errors={errors}
-            register={register}
-       />
+        return <ContactDetails
+          errors={errors}
+          register={register}
+        />
 
       case 3:
         return <PasswordDetails
-            errors={errors}
-            register={register}
-            watch={watch}
+          errors={errors}
+          register={register}
+          watch={watch}
         />
       case 4:
-       return <LocationDetails
-            errors={errors}
-            register={register}
-            setValue={setValue}
-            watchedValues={watchedValues}
+        return <LocationDetails
+          errors={errors}
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
         />
 
       default:
@@ -211,12 +214,12 @@ export function SignUpForm() {
     }
   }
 
-  
+
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Blue header bar */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-blue-600"></div>
+      <div className="absolute top-0 left-0 right-0 h-2 bg-accent"></div>
 
       {/* Left side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-8">
@@ -236,12 +239,12 @@ export function SignUpForm() {
                 <div key={step} className="flex items-center">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium relative z-10 ${
-                      step <= currentStep ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
+                      step <= currentStep ? "bg-accent text-white" : "bg-gray-200 text-gray-600"
                     }`}
                   >
                     {step}
                   </div>
-                  {index < 3 && <div className={`w-20 h-0.5 ${step < currentStep ? "bg-blue-600" : "bg-gray-200"}`} />}
+                  {index < 3 && <div className={`w-20 h-0.5 ${step < currentStep ? "bg-accent" : "bg-gray-200"}`} />}
                 </div>
               ))}
             </div>
@@ -268,7 +271,7 @@ export function SignUpForm() {
                   type="button"
                   onClick={nextStep}
                   disabled={!isStepComplete()}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center space-x-2 bg-accent hover:bg-accent/70 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span>Next</span>
                   <ChevronRight className="w-4 h-4" />
@@ -277,7 +280,7 @@ export function SignUpForm() {
                 <Button
                   type="submit"
                   disabled={!isStepComplete() || isPending}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-accent hover:bg-accent/70 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isPending ? "Submitting..." : "Complete Registration"}
                 </Button>
@@ -297,8 +300,10 @@ export function SignUpForm() {
       <div className="hidden lg:flex lg:w-1/2 bg-gray-100 items-center justify-center p-8">
         <div className="w-full h-full flex items-center justify-center">
           <Image
-            src={posIcon}
+            src={bannerUrl}
             alt="POS System Illustration"
+            width={600}
+            height={600}
             className="max-w-full max-h-full object-contain"
           />
         </div>

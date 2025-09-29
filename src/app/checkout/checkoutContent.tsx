@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { CreditCard, Wallet, Bot, CheckCircle, Copy,AlertCircle, TrendingUp } from 'lucide-react';
+import { CreditCard, Wallet, Bot, CheckCircle, Copy,AlertCircle, TrendingUp, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/app/hooks/use-toast';
 import { useCart } from '@/store/cart';
 import { useForm } from 'react-hook-form';
@@ -20,8 +20,10 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/utils/fetch-function';
 import EscrowCheckout from '@/components/checkout/tron-payment';
 import axiosCustomer from '@/utils/fetch-function-customer';
+import RexpayPayment from '@/components/checkout/rexpay-payment';
+import BnplManager from '@/components/checkout/bnpl_checkout/bnpl-manager';
 
-export type PaymentMethod = 'card' | 'usdt' | 'bnpl' | 'bank' | 'tron' | null;
+export type PaymentMethod = 'card' | 'usdt' | 'bnpl' | 'bank' | 'tron' | 'rexpay' | null;
 export type CheckoutStep = 'cart' | 'payment' | 'processing' | 'success';
 export type BNPLStep = 'registration' | 'scoring' | 'approved' | 'rejected'
 
@@ -68,14 +70,15 @@ const CheckoutContent = () => {
   const [usdtPaid, setUsdtPaid] = useState(false);
   const [bnplStep, setBnplStep] = useState<BNPLStep>('registration');
   const [creditScore, setCreditScore] = useState<CreditScoreData | null>(null);
-  const [score,setScore] = useState(null)
-  const [checkoutData,setCheckoutData] = useState(null)
+  const [score, setScore] = useState(null)
+  const [checkoutData, setCheckoutData] = useState(null)
 
-   const searchParams = useSearchParams()
-      const storeCode = searchParams.get('storeCode') || ''
-      console.log(storeCode);
-      
-  
+  const searchParams = useSearchParams()
+  const storeCode = searchParams.get('storeCode') || ''
+  console.log(storeCode);
+
+  // const [checkoutData,setCheckoutData] = useState(null)
+
   const { toast } = useToast();
 
 
@@ -87,7 +90,7 @@ const CheckoutContent = () => {
   }, []);
 
   console.log(checkoutData);
-  
+
   // Calculate values based on cart
   const cartTotal = getCartTotal();
   const usdtEquivalent = cartTotal; // 1:1 for simplicity
@@ -108,9 +111,9 @@ const CheckoutContent = () => {
   //   })
   // })
 
-// console.log(data);
+  // console.log(data);
 
-// console.log(usdTotal());
+  // console.log(usdTotal());
 
 
 
@@ -128,10 +131,10 @@ const CheckoutContent = () => {
       return (
         <Suspense>
           <UsdtPayment
-        copyToClipboard={copyToClipboard}
-        setCurrentStep={setCurrentStep}
-        currentStep={currentStep}
-        />
+            copyToClipboard={copyToClipboard}
+            setCurrentStep={setCurrentStep}
+            currentStep={currentStep}
+          />
         </Suspense>
       );
     }
@@ -145,24 +148,35 @@ const CheckoutContent = () => {
       );
     }
 
+    if (selectedPayment === 'rexpay') {
+      return (
+        <RexpayPayment
+          setCurrentStep={setCurrentStep}
+          setSelectedPayment={setSelectedPayment}
+        />
+      );
+    }
+
     //  if (selectedPayment === 'tron') {
     //   return (
     //     <Suspense>
     //       <EscrowCheckout/>
     //     </Suspense>
     //   );
-    // }
 
+    // }
+    console.log(selectedPayment);
+    
     if (selectedPayment === 'bnpl') {
       if (bnplStep === 'registration') {
         return (
           <Suspense>
             <BNPL
-            setBnplStep={setBnplStep}
-            setCreditScore={setCreditScore}
-            setCurrentStep={setCurrentStep}
-            setScore= {setScore}
-          />
+              setBnplStep={setBnplStep}
+              setCreditScore={setCreditScore}
+              setCurrentStep={setCurrentStep}
+              setScore={setScore}
+            />
           </Suspense>
         );
       }
@@ -202,11 +216,10 @@ const CheckoutContent = () => {
         return (
           <Suspense>
             <BNPLApproved
-            setBnplStep={setBnplStep}
-            setCurrentStep={setCurrentStep}
-            score={score}
-            setSelectedPayment = {setSelectedPayment}
-          />
+              setBnplStep={setBnplStep}
+              score={score}
+              setSelectedPayment={setSelectedPayment}
+            />
           </Suspense>
         );
       }
@@ -228,14 +241,14 @@ const CheckoutContent = () => {
               </ul>
             </div>
             <div className="space-y-2">
-              <Button 
+              <Button
                 onClick={() => setSelectedPayment('card')}
                 className="w-full"
                 variant="outline"
               >
                 Pay with Card Instead
               </Button>
-              <Button 
+              <Button
                 onClick={() => setSelectedPayment('usdt')}
                 className="w-full bg-green-600 hover:bg-green-700"
               >
@@ -245,6 +258,16 @@ const CheckoutContent = () => {
           </div>
         );
       }
+      return (
+        <div className='h-screen'>
+          {/* <button className='' onClick={()=>setCurrentStep('cart')}>
+            <ArrowLeft/>
+          </button> */}
+          <BnplManager
+            setCurrentStep= {setCurrentStep}
+          />
+      </div>
+      )     
     }
 
 
@@ -276,7 +299,7 @@ const CheckoutContent = () => {
   const SuccessView = () => (
     <div className="max-w-md mx-auto text-center space-y-6">
       <CheckCircle className="w-20 h-20 text-accent mx-auto" />
-      
+
       <div>
         <h2 className="text-2xl font-bold text-accent mb-2">Payment Successful!</h2>
         <p className="text-muted-foreground">Your order is being processed</p>
@@ -299,8 +322,8 @@ const CheckoutContent = () => {
               <code className="text-xs flex-1 break-all">
                 {txHash.slice(0, 20)}...{txHash.slice(-20)}
               </code>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 variant="ghost"
                 onClick={() => copyToClipboard(txHash)}
               >
@@ -320,7 +343,7 @@ const CheckoutContent = () => {
         </p>
       </div>
 
-      <Button 
+      <Button
         onClick={() => {
           setCurrentStep('cart');
           setSelectedPayment(null);
@@ -335,8 +358,8 @@ const CheckoutContent = () => {
   );
 
   return (
-    
-      <div className="min-h-screen bg-background p-4">
+
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-6xl mx-auto py-8">
         {currentStep === 'cart' && <CartView handlePaymentSelect={handlePaymentSelect} />}
         {currentStep === 'payment' && <PaymentView />}
@@ -344,7 +367,7 @@ const CheckoutContent = () => {
         {currentStep === 'success' && <SuccessView />}
       </div>
     </div>
-    
+
   );
 };
 

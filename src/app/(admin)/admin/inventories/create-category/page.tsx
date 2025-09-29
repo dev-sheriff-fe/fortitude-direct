@@ -1,6 +1,7 @@
-"use client"
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +21,7 @@ import {
 } from "lucide-react";
 import { Category } from "@/components/Admin/inventories/categories-manager";
 import FileUpload from "@/components/Admin/inventories/file-input";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axiosInstance from "@/utils/fetch-function";
 import { Controller, useForm } from "react-hook-form";
@@ -30,8 +31,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import useUser from "@/store/userStore";
 
 interface CategoryFormProps {
-  category?: Category; // Existing category for edit mode
-  mode?: 'create' | 'edit'; // Explicit mode specification
+  category?: Category; 
+  mode?: 'create' | 'edit'; 
 }
 
 export const sectorOptions = [
@@ -58,7 +59,11 @@ const CreateCategoryPage = ({
   mode = category ? 'edit' : 'create'
 }: CategoryFormProps) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useUser();
+  const [isEditMode, setIsEditMode] = useState(mode === 'edit');
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  
   const { register, watch, handleSubmit, control, reset, formState: { errors } } = useForm<Category>({
     defaultValues: {
       id: 0,
@@ -76,45 +81,74 @@ const CreateCategoryPage = ({
   const queryClient = useQueryClient();
   const { fileUrl, handleFileChange } = useFileUpload();
   
-  const isEditMode = mode === 'edit' || !!category;
   const watchedImageURL = watch("logo");
 
-  // Reset form when category prop changes (for edit mode)
   useEffect(() => {
-    if (category && isEditMode) {
-      const categoryObj = {
-        id: category.id,
-        code: category.code,
-        name: category.name,
-        description: category.description,
-        sector: category.sector,
-        logo: category.logo,
-        tags: category.tags,
-        topCategory: category.topCategory,
-        qty: category.qty
-      };
-      reset(categoryObj);
-    } else if (!isEditMode) {
-      // Reset to default values for create mode
-      reset({
-        id: 0,
-        code: "",
-        name: "",
-        description: "",
-        sector: "",
-        logo: "",
-        tags: "",
-        topCategory: "",
-        qty: ""
-      });
+    const editParam = searchParams.get('edit');
+    const idParam = searchParams.get('id');
+    
+    if (editParam === 'true' && idParam) {
+      setIsEditMode(true);
+      setEditingCategoryId(idParam);
     }
-  }, [category, reset, isEditMode]);
+  }, [searchParams]);
+
+const { data: categoryData, isLoading: isLoadingCategory } = useQuery({
+  queryKey: ['category-detail', editingCategoryId],
+  queryFn: () => axiosInstance.request({
+    url: `/products/category/${editingCategoryId}`,
+    method: 'GET',
+  }),
+  enabled: !!editingCategoryId && isEditMode,
+});
+
+useEffect(() => {
+  if (categoryData?.data && isEditMode) {
+    const categories = categoryData.data.categories;
+    const category = categories && categories.length > 0 ? categories[0] : null;
+    
+    console.log('Category data received:', categories);
+    console.log('First category:', category);
+    
+    if (category) {
+      const categoryObj = {
+        id: category?.id || 0,
+        code: category?.code || "",
+        name: category?.name || "",
+        description: category?.description || "",
+        sector: category?.sector || "",
+        logo: category?.logo || "",
+        tags: category?.tags || "",
+        topCategory: category?.topCategory || "",
+        qty: category?.qty || ""
+      };
+      
+      console.log('Form data to be set:', categoryObj); // Debug log
+      reset(categoryObj);
+    } else {
+      console.warn('No category found in response');
+      toast.error('Category not found');
+    }
+  } else if (!isEditMode) {
+    reset({
+      id: 0,
+      code: "",
+      name: "",
+      description: "",
+      sector: "",
+      logo: "",
+      tags: "",
+      topCategory: "",
+      qty: ""
+    });
+  }
+}, [categoryData, isEditMode, reset]);
 
   const { mutate: saveCategory, isPending } = useMutation({
     mutationFn: (data: any) => {
-      const endpoint = isEditMode ? "/products/update-product-category" : "/products/save-product-category";
+      const endpoint = "/products/save-product-category";
       return axiosInstance.request({
-        method: isEditMode ? "PUT" : "POST",
+        method: "POST",
         url: endpoint,
         data: data,
       });
@@ -125,13 +159,10 @@ const CreateCategoryPage = ({
       } else {
         toast.success(`Category ${isEditMode ? 'updated' : 'created'} successfully`);
         
-        // Invalidate and refetch categories
         queryClient.invalidateQueries({ queryKey: ['categories'] });
         
-        // Navigate back to categories page
-        router.push('/inventories');
+        router.push('/admin/inventories');
         
-        // Reset form only in create mode
         if (!isEditMode) {
           reset();
         }
@@ -158,7 +189,7 @@ const CreateCategoryPage = ({
   const onSubmitForm = async (values: Category) => {
     try {
       const payload = {
-        id: isEditMode ? category?.id : 0,
+        id: isEditMode ? (editingCategoryId || category?.id) : 0,
         code: values?.code,
         name: values?.name,
         logo: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values?.logo) || ""),
@@ -170,15 +201,26 @@ const CreateCategoryPage = ({
         entityCode: user?.entityCode,
       };
 
+      console.log('Submitting category payload:', payload); // Debug log
       await saveCategory(payload);
     } catch (error) {
       console.error('Error submitting form:', error);
+      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} category`);
     }
   };
 
+  if (isLoadingCategory) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500">Loading category data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header with back button */}
       <div className="flex items-center mb-6">
         <Button 
           variant="ghost" 
@@ -190,7 +232,6 @@ const CreateCategoryPage = ({
         </Button>
       </div>
 
-      {/* Page Header */}
       <div className="flex items-center justify-center mb-8">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/20 flex items-center justify-center">
@@ -207,9 +248,8 @@ const CreateCategoryPage = ({
 
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Basic Information */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Tag className="h-5 w-5" />
                 Basic Information
@@ -267,9 +307,8 @@ const CreateCategoryPage = ({
             </CardContent>
           </Card>
 
-          {/* Classification */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Layers className="h-5 w-5" />
                 Classification
@@ -345,9 +384,8 @@ const CreateCategoryPage = ({
           </Card>
         </div>
 
-        {/* Logo Upload */}
         <Card className="mt-8 border-accent/20 border-2 shadow-md">
-          <CardHeader className="bg-accent/10 pb-4">
+          <CardHeader className=" pb-4">
             <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
               <ImageIcon className="h-5 w-5" />
               Category Logo
@@ -364,7 +402,6 @@ const CreateCategoryPage = ({
           </CardContent>
         </Card>
 
-        {/* Action Buttons */}
         <div className="flex justify-end gap-4 pt-8 mt-8 border-t border-accent/20">
           <Button 
             type="button" 

@@ -252,14 +252,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-roboto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-roboto: var(--selected-font), ui-sans-serif, system-ui, sans-serif;
   /* --font-open-sans: var(--font-bricolage-grotesque), ui-sans-serif, system-ui, sans-serif; */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-roboto: var(--font-roboto);
+  --font-roboto: var(--selected-font);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -310,8 +310,8 @@
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: var(--accent-env);
-  --accent-foreground: var(--accent-foreground-env);
+  --accent: var(--accent-env, #d8480b);
+  --accent-foreground: var(--accent-foreground-env, #535357);
   --fortitude-primary: #d8480b;
   --fortitude-accent: #313133;
   --fortitude-accent-foreground: #535357;
@@ -334,9 +334,17 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --success-foreground: oklch(0.696 0.17 162.48);
-  --font-roboto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  /* --font-roboto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif; */
+  --font-roboto: var(--selected-font), ui-sans-serif, system-ui, sans-serif;
   --success: oklch(61.464% 0.12869 163.14);
   --warning: oklch(0.828 0.189 84.429);
+  /* Progress Ring Colors */
+    --progress-track: 0 0% 90%;
+    --progress-fill: linear-gradient(135deg, hsl(142 76% 36%), hsl(48 100% 67%), hsl(35 100% 55%));
+
+     /* Gradient Variables */
+    --score-gradient: linear-gradient(135deg, hsl(0 84% 60%), hsl(35 100% 55%), hsl(48 100% 67%), hsl(142 76% 36%));
+    --card-gradient: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), color-mix(in srgb, var(--accent) 5%, transparent));
 }
 
 .dark {
@@ -375,7 +383,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    font-family: var(--font-roboto)
+    font-family: var(--selected-font)
   }
   body {
     @apply bg-background text-foreground;
@@ -410,6 +418,50 @@
   }
   .shadow-card-glow {
     box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+  }
+
+   .score-gradient {
+    background: var(--score-gradient);
+  }
+  
+  .card-gradient {
+    background: var(--card-gradient);
+  }
+  
+  .progress-ring {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .progress-track {
+    stroke: hsl(var(--progress-track));
+  }
+
+   .progress-fill {
+    stroke: url(#scoreGradient);
+    stroke-dasharray: 0 100;
+    animation: progress-fill 2s ease-out forwards;
+  }
+  
+  @keyframes progress-fill {
+    from {
+      stroke-dasharray: 0 100;
+    }
+  }
+  
+  .score-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .score-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, hsl(var(--accent)), hsl(48 100% 67%));
   }
 }
 

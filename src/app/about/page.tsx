@@ -6,15 +6,18 @@ import About from "@/components/images/about-fortitude.jpg"; // You'll need to a
 import About2 from "@/components/images/about2-fortitude.jpg";
 import Header from "../../../fortitude-app/layout/header";
 import Footer from "../../../fortitude-app/layout/footer";
+import { Suspense } from "react";
+import Link from "next/link";
 
 export default function AboutPage() {
   return (
     <>
+    <Suspense>
     <Header />
 
 
       {/* Hero Section */}
-      <section className=" mt-50 text-accent-foreground bg-gray-100 py-10 px-5">
+      <section className="text-accent-foreground bg-gray-100 py-10 px-5">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -28,8 +31,8 @@ export default function AboutPage() {
       </section>
 
       {/* Company Overview */}
-      <section className="container mx-auto py-12 px-5 py-20 bg-white">
-        <div className="container-custom">
+      <section className="px-5 py-20 bg-white">
+        <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               {/* <FadeIn direction="left"> */}
@@ -159,7 +162,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 icon: <Users className="h-8 w-8 text-accent" />,
@@ -183,11 +186,11 @@ export default function AboutPage() {
               }
             ].map((value, index) => (
             //   <FadeIn key={index} direction="up" delay={index * 0.1}>
-                <div className="flex">
+                <div className="flex bg-accent-foreground rounded-2xl shadow-md p-6 border border-accent hover:shadow-lg transition-all duration-300 h-full">
                   <div className="flex-shrink-0 mt-1">{value.icon}</div>
                   <div className="ml-4">
-                    <h3 className="text-xl font-bold mb-2">{value.title}</h3>
-                    <p className="text-gray-600">{value.description}</p>
+                    <h3 className="text-xl font-bold mb-2 text-white">{value.title}</h3>
+                    <p className="text-gray-600 text-white">{value.description}</p>
                   </div>
                 </div>
             //   </FadeIn>
@@ -254,16 +257,21 @@ export default function AboutPage() {
             Experience the future of ecommerce with innovative features, secure payments, and exceptional service.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-accent hover:bg-accent-foreground hover:text-white border-white border-1">
-              Start Shopping
-            </Button>
-            <Button size="lg" className="bg-accent-foreground border-white border-1 text-white hover:bg-white hover:text-accent">
-              Become a Seller
-            </Button>
+            <Link href="/shop">
+              <Button size="lg" className="bg-white text-accent hover:bg-accent-foreground hover:text-white border-white border-1">
+                Start Shopping
+              </Button>
+            </Link>
+            <Link href="/admin-login" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" className="bg-accent-foreground border-white border-1 text-white hover:bg-white hover:text-accent">
+                Become a Seller
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
       <Footer />
+      </Suspense>
     </>
   );
 }

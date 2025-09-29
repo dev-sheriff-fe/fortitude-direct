@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,9 @@ import { useProductMutation } from "@/components/Admin/inventories/shared-hooks.
 import { useCategories } from "@/app/hooks/useCategories";
 import useUser from "@/store/userStore";
 import { fileUrlFormatted } from "@/utils/helperfns";
+import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "@/utils/fetch-function";
+import { toast } from "sonner";
 
 interface ProductFormData {
   productId: string;
@@ -47,10 +50,75 @@ interface ProductFormData {
   ccy: string;
 }
 
-const CreateProductPage = () => {
+interface CreateProductPageProps {
+  product?: any;
+  mode?: 'create' | 'edit';
+}
+
+const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: CreateProductPageProps) => {
   const router = useRouter();
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ProductFormData>({
-    defaultValues: {
+  const searchParams = useSearchParams();
+  const [isEditMode, setIsEditMode] = useState(mode === 'edit');
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<ProductFormData>();
+  
+  const { mutate: saveProduct, isPending } = useProductMutation();
+  const { data: categories } = useCategories();
+  const { user } = useUser();
+  const { fileUrl, handleFileChange } = useFileUpload();
+
+  const watchedImageURL = watch("imageURL");
+
+  useEffect(() => {
+    const editParam = searchParams.get('edit');
+    const idParam = searchParams.get('id');
+    
+    if (editParam === 'true' && idParam) {
+      setIsEditMode(true);
+      setEditingProductId(idParam);
+    }
+  }, [searchParams]);
+
+  const { data: productData, isLoading: isLoadingProduct } = useQuery({
+    queryKey: ['product-detail', editingProductId],
+    queryFn: () => axiosInstance.request({
+      url: '/products/getById',
+      // ?name=&storeCode=STO445&entityCode=H2P&tag=&pageNumber=1&pageSize=200
+      method: 'GET',
+      params: {
+        // code: editingProductId,
+        id: editingProductId
+      }
+    }),
+    enabled: !!editingProductId && isEditMode,
+  });
+
+useEffect(() => {
+  if (productData?.data && isEditMode) {
+    const product = productData.data.productDto; // Access the nested productDto
+    console.log('Product data received:', product); // Debug log
+    
+    const productObj = {
+      productId: product?.id?.toString() || "",
+      productName: product?.name || "",
+      productDescription: product?.description || "",
+      productCategory: product?.category || "",
+      productCode: product?.code || "",
+      productPrice: product?.salePrice?.toString() || "",
+      stockQuantity: product?.qtyInStore || 0,
+      unitQuantity: product?.unit || "",
+      imageURL: product?.picture || "",
+      costPrice: product?.costPrice?.toString() || "",
+      storeId: user?.storeCode || "",
+      barCode: product?.barCode || "",
+      brand: product?.brand || "",
+      ccy: product?.ccy || 'NGN'
+    };
+    
+    console.log('Form data to be set:', productObj);
+    reset(productObj);
+  } else if (!isEditMode) {
+    reset({
       productId: "",
       productName: "",
       productDescription: "",
@@ -61,47 +129,55 @@ const CreateProductPage = () => {
       unitQuantity: "",
       imageURL: "",
       costPrice: "",
-      storeId: "",
+      storeId: user?.storeCode || "",
       barCode: "",
       brand: "",
       ccy: "NGN"
-    }
-  });
+    });
+  }
+}, [productData, isEditMode, user, reset]);
 
-  const { mutate: saveProduct, isPending } = useProductMutation();
-  const { data: categories } = useCategories();
-  const { user } = useUser();
-  const { fileUrl, handleFileChange } = useFileUpload();
+const onSubmitForm = async (values: ProductFormData) => {
+  try {
+    const payload = {
+      productId: isEditMode ? editingProductId : null,
+      productName: values.productName,
+      productDescription: values.productDescription,
+      productCategory: values.productCategory,
+      productCode: values.productCode,
+      productPrice: values.productPrice,
+      stockQuantity: values.stockQuantity,
+      unitQuantity: values.unitQuantity,
+      base64Image: "",
+      imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values.imageURL) || ""),
+      costPrice: values.costPrice,
+      storeId: user?.storeCode || '',
+      barCode: values.barCode,
+      brand: values.brand,
+      ccy: values.ccy || 'NGN'
+    };
 
-  const onSubmitForm = async (values: ProductFormData) => {
-    try {
-      const payload = {
-        productId: null,
-        productName: values?.productName,
-        productDescription: values?.productDescription,
-        productCategory: values?.productCategory,
-        productCode: values?.productCode,
-        productPrice: values?.productPrice,
-        stockQuantity: values?.stockQuantity,
-        unitQuantity: values?.unitQuantity,
-        base64Image: "",
-        imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values?.imageURL) || ""),
-        costPrice: values?.costPrice,
-        storeId: user?.storeCode || '',
-        barCode: values?.barCode,
-        brand: values?.brand,
-        ccy: values?.ccy || 'NGN'
-      };
+    console.log('Submitting payload:', payload);
+    await saveProduct(payload);
+    toast.success(isEditMode ? 'Product updated successfully' : 'Product created successfully');
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product`);
+  }
+};
 
-      await saveProduct(payload);
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    }
-  };
+  if (isLoadingProduct) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500">Loading product data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header with back button */}
       <div className="flex items-center mb-6">
         <Button 
           variant="ghost" 
@@ -120,19 +196,19 @@ const CreateProductPage = () => {
             <Package className="h-8 w-8 text-accent-foreground" />
           </div>
           <h1 className="text-3xl font-bold text-accent-foreground">
-            Create New Product
+            {isEditMode ? 'Edit Product' : 'Create New Product'}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Add a new product to your inventory
+            {isEditMode ? 'Update product information' : 'Add a new product to your inventory'}
           </p>
         </div>
       </div>
 
+
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Basic Information */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Tag className="h-5 w-5" />
                 Basic Information
@@ -199,9 +275,8 @@ const CreateProductPage = () => {
             </CardContent>
           </Card>
 
-          {/* Codes and IDs */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className=" pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Barcode className="h-5 w-5" />
                 Codes & IDs
@@ -241,9 +316,8 @@ const CreateProductPage = () => {
             </CardContent>
           </Card>
 
-          {/* Pricing */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <DollarSign className="h-5 w-5" />
                 Pricing
@@ -318,9 +392,8 @@ const CreateProductPage = () => {
             </CardContent>
           </Card>
 
-          {/* Inventory */}
           <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="bg-accent/10 pb-4">
+            <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
                 <Warehouse className="h-5 w-5" />
                 Inventory
@@ -363,9 +436,8 @@ const CreateProductPage = () => {
           </Card>
         </div>
 
-        {/* Image Upload */}
         <Card className="mt-8 border-accent/20 border-2 shadow-md">
-          <CardHeader className="bg-accent/10 pb-4">
+          <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
               <ImageIcon className="h-5 w-5" />
               Product Image
@@ -375,14 +447,13 @@ const CreateProductPage = () => {
           <CardContent className="p-6">
             <FileUpload
               onFileSelect={handleFileChange}
-              currentFileUrl=""
+              currentFileUrl={watchedImageURL}
               accept="image/*"
               label="Product Image"
             />
           </CardContent>
         </Card>
 
-        {/* Action Buttons */}
         <div className="flex justify-end gap-4 pt-8 mt-8 border-t border-accent/20">
           <Button 
             type="button" 
@@ -399,7 +470,7 @@ const CreateProductPage = () => {
             disabled={isPending}
           >
             <Save className="h-4 w-4" />
-            {isPending ? 'Processing...' : "Create Product"}
+            {isPending ? 'Processing...' : (isEditMode ? "Update Product" : "Create Product")}
           </Button>
         </div>
       </form>

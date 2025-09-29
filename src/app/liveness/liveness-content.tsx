@@ -10,6 +10,7 @@ import { Amplify } from 'aws-amplify';
 import { useRouter, useSearchParams } from 'next/navigation'; // Updated import
 import { useMutation } from '@tanstack/react-query'; // Updated import
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 Amplify.configure({
   Auth:{
@@ -247,6 +248,9 @@ const LivenessCheckPage = () => {
                         : 'Liveness check failed. Please ensure you are a real person and try again.'
                       }
                     </p>
+                    <Button className='bg-accent text-white p-4 rounded-md' onClick={()=>router?.push('/')}>
+                        Back to home
+                    </Button>
                     {/* {analysisResult && (
                       <div className="bg-gray-50 rounded-lg p-4 mb-4">
                         <p className="text-sm text-gray-600">

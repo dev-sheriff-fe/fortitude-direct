@@ -13,6 +13,10 @@ const AdminLogin = () => {
     const {user} = useUser()
 
     console.log(user);
+
+    useEffect(()=>{
+      document.title = 'Store owner login'
+    },[])
     
     useEffect(() => {
         // Check authentication status after component mounts

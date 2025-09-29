@@ -8,8 +8,8 @@ export const TOKEN = 'token';
 export const TOKEN_CUSTOMER = 'token_customer'
 export const PERMISSIONS = 'permissions';
 export const PERMISSIONS_CUSTOMER = 'permissions_customer'
-export const AUTH_CRED = 'AUTH_CRED_STORE_OWNER';
-export const AUTH_CRED_CUSTOMER = 'AUTH_CRED_CUSTOMER'
+export const AUTH_CRED = 'AUTH_CRED_STORE_OWNER_FORTITUDE';
+export const AUTH_CRED_CUSTOMER = 'AUTH_CRED_CUSTOMER_FORTITUDE';
 export const CART_KEY = 'pick-cart';
 export const CHECKOUT = 'pickbazar-checkout';
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types

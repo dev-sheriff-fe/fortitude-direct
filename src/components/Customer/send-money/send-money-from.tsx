@@ -16,7 +16,7 @@ import { VerificationModal } from "./verification-modal";
 import { SuccessModal } from "./success-modal";
 import { useLocationStore } from "@/store/locationStore";
 import useCustomer from "@/store/customerStore";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosCustomer from "@/utils/fetch-function-customer";
 import { toast } from "sonner";
 import { generateRandomNumber } from "@/utils/helperfns";
@@ -86,7 +86,7 @@ const transferSchema = z.object({
   saveBeneficiary: z.boolean(),
 });
 
-type TransferFormData = z.infer<typeof transferSchema>;
+export type TransferFormData = z.infer<typeof transferSchema>;
 
 export const TransferForm = () => {
   const [currentStep, setCurrentStep] = useState<"form" | "confirm" | "verify" | "success" | "pending">("form");
@@ -109,13 +109,14 @@ export const TransferForm = () => {
       saveBeneficiary: false,
     },
   });
+  const queryClient = useQueryClient()
 
   const {location} = useLocationStore()
 
   console.log(location);
   
 
-  const { handleSubmit, watch, setValue, getValues } = form;
+  const { handleSubmit, watch, setValue, getValues, reset } = form;
 
   console.log(getValues());
   
@@ -149,6 +150,10 @@ export const TransferForm = () => {
       
       if (data?.data?.responseCode!=='000') {
         toast?.error(data?.data?.responseMessage)
+        reset()
+        queryClient?.invalidateQueries({
+              queryKey: ['customer-balances','customer-recent-trans']
+            })
         return
       }
       toast.success(data?.data?.responseMessage)
@@ -255,6 +260,7 @@ export const TransferForm = () => {
         }}
      payloadInfo = {payloadInfo}
      setCurrentStep = {setCurrentStep}
+     reset = {reset}
     />
     )
   }

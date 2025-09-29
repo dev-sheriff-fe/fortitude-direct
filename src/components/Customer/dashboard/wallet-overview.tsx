@@ -79,6 +79,11 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
     setShowAmount(!showAmount);
   };
 
+  const {customer} = useCustomer()
+
+  console.log(customer);
+  
+
   const displayAmount = forceHideAmount ? false : showAmount;
   return (
     <Card
@@ -308,7 +313,7 @@ export const WalletOverview = () => {
         // merchantCode: user?.merchantCode,
         // datePeriod: getCurrentDate(),
         datePeriod: "",
-        storeCode: "STO445",
+        storeCode: customer?.storeCode || "STO445",
         username: customer?.username,
         entityCode: customer?.entityCode
       }
@@ -321,7 +326,7 @@ export const WalletOverview = () => {
       method: 'GET',
       url: '/customer-dashboard/balance',
       params: {
-        storeCode: 'STO445',
+        storeCode: customer?.storeCode || 'STO445',
         username: customer?.username,
         entityCode: customer?.entityCode
       }

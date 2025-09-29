@@ -53,17 +53,17 @@ const CartTriggerDesktop = ({
   return (
     <CartWrapper isOpen={isOpen} onOpenChange={onOpenChange}>
       <SheetTrigger 
-        className="bg-[#d8480b] hidden lg:block w-[90.39px] h-[96px] p-3 bg-accent fixed top-[50%] right-0 z-50 rounded-l-sm cursor-pointer space-y-3"
+        className="bg-[#d8480b] hidden lg:block w-[95.39px] h-[96px] p-3 bg-accent fixed top-[50%] right-0 z-50 rounded-l-sm cursor-pointer space-y-3"
         aria-label="Open cart"
         onClick={triggerClick} // Pass the click handler
       >
-        <div className='flex items-center justify-center gap-1 text-white text-[13px] font-semibold'>
+        <div className='flex items-center justify-center gap-2 text-white text-[13px] font-semibold'>
           <span><ShoppingBag size={18} strokeWidth={2.5} /></span> 
           <span>{itemCount > 1 ? `${itemCount} items` : `${itemCount} item`}</span>
         </div>
 
         {itemCount > 0 && (
-          <div className="text-[#d8480b] bg-white text-center py-1 rounded-sm text-[13px] font-semibold">
+          <div className="text-accent bg-white text-center py-1 rounded-sm text-[13px] font-semibold">
             {formatPrice(totalAmount, mainCcy() as CurrencyCode)}
           </div>
         )}
