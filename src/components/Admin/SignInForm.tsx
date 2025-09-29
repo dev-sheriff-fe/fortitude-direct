@@ -24,7 +24,7 @@ export function SignInForm() {
   const searchParams = useSearchParams()
   const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
 
-  // Get the return URL from query parameters, default to dashboard
+  // Get the return URL from query parameters, default to dasoard
   const returnUrl = searchParams.get('returnUrl') || '/admin'
   const loginMutation = useMutation({
     mutationFn: ({ username, password }: { username: string; password: string }) =>
