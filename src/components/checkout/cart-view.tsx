@@ -114,8 +114,8 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
               {paymentMethods.map((method: any) => {
-                const IconComponent = getPaymentIcon(method.code);
-                const iconColor = getIconColor(method.code);
+                // const IconComponent = getPaymentIcon(method.code);
+                // const iconColor = getIconColor(method.code);
                 
                 return (
                   <Card 
@@ -129,7 +129,14 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
                   >
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3 mb-3">
-                        <IconComponent className={`w-6 h-6 ${iconColor}`} />
+                        {/* <IconComponent className={`w-6 h-6 ${iconColor}`} /> */}
+                        <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center p-2 shadow-soft">
+                          <img
+                            src={method.logo}
+                            alt={method.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
                         <div className="flex-1">
                           <h4 className="font-semibold">{method.name}</h4>
                           {method.isRecommended && method.recommendedTitle && (
