@@ -39,6 +39,7 @@ export const ShippingForm = ({setCurrentStep,form}: {setCurrentStep: (currentSte
         formState: {errors},
         setValue,
         watch,
+        getValues,
         reset
       } 
         = form
@@ -192,6 +193,7 @@ export const ShippingForm = ({setCurrentStep,form}: {setCurrentStep: (currentSte
           type="button"  
           className="mt-6 w-full bg-accent md:w-full"
           onClick={()=>setCurrentStep('cart')}
+          disabled = {!getValues("selectedAddressId")}
           >
              Continue to Payment
           </Button>

@@ -18,7 +18,7 @@ export const useFileUpload = () => {
   
   // Helper function to determine if file is an image
   const isImageFile = (mimeType: string) => {
-    return ['image/jpeg', 'image/jpg', 'image/png'].includes(mimeType);
+    return ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml'].includes(mimeType);
   };
 
    // ✅ Prevent SSR mismatch by running browser-only logic after hydration
@@ -152,6 +152,8 @@ export const useFileUpload = () => {
     fileType,
     handleFileChange,
     resetFileInput,
-    setInitialImage
+    setInitialImage,
+    setPreviewUrl,
+    setFileUrl
   };
 };

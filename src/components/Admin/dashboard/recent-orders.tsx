@@ -320,7 +320,10 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                   ))}
                 </div>
                 <AlertDialog onOpenChange={setIsAlertOpen} open={isAlertOpen}>
-                  <AlertDialogTrigger className='w-full bg-accent text-white mt-4 p-2 rounded-md'>Confirm Payment</AlertDialogTrigger>
+                  {selectedOrder?.paymentMethod === 'BNPL-PAY-PENDING' && selectedOrder?.paymentStatus !== '00'? <AlertDialogTrigger className='w-full bg-accent text-white mt-4 p-2 rounded-md'>Confirm Payment</AlertDialogTrigger>
+                  :
+                  null  
+                }
                   <ConfirmPayment
                    selectedOrder={selectedOrder}
                    setIsAlertOpen={setIsAlertOpen}
