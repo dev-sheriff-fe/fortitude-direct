@@ -60,6 +60,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
     const [paymentVerificationStatus, setPaymentVerificationStatus] = useState<PaymentVerificationStatus>('idle');
     const [paymentResponse, setPaymentResponse] = useState<any>(null);
 
+
     // Local copy function to avoid external dependencies
     const handleCopyToClipboard = async (text: string) => {
       try {
@@ -169,7 +170,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
         chain: chain?.code,
         orderNo: checkoutData.orderNo,
         storeCode,
-        entityCode: 'H2P'
+        entityCode: customer?.entityCode || ''
       };
 
       console.log('Generated payload:', payload);
@@ -233,7 +234,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
         chain: chainDets?.chain,
         orderNo: checkoutData.orderNo,
         storeCode,
-        entityCode: 'H2P'
+        entityCode: customer?.entityCode || ''
       }
 
       checkPaymentStatus(payload);

@@ -4,7 +4,8 @@ import HeroSlider from "@/components/home/hero-slider";
 import TestimonialSlider from "@/components/home/testimonial-slider";
 import { ProductCard } from "@/utils/products-card";
 import { ProductProps } from '@/types';
-import axiosInstance from "@/utils/fetch-function";
+// import axiosInstance from "@/utils/fetch-function";
+import axiosInstanceNoAuth from '@/utils/fetch-function-auth';
 import { useQuery } from "@tanstack/react-query";
 import mouse from "@/components/images/mouse.png";
 import watch from "@/components/images/watch.png";
@@ -25,6 +26,8 @@ export default function HomeFortitude() {
   const [selectedProduct, setSelectedProduct] = useState<ProductProps | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE
+
   useEffect(() => {
     if (!searchParams?.get('storeCode')) {
       router.push(`?storeCode=STO445`);
@@ -34,13 +37,13 @@ export default function HomeFortitude() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["featured-products", selectedCategory, storeCode],
     queryFn: () => {
-      return axiosInstance.request({
+      return axiosInstanceNoAuth.request({
         method: "GET",
         url: '/ecommerce/products/list',
         params: {
           name: '',
           storeCode: storeCode,
-          entityCode: 'H2P',
+          entityCode: entityCode,
           category: selectedCategory,
           tag: '',
           pageNumber: 1,
@@ -53,13 +56,13 @@ export default function HomeFortitude() {
   const { data: allProductsData, isLoading: allProductsLoading } = useQuery({
     queryKey: ["all-products", storeCode],
     queryFn: () => {
-      return axiosInstance.request({
+      return axiosInstanceNoAuth.request({
         method: "GET",
         url: '/ecommerce/products/list',
         params: {
           name: '',
           storeCode: storeCode,
-          entityCode: 'H2P',
+          entityCode: entityCode,
           category: '',
           tag: '',
           pageNumber: 1,

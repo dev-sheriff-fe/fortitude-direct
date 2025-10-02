@@ -11,7 +11,7 @@ import { Button } from "../ui/button"
 import axiosInstanceNoAuth from "@/utils/fetch-function-auth"
 
 const ProductsGrid = () => {
-    // This component displays a grid of products
+    // This component displays a grid of produc
     const searchParams = useSearchParams();
     const category = searchParams.get('category') || ''
     const name = searchParams.get('name') || ''
@@ -19,6 +19,7 @@ const ProductsGrid = () => {
     const [modalProduct, setModalProduct] = useState<ProductProps | null>(null)
     const [isOpen, setIsOpen] = useState(false)
     const [retryProducts,setRetryProducts] = useState(false)
+    const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
     const retryFn = () =>{
         setRetryProducts(!retryProducts)
       }
@@ -32,7 +33,7 @@ const ProductsGrid = () => {
       params: {
         name,
         storeCode,
-        entityCode: 'H2P',
+        entityCode: entityCode,
         category,
         tag: '',
         pageNumber: 1,

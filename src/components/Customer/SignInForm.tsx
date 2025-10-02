@@ -25,6 +25,7 @@ export function SignInForm() {
   const returnUrl = searchParams.get('returnUrl') || '/dashboard'
 
   const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
+  const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: any) => axiosCustomer.request({
@@ -64,7 +65,7 @@ export function SignInForm() {
     const payload = {
       username: username,
       password: password,
-      entityCode: 'H2P',
+      entityCode: entityCode,
       language: 'en',
       channelType: 'WEB',
       deviceId: ''

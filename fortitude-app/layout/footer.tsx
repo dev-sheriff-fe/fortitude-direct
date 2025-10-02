@@ -113,15 +113,15 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-[#d8480b] mr-3 mt-1 flex-shrink-0" />
-                <span className="text-gray-300">4517 Washington Ave. Manchester, Kentucky 39495</span>
+                <span className="text-gray-300">1706B Olubosi close, off akin adesola street via Bishop Oluwole Street, Victoria Island</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 text-[#d8480b] mr-3 flex-shrink-0" />
                 <a 
-                  href="tel:+2348000000000" 
+                  href="tel:+2347078553444" 
                   className="text-gray-300 hover:text-[#d8480b] transition-colors"
                 >
-                  +234 707-855-3444, +234 800-000-0000
+                  +234 707-855-3444
                 </a>
               </li>
               <li className="flex items-center">

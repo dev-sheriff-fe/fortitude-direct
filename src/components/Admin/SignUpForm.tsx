@@ -37,6 +37,7 @@ export function SignUpForm() {
   const totalSteps = 4
   const router = useRouter()
   const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
+  const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
 
 
 
@@ -138,9 +139,9 @@ export function SignUpForm() {
         countryCode: 'NG',
         onboardDocs: [],
 
-        entityCode: 'H2P',
+        entityCode: entityCode,
         merchantGroupCode: 'M0001',
-        branchCode: 'ETZ_HO',
+        branchCode: 'FTD_HO',
         id: 0,
       }
     }),

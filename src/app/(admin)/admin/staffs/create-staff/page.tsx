@@ -65,7 +65,7 @@ export default function CreateStaffPage() {
     userlang: 'en',
     deviceId: '0001',
     channelType: 'POS',
-    entityCode: 'H2P',
+    entityCode: user?.entityCode || '',
   });
 
   // Fetch staff details for editing
@@ -151,7 +151,7 @@ export default function CreateStaffPage() {
       username: isEditMode ? (editingUsername || '') : formData.username,
       merchantCode: user?.merchantCode || '',
       storeCode: user?.storeCode || '',
-      bvn: '00000000000', // Placeholder BVN
+      // bvn: '00000000000', // Placeholder BVN
     };
     
     createStaffMutation.mutate(payload);

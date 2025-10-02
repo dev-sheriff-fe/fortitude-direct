@@ -22,13 +22,14 @@ const Cart = () => {
     const currentDate = getCurrentDate()
     const searchParams = useSearchParams()
     const storeCode = searchParams ? searchParams.get('storeCode') || '' : ''
+    const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
 
     const { mutate, isPending } = useMutation({
         mutationFn: (data: any) => axiosInstance.request({
             url: '/store/save-cart',
             method: 'POST',
             params: {
-                entityCode: 'H2P',
+                entityCode: entityCode,
                 storeCode
             },
             data

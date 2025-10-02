@@ -42,6 +42,7 @@ export function SignUpForm() {
   const totalSteps = 4
   const router = useRouter()
   const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
+  const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
 
 
   const {
@@ -108,7 +109,7 @@ export function SignUpForm() {
       middlename: "",
       mobileNo: value?.mobileNo,
       email: value?.email,
-      entityCode: 'H2P',
+      entityCode: entityCode,
       city: value?.city,
       countryCode: nationalityData?.code,
       gender: value?.gender,

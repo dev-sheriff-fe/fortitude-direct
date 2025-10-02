@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Download, Plus, Search, Eye, Phone, Mail, User, Edit } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Download, Plus, Search, Eye, Phone, Mail, User, Edit, Link as LinkIcon } from 'lucide-react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import axiosInstance from '@/utils/fetch-function';
 import useUser from '@/store/userStore';
 import {
@@ -16,22 +16,36 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface Staff {
+    staffUserId: number;
+    staffName: string;
+    staffRole: string;
+    staffPhone: string;
+    staffEmail: string;
+    staffStatus: string;
+    staffUsername: string;
+}
+
+interface UserInfo {
     id: number;
-    username: string;
     firstname: string;
+    middlename: string | null;
     lastname: string;
+    username: string;
     email: string;
     mobileNo: string;
     userRole: string;
-    branchCode: string;
     status: string;
+    fullname: string;
     merchantCode: string;
     storeCode: string;
-    createdAt: string;
 }
 
 interface Column {
@@ -59,8 +73,12 @@ const getDisplayValue = (value: any): string => {
     return value?.toString() || 'N/A';
 };
 
-const getInitials = (firstName: string, lastName: string): string => {
-    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+const getInitials = (fullName: string): string => {
+    if (!fullName) return 'NA';
+    const names = fullName.split(' ');
+    const firstInitial = names[0]?.charAt(0) || '';
+    const lastInitial = names[names.length - 1]?.charAt(0) || '';
+    return `${firstInitial}${lastInitial}`.toUpperCase();
 };
 
 const DynamicTable = ({
@@ -146,7 +164,7 @@ const DynamicTable = ({
                     <tbody>
                         {currentData.map((item, index) => (
                             <tr
-                                key={item.id}
+                                key={item.staffUserId}
                                 className={`border-b border-gray-200 ${index === currentData.length - 1 ? 'border-b-0' : ''}`}
                             >
                                 {columnsWithHandler.map((column) => (
@@ -205,7 +223,7 @@ const DynamicTable = ({
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader className='flex flex-col'>
-                        <DialogTitle>Staff Details - {selectedStaff?.firstname} {selectedStaff?.lastname}</DialogTitle>
+                        <DialogTitle>Staff Details - {selectedStaff?.staffName}</DialogTitle>
                         <DialogDescription>
                             Detailed information about the selected staff member
                         </DialogDescription>
@@ -216,16 +234,16 @@ const DynamicTable = ({
                             <div className="flex items-center gap-4 mb-6">
                                 <Avatar className="w-20 h-20">
                                     <AvatarFallback className="text-lg">
-                                        {getInitials(selectedStaff.firstname, selectedStaff.lastname)}
+                                        {getInitials(selectedStaff.staffName)}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <h3 className="text-lg font-semibold">
-                                        {getDisplayValue(selectedStaff.firstname)} {getDisplayValue(selectedStaff.lastname)}
+                                        {getDisplayValue(selectedStaff.staffName)}
                                     </h3>
-                                    <p className="text-sm text-gray-500">@{getDisplayValue(selectedStaff.username)}</p>
-                                    <Badge className={`${getStatusColor(selectedStaff.status)} text-xs px-2 py-1 mt-1 w-fit`}>
-                                        {getDisplayValue(selectedStaff.status)}
+                                    <p className="text-sm text-gray-500">@{getDisplayValue(selectedStaff.staffUsername)}</p>
+                                    <Badge className={`${getStatusColor(selectedStaff.staffStatus)} text-xs px-2 py-1 mt-1 w-fit`}>
+                                        {getDisplayValue(selectedStaff.staffStatus)}
                                     </Badge>
                                 </div>
                             </div>
@@ -233,45 +251,37 @@ const DynamicTable = ({
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium">Username:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedStaff.username)}</p>
+                                    <p className="text-sm">{getDisplayValue(selectedStaff.staffUsername)}</p>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium">User Role:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedStaff.userRole)}</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium">Branch Code:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedStaff.branchCode)}</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium">Store Code:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedStaff.storeCode)}</p>
+                                    <p className="text-sm">{getDisplayValue(selectedStaff.staffRole)}</p>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium">Status:</p>
-                                    <Badge className={`${getStatusColor(selectedStaff.status)} text-xs px-2 py-1 w-fit`}>
-                                        {getDisplayValue(selectedStaff.status)}
+                                    <Badge className={`${getStatusColor(selectedStaff.staffStatus)} text-xs px-2 py-1 w-fit`}>
+                                        {getDisplayValue(selectedStaff.staffStatus)}
                                     </Badge>
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="text-sm font-medium">Created At:</p>
-                                    <p className="text-sm">{new Date(selectedStaff.createdAt).toLocaleDateString()}</p>
+                                    <p className="text-sm font-medium">Staff ID:</p>
+                                    <p className="text-sm">{getDisplayValue(selectedStaff.staffUserId)}</p>
                                 </div>
                             </div>
 
                             <div className="border-t pt-4 mt-4">
                                 <h4 className="font-medium mb-3">Contact Information</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {selectedStaff.mobileNo && (
+                                    {selectedStaff.staffPhone && (
                                         <div className="flex items-center gap-2">
                                             <Phone className="w-4 h-4 text-gray-500" />
-                                            <p className="text-sm">{getDisplayValue(selectedStaff.mobileNo)}</p>
+                                            <p className="text-sm">{getDisplayValue(selectedStaff.staffPhone)}</p>
                                         </div>
                                     )}
-                                    {selectedStaff.email && (
+                                    {selectedStaff.staffEmail && (
                                         <div className="flex items-center gap-2">
                                             <Mail className="w-4 h-4 text-gray-500" />
-                                            <p className="text-sm">{getDisplayValue(selectedStaff.email)}</p>
+                                            <p className="text-sm">{getDisplayValue(selectedStaff.staffEmail)}</p>
                                         </div>
                                     )}
                                 </div>
@@ -291,37 +301,37 @@ const MobileStaffCard = ({ staff, onViewDetails }: { staff: Staff; onViewDetails
                 <div className="flex items-center gap-3">
                     <Avatar className="w-12 h-12">
                         <AvatarFallback>
-                            {getInitials(staff.firstname, staff.lastname)}
+                            {getInitials(staff.staffName)}
                         </AvatarFallback>
                     </Avatar>
                     <div>
                         <p className="text-sm font-semibold text-gray-900">
-                            {getDisplayValue(staff.firstname)} {getDisplayValue(staff.lastname)}
+                            {getDisplayValue(staff.staffName)}
                         </p>
-                        <p className="text-xs text-gray-500">@{getDisplayValue(staff.username)}</p>
+                        <p className="text-xs text-gray-500">@{getDisplayValue(staff.staffUsername)}</p>
                     </div>
                 </div>
-                <Badge className={`${getStatusColor(staff.status)} text-xs px-2 py-1`}>
-                    {getDisplayValue(staff.status)}
+                <Badge className={`${getStatusColor(staff.staffStatus)} text-xs px-2 py-1`}>
+                    {getDisplayValue(staff.staffStatus)}
                 </Badge>
             </div>
 
             <div className="text-sm text-gray-600 flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span>{getDisplayValue(staff.userRole)}</span>
+                <span>{getDisplayValue(staff.staffRole)}</span>
             </div>
 
-            {staff.mobileNo && (
+            {staff.staffPhone && (
                 <div className="text-sm text-gray-600 flex items-center gap-2">
                     <Phone className="w-4 h-4" />
-                    <span>{getDisplayValue(staff.mobileNo)}</span>
+                    <span>{getDisplayValue(staff.staffPhone)}</span>
                 </div>
             )}
 
             <div className="flex items-center justify-between pt-2 border-t border-gray-200">
                 <div>
-                    <p className="text-xs text-gray-500">Store Code</p>
-                    <p className="text-sm font-medium">{getDisplayValue(staff.storeCode)}</p>
+                    <p className="text-xs text-gray-500">Staff ID</p>
+                    <p className="text-sm font-medium">{getDisplayValue(staff.staffUserId)}</p>
                 </div>
                 <Button
                     variant="ghost"
@@ -336,71 +346,273 @@ const MobileStaffCard = ({ staff, onViewDetails }: { staff: Staff; onViewDetails
     );
 };
 
+// Link Staff Modal Component
+const LinkStaffModal = ({ 
+    isOpen, 
+    onClose 
+}: { 
+    isOpen: boolean; 
+    onClose: () => void; 
+}) => {
+    const { user } = useUser();
+    const [selectedUsername, setSelectedUsername] = useState('');
+    const [comment, setComment] = useState('');
+    const [selectedUser, setSelectedUser] = useState<UserInfo | null>(null);
+
+    // Fetch available users for linking
+    const { data: usersData, isLoading: isLoadingUsers } = useQuery({
+        queryKey: ['available-users'],
+        queryFn: () => axiosInstance.request({
+            url: 'https://corestack.app:8008/mmcp/api/v1/usermanager/getUserMasterList',
+            method: 'GET',
+            params: {
+                pageNumber: 1,
+                pageSize: 10,
+                name: '',
+                role: '',
+                mobileNo: ''
+            }
+        }),
+        enabled: isOpen
+    });
+
+    const users: UserInfo[] = usersData?.data?.userInfoList || [];
+
+    const linkStaffMutation = useMutation({
+        mutationFn: (linkData: any) =>
+            axiosInstance.post('/usermanager/linkstaffstore', linkData),
+        onSuccess: (data) => {
+            if (data?.data?.code === '000') {
+                toast.success('Staff linked successfully');
+                onClose();
+                setSelectedUsername('');
+                setComment('');
+                setSelectedUser(null);
+            } else {
+                toast.error(data?.data?.desc || 'Failed to link staff');
+            }
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Failed to link staff');
+        }
+    });
+
+    const handleUsernameChange = (username: string) => {
+        setSelectedUsername(username);
+        const user = users.find(u => u.username === username);
+        setSelectedUser(user || null);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!selectedUsername) {
+            toast.error('Please select a username');
+            return;
+        }
+
+        const payload = {
+            username: selectedUsername,
+            storeCode: user?.storeCode || '',
+            merchantCode: user?.merchantCode || '',
+            merchantGroupCode: user?.merchantGroupCode || '',
+            entityCode: user?.entityCode || '',
+            comment: comment
+        };
+
+        linkStaffMutation.mutate(payload);
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Link Existing User as Staff</DialogTitle>
+                    <DialogDescription>
+                        Link an existing user to your store as a staff member
+                    </DialogDescription>
+                </DialogHeader>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="username">Username *</Label>
+                        <Select value={selectedUsername} onValueChange={handleUsernameChange}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select username" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {isLoadingUsers ? (
+                                    <SelectItem value="loading" disabled>
+                                        Loading users...
+                                    </SelectItem>
+                                ) : users.length === 0 ? (
+                                    <SelectItem value="no-users" disabled>
+                                        No users found
+                                    </SelectItem>
+                                ) : (
+                                    users.map((user) => (
+                                        <SelectItem key={user.id} value={user.username}>
+                                            {user.username} - {user.fullname}
+                                        </SelectItem>
+                                    ))
+                                )}
+                            </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                            Select an existing user to link to your store
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="fullname">Full Name</Label>
+                        <Input
+                            id="fullname"
+                            value={selectedUser?.fullname || ''}
+                            disabled
+                            placeholder="Full name will appear here when a user is selected"
+                            className="bg-gray-50"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="comment">Comment (Optional)</Label>
+                        <Textarea
+                            id="comment"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            placeholder="Add any comments about this staff linkage..."
+                            rows={3}
+                        />
+                    </div>
+
+                    {selectedUser && (
+                        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg space-y-2">
+                            <p className="text-sm font-medium text-blue-900">Selected User Details:</p>
+                            <div className="grid grid-cols-2 gap-2 text-xs text-blue-800">
+                                <div>
+                                    <span className="font-medium">Email:</span>
+                                    <p>{selectedUser.email}</p>
+                                </div>
+                                <div>
+                                    <span className="font-medium">Phone:</span>
+                                    <p>{selectedUser.mobileNo}</p>
+                                </div>
+                                <div>
+                                    <span className="font-medium">Role:</span>
+                                    <p>{selectedUser.userRole}</p>
+                                </div>
+                                <div>
+                                    <span className="font-medium">Status:</span>
+                                    <p>{selectedUser.status}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex justify-end gap-3 pt-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            disabled={linkStaffMutation.isPending}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={linkStaffMutation.isPending || !selectedUsername}
+                            className="gap-2"
+                        >
+                            <LinkIcon className="w-4 h-4" />
+                            {linkStaffMutation.isPending ? 'Linking...' : 'Link Staff'}
+                        </Button>
+                    </div>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
 export default function StaffsPage() {
     const { user } = useUser();
     const router = useRouter();
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ['staffs-list'],
         queryFn: () => axiosInstance.request({
-            url: '/usermanager/getUserMasterList',
+            url: '/store/all-staffs',
             method: 'GET',
             params: {
                 pageNumber: 1,
                 pageSize: 10,
-                merchantCode: user?.merchantCode,
                 storeCode: user?.storeCode,
-                entityCode: 'H2P',
+                entityCode: user?.entityCode || '',
             }
         })
     });
 
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
 
-    const staffs: Staff[] = data?.data?.data || [];
-    const filteredStaffs = staffs.filter(staff =>
-        staff.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        staff.mobileNo.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Updated to match the actual API response structure
+    const staffs: Staff[] = data?.data?.staffList || [];
+    
+    // Safe filtering with null checks
+    const filteredStaffs = staffs.filter(staff => {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+            (staff.staffName?.toLowerCase() || '').includes(searchLower) ||
+            (staff.staffUsername?.toLowerCase() || '').includes(searchLower) ||
+            (staff.staffEmail?.toLowerCase() || '').includes(searchLower) ||
+            (staff.staffPhone?.toLowerCase() || '').includes(searchLower) ||
+            (staff.staffRole?.toLowerCase() || '').includes(searchLower)
+        );
+    });
 
     const handleViewDetails = (staff: Staff) => {
         setSelectedStaff(staff);
-        setIsModalOpen(true);
+        setIsDetailsModalOpen(true);
     };
 
     const handleEditDetails = (staff: Staff) => {
-        router.push(`/admin/staffs/create-staff?edit=true&id=${staff.username}`);
+        // You might need to adjust this based on your actual edit flow
+        router.push(`/admin/staffs/create-staff?edit=true&id=${staff.staffUsername}`);
+    };
+
+    const handleOpenLinkModal = () => {
+        setIsLinkModalOpen(true);
+    };
+
+    const handleCloseLinkModal = () => {
+        setIsLinkModalOpen(false);
     };
 
     const columns: Column[] = [
         {
             title: 'Staff',
-            dataIndex: 'firstname',
+            dataIndex: 'staffName',
             key: 'staff',
             width: 200,
             render: (text: string, record: Staff) => (
                 <div className="flex items-center gap-3">
                     <Avatar className="w-10 h-10">
                         <AvatarFallback>
-                            {getInitials(record.firstname, record.lastname)}
+                            {getInitials(record.staffName)}
                         </AvatarFallback>
                     </Avatar>
                     <div>
                         <p className="text-sm font-medium text-gray-900">
-                            {getDisplayValue(record.firstname)} {getDisplayValue(record.lastname)}
+                            {getDisplayValue(record.staffName)}
                         </p>
-                        <p className="text-xs text-gray-500">@{getDisplayValue(record.username)}</p>
+                        <p className="text-xs text-gray-500">@{getDisplayValue(record.staffUsername)}</p>
                     </div>
                 </div>
             ),
         },
         {
             title: 'Email',
-            dataIndex: 'email',
+            dataIndex: 'staffEmail',
             key: 'email',
             width: 200,
             render: (text: string) => (
@@ -409,8 +621,8 @@ export default function StaffsPage() {
         },
         {
             title: 'Phone',
-            dataIndex: 'mobileNo',
-            key: 'mobileNo',
+            dataIndex: 'staffPhone',
+            key: 'phone',
             width: 150,
             render: (text: string) => (
                 <p className="text-sm">{getDisplayValue(text)}</p>
@@ -418,7 +630,7 @@ export default function StaffsPage() {
         },
         {
             title: 'Role',
-            dataIndex: 'userRole',
+            dataIndex: 'staffRole',
             key: 'role',
             width: 150,
             render: (text: string) => (
@@ -427,7 +639,7 @@ export default function StaffsPage() {
         },
         {
             title: 'Status',
-            dataIndex: 'status',
+            dataIndex: 'staffStatus',
             key: 'status',
             width: 100,
             render: (text: string) => (
@@ -503,6 +715,14 @@ export default function StaffsPage() {
                                     Add Staff
                                 </Button>
                             </Link>
+                            <Button 
+                                onClick={handleOpenLinkModal}
+                                variant="outline" 
+                                className="gap-2"
+                            >
+                                <LinkIcon className="w-4 h-4" />
+                                Link Staff
+                            </Button>
                             <Button variant="outline" className="gap-2">
                                 <Download className="w-4 h-4" />
                                 <span className="hidden sm:inline">Export</span>
@@ -533,19 +753,29 @@ export default function StaffsPage() {
                             ) : staffs.length === 0 ? (
                                 <div className="flex justify-center items-center h-40 flex-col gap-4">
                                     <p className="text-gray-500">No staff members found</p>
-                                    <Link href="/admin/staffs/create-staff">
-                                        <Button className="gap-2">
-                                            <Plus className="w-4 h-4" />
-                                            Add Your First Staff
+                                    <div className="flex gap-2">
+                                        <Link href="/admin/staffs/create-staff">
+                                            <Button className="gap-2">
+                                                <Plus className="w-4 h-4" />
+                                                Add Staff
+                                            </Button>
+                                        </Link>
+                                        <Button 
+                                            onClick={handleOpenLinkModal}
+                                            variant="outline" 
+                                            className="gap-2"
+                                        >
+                                            <LinkIcon className="w-4 h-4" />
+                                            Link Staff
                                         </Button>
-                                    </Link>
+                                    </div>
                                 </div>
                             ) : (
                                 <>
                                     <div className="block lg:hidden space-y-4">
                                         {filteredStaffs.map((staff) => (
                                             <MobileStaffCard
-                                                key={staff.id}
+                                                key={staff.staffUserId}
                                                 staff={staff}
                                                 onViewDetails={handleViewDetails}
                                             />
@@ -566,6 +796,12 @@ export default function StaffsPage() {
                     </Card>
                 </div>
             </div>
+
+            {/* Link Staff Modal */}
+            <LinkStaffModal
+                isOpen={isLinkModalOpen}
+                onClose={handleCloseLinkModal}
+            />
         </div>
     );
 }

@@ -31,7 +31,7 @@ export const DashboardHeader = () => {
     <header className="bg-white border-b border-border px-4 lg:px-6 py-3 lg:py-4 w-full">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg lg:text-2xl font-semibold text-accent">{user?.firstname}</h1>
+          <h1 className="text-lg lg:text-2xl font-semibold text-accent">{user?.fullname}</h1>
           <p className='text-xs text-muted-foreground'>{currentDate}</p>
         </div>
         <div className='flex items-center gap-4 lg:gap-6'>
