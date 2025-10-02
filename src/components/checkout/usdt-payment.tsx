@@ -60,6 +60,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
     const [paymentVerificationStatus, setPaymentVerificationStatus] = useState<PaymentVerificationStatus>('idle');
     const [paymentResponse, setPaymentResponse] = useState<any>(null);
 
+
     // Local copy function to avoid external dependencies
     const handleCopyToClipboard = async (text: string) => {
       try {
@@ -169,7 +170,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
         chain: chain?.code,
         orderNo: checkoutData.orderNo,
         storeCode,
-        entityCode: 'H2P'
+        entityCode: customer?.entityCode || ''
       };
 
       console.log('Generated payload:', payload);
@@ -233,7 +234,7 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
         chain: chainDets?.chain,
         orderNo: checkoutData.orderNo,
         storeCode,
-        entityCode: 'H2P'
+        entityCode: customer?.entityCode || ''
       }
 
       checkPaymentStatus(payload);
@@ -286,16 +287,16 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
               <ArrowLeft className="w-4 h-4" />
             </Button>
             
-            <div className='flex items-center gap-2'>
+            <div className='flex items-center gap-2 bg-white/20 p-2 rounded-md'>
               <Image
                 src={logoWhite}
                 alt="Logo"
-                width={40}
-                height={40}
+                width={100}
+                height={100}
                 unoptimized
-                className="w-6 h-6 lg:w-8 lg:h-8 object-contain"
+                className="object-contain"
               />
-              <h2 className='text-lg lg:text-xl font-semibold'>Help2Pay</h2>
+              {/* <h2 className='text-lg lg:text-xl font-semibold'>Help2Pay</h2> */}
             </div>
           </div>
 

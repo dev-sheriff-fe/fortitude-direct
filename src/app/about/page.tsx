@@ -31,8 +31,8 @@ export default function AboutPage() {
       </section>
 
       {/* Company Overview */}
-      <section className="container mx-auto py-12 px-5 py-20 bg-white">
-        <div className="container-custom">
+      <section className="px-5 py-20 bg-white">
+        <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               {/* <FadeIn direction="left"> */}

@@ -8,6 +8,7 @@ import { useMutation } from '@tanstack/react-query'
 import { CheckoutStep, PaymentMethod } from '@/app/checkout/checkoutContent'
 import axiosInstance from '@/utils/fetch-function'
 import { toast } from 'sonner'
+import useCustomer from '@/store/customerStore'
 
 type CardPaymentProps = {
     setCurrentStep: (step: CheckoutStep) => void;
@@ -24,6 +25,8 @@ const CardPayment = ({ setCurrentStep, setSelectedPayment }: CardPaymentProps) =
     const currency = mainCcy()
     const total = getCartTotal() 
     const [checkoutData, setCheckoutData] = useState<any>(null);
+    const { customer } = useCustomer();
+
     useEffect(() => {
           const stored = sessionStorage.getItem('checkout');
           if (stored) {
@@ -35,7 +38,7 @@ const CardPayment = ({ setCurrentStep, setSelectedPayment }: CardPaymentProps) =
         url: '/stripe/checkout-sale',
         method: 'POST',
         params: {
-          entityCode: 'H2P',
+          entityCode: customer?.entityCode || '',
           orderNo: checkoutData?.orderNo,
         },
         // data

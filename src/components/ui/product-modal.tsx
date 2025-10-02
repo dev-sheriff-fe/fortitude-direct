@@ -18,6 +18,7 @@ type ProductDetailProps = {
 const ProductDetail = ({ product, setIsOpen }: ProductDetailProps) => {
     const { addToCart, decrement, increment, inCart, singleQuantity } = useCart()
     const [modalProduct, setModalProduct] = React.useState<ProductProps | null>(null);
+    const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
     const { data,isLoading } = useQuery({
   queryKey: ["products"],
   queryFn: () => {
@@ -27,7 +28,7 @@ const ProductDetail = ({ product, setIsOpen }: ProductDetailProps) => {
       params: {
         name: '',
         storeCode: '',
-        entityCode: 'H2P',
+        entityCode: entityCode,
         category: product?.category || '',
         tag: '',
         pageNumber: 1,

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import posIcon from '@/assets/ecommerce-svg.jpg'
+// import posIcon from '@/assets/ecommerce-svg.jpg'
 import Image from "next/image"
 import { useMutation } from "@tanstack/react-query"
 import axiosInstance from "@/utils/fetch-function"
@@ -38,9 +38,12 @@ export interface FormData {
 
 export function SignUpForm() {
   const [currentStep, setCurrentStep] = useState(1)
-  const [onboardStep,setOnBoardStep] = useState<'register'|'otp'>('register')
+  const [onboardStep, setOnBoardStep] = useState<'register' | 'otp'>('register')
   const totalSteps = 4
   const router = useRouter()
+  const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
+  const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
+
 
   const {
     register,
@@ -68,59 +71,59 @@ export function SignUpForm() {
   })
 
   const watchedValues = watch()
-      const {mutate,isPending} = useMutation({
-          mutationFn: (data:any)=>axiosCustomer.request({
-              url: '/ecommerce/customer/simple-onboard',
-              method: 'POST',
-              data,
-              headers: {
-                  'x-source-code': 'HELP2PAY',
-                  'x-client-id': 'TST03054745785188010772',
-                  'x-client-secret': 'TST03722175625334233555707073458615741827171811840881'
-              }
-          }),
-          onSuccess: (data)=>{
-              if (data?.data?.code!=='000') {
-                  toast.error(data?.data?.desc || "An error occurred");
-                  return;
-              }
-              // router.push(`/customer-login`)
-              setOnBoardStep('otp')
-              toast.success("Registration successful! Please login.");
-              
-          },
-          onError: (error)=>{
-              console.log(error);
-          }
-      })
-  const onSubmit = (value: FormData) =>{
-         const nationalityData = JSON?.parse(value?.nationality)
-          const payload = {
-              firstname: value?.firstname,
-              channel: 'WEB',
-              customerType: "",
-              deviceId: "",
-              geolocation: "",
-              lastname: value?.lastname,
-              name: value?.firstname,
-              middlename: "",
-              mobileNo: value?.mobileNo,
-              email: value?.email,
-              entityCode: 'H2P',
-              city: value?.city,
-              countryCode: nationalityData?.code,
-              gender: value?.gender,
-              onboardingId: "",
-              dateOfBirth: formatDateToDDMMYYYY(value?.dateOfBirth),
-              password: value?.password,
-              nationality: nationalityData?.nationality,
-              phoneCode: nationalityData?.phoneCode,
-              referralCode: "",
-              bvn: "12345678901"
-          }
-  
-          mutate(payload)
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: any) => axiosCustomer.request({
+      url: '/ecommerce/customer/simple-onboard',
+      method: 'POST',
+      data,
+      headers: {
+        'x-source-code': 'HELP2PAY',
+        'x-client-id': 'TST03054745785188010772',
+        'x-client-secret': 'TST03722175625334233555707073458615741827171811840881'
       }
+    }),
+    onSuccess: (data) => {
+      if (data?.data?.code !== '000') {
+        toast.error(data?.data?.desc || "An error occurred");
+        return;
+      }
+      // router.push(`/customer-login`)
+      setOnBoardStep('otp')
+      toast.success("Registration successful! Please login.");
+
+    },
+    onError: (error) => {
+      console.log(error);
+    }
+  })
+  const onSubmit = (value: FormData) => {
+    const nationalityData = JSON?.parse(value?.nationality)
+    const payload = {
+      firstname: value?.firstname,
+      channel: 'WEB',
+      customerType: "",
+      deviceId: "",
+      geolocation: "",
+      lastname: value?.lastname,
+      name: value?.firstname,
+      middlename: "",
+      mobileNo: value?.mobileNo,
+      email: value?.email,
+      entityCode: entityCode,
+      city: value?.city,
+      countryCode: nationalityData?.code,
+      gender: value?.gender,
+      onboardingId: "",
+      dateOfBirth: formatDateToDDMMYYYY(value?.dateOfBirth),
+      password: value?.password,
+      nationality: nationalityData?.nationality,
+      phoneCode: nationalityData?.phoneCode,
+      referralCode: "",
+      bvn: "12345678901"
+    }
+
+    mutate(payload)
+  }
 
   const isStepComplete = () => {
     switch (currentStep) {
@@ -170,32 +173,32 @@ export function SignUpForm() {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-       return <Personal
-            errors={errors}
-            register={register}
-            setValue={setValue}
-            watchedValues={watchedValues}
+        return <Personal
+          errors={errors}
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
         />
-        
+
 
       case 2:
-       return <ContactDetails
-            errors={errors}
-            register={register}
-       />
+        return <ContactDetails
+          errors={errors}
+          register={register}
+        />
 
       case 3:
         return <PasswordDetails
-            errors={errors}
-            register={register}
-            watch={watch}
+          errors={errors}
+          register={register}
+          watch={watch}
         />
       case 4:
-       return <LocationDetails
-            errors={errors}
-            register={register}
-            setValue={setValue}
-            watchedValues={watchedValues}
+        return <LocationDetails
+          errors={errors}
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
         />
 
       default:
@@ -225,99 +228,98 @@ export function SignUpForm() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Blue header bar */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-blue-600"></div>
+      <div className="absolute top-0 left-0 right-0 h-2 bg-accent"></div>
 
       {/* Left side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-8">
         {
           onboardStep === 'otp'
-          ? 
-          <OtpVerification
-          onBack={handleBackToRegistration}
-          email={getValues('email')}
-          />
-          :
-          <div className="w-full max-w-md space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">ONBOARDING</h1>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Welcome to the Retail Store.
-              <br />
-              Complete your user registration to get started.
-            </p>
-          </div>
+            ?
+            <OtpVerification
+              onBack={handleBackToRegistration}
+              email={getValues('email')}
+            />
+            :
+            <div className="w-full max-w-md space-y-6">
+              <div className="space-y-2">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">ONBOARDING</h1>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Welcome to the Retail Store.
+                  <br />
+                  Complete your user registration to get started.
+                </p>
+              </div>
 
-          <div className="flex items-center justify-center mb-6 relative">
-            <div className="flex items-center">
-              {[1, 2, 3, 4].map((step, index) => (
-                <div key={step} className="flex items-center">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium relative z-10 ${
-                      step <= currentStep ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
-                    }`}
-                  >
-                    {step}
-                  </div>
-                  {index < 3 && <div className={`w-20 h-0.5 ${step < currentStep ? "bg-blue-600" : "bg-gray-200"}`} />}
+              <div className="flex items-center justify-center mb-6 relative">
+                <div className="flex items-center">
+                  {[1, 2, 3, 4].map((step, index) => (
+                    <div key={step} className="flex items-center">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium relative z-10 ${step <= currentStep ? "bg-accent text-white" : "bg-gray-200 text-gray-600"
+                          }`}
+                      >
+                        {step}
+                      </div>
+                      {index < 3 && <div className={`w-20 h-0.5 ${step < currentStep ? "bg-accent" : "bg-gray-200"}`} />}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">{getStepTitle()}</h2>
-            {renderStep()}
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-900">{getStepTitle()}</h2>
+                {renderStep()}
 
-            <div className="flex justify-between space-x-4">
-              <Button
-                type="button"
-                onClick={prevStep}
-                disabled={currentStep === 1}
-                variant="outline"
-                className="flex items-center space-x-2 px-6 py-3 disabled:opacity-50 bg-transparent"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Previous</span>
-              </Button>
+                <div className="flex justify-between space-x-4">
+                  <Button
+                    type="button"
+                    onClick={prevStep}
+                    disabled={currentStep === 1}
+                    variant="outline"
+                    className="flex items-center space-x-2 px-6 py-3 disabled:opacity-50 bg-transparent"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Previous</span>
+                  </Button>
 
-              {currentStep < totalSteps ? (
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  disabled={!isStepComplete()}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  {currentStep < totalSteps ? (
+                    <Button
+                      type="button"
+                      onClick={nextStep}
+                      disabled={!isStepComplete()}
+                      className="flex items-center space-x-2 bg-accent hover:bg-accent/70 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={!isStepComplete() || isPending}
+                      className="bg-accent hover:bg-accent/70 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isPending ? "Submitting..." : "Complete Registration"}
+                    </Button>
+                  )}
+                </div>
+              </form>
+
+              <div className="text-center">
+                <span className="text-sm text-gray-600">
+                  Step {currentStep} of {totalSteps}
+                </span>
+              </div>
+
+              <div className="text-center">
+                <span className="text-sm text-gray-600">Already registered? </span>
+                <Link
+                  href="/customer-login"
+                  className="text-sm text-accent hover:text-blue-700"
                 >
-                  <span>Next</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={!isStepComplete() || isPending}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isPending ? "Submitting..." : "Complete Registration"}
-                </Button>
-              )}
+                  Sign in
+                </Link>
+              </div>
             </div>
-          </form>
-
-          <div className="text-center">
-            <span className="text-sm text-gray-600">
-              Step {currentStep} of {totalSteps}
-            </span>
-          </div>
-
-          <div className="text-center">
-            <span className="text-sm text-gray-600">Already registered? </span>
-            <Link
-              href="/customer-login"
-              className="text-sm text-blue-600 hover:text-blue-700"
-            >
-              Sign in
-            </Link>
-          </div>
-        </div>
         }
       </div>
 
@@ -325,8 +327,10 @@ export function SignUpForm() {
       <div className="hidden lg:flex lg:w-1/2 bg-gray-100 items-center justify-center p-8">
         <div className="w-full h-full flex items-center justify-center">
           <Image
-            src={posIcon}
+            src={bannerUrl}
             alt="POS System Illustration"
+            width={600}
+            height={600}
             className="max-w-full max-h-full object-contain"
           />
         </div>

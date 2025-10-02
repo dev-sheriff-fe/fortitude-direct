@@ -2,7 +2,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin, LoaderCircle, ArrowRight } from "lucide-react"
-import logo from "@/components/images/LogoWhite.png"
+import logo from "@/components/images/direct-logo.png"
 import { useState } from "react"
 import playstore from "@/components/images/playstore.png"
 import appstore from "@/components/images/appstore.png"
@@ -72,8 +72,8 @@ export default function Footer() {
       <div className="container mx-auto py-16 relative z-0"> {/* Added relative and z-0 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mt-20 md:mt-0"> {/* Added mt-20 for spacing below newsletter */}
           {/* Company Info */}
-          <div className="space-y-6">
-            <Link href="/" className="inline-block">
+          <div className="space-y-6 ">
+            <Link href="/" className="inline-block bg-white/20 p-2 rounded-lg">
               <Image
                 src={logo}
                 alt="Fortitude Logo"
@@ -113,15 +113,15 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-[#d8480b] mr-3 mt-1 flex-shrink-0" />
-                <span className="text-gray-300">4517 Washington Ave. Manchester, Kentucky 39495</span>
+                <span className="text-gray-300">1706B Olubosi close, off akin adesola street via Bishop Oluwole Street, Victoria Island</span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 text-[#d8480b] mr-3 flex-shrink-0" />
                 <a 
-                  href="tel:+2348000000000" 
+                  href="tel:+2347078553444" 
                   className="text-gray-300 hover:text-[#d8480b] transition-colors"
                 >
-                  +234 707-855-3444, +234 800-000-0000
+                  +234 707-855-3444
                 </a>
               </li>
               <li className="flex items-center">

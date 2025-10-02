@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import Image from "next/image"
-import posIcon from "@/assets/ecommerce-svg.jpg"
+// import posIcon from "@/assets/ecommerce-svg.jpg"
 import { useMutation } from "@tanstack/react-query"
 
 // import { hasAccess, setAuthCredentials } from "@/utils/auth-utils"
@@ -22,9 +22,11 @@ export function SignInForm() {
   const { setUser } = useUser()
   const { push } = useRouter()
   const searchParams = useSearchParams()
+  const bannerUrl = process.env.NEXT_PUBLIC_BANNER_URL || "https://mmcpdocs.s3.eu-west-2.amazonaws.com/16574_ecommerce-svg.jpg";
+
   // Get the return URL from query parameters, default to dashboard
   const returnUrl = searchParams.get('returnUrl') || '/admin'
-const loginMutation = useMutation({
+  const loginMutation = useMutation({
     mutationFn: ({ username, password }: { username: string; password: string }) =>
       axiosInstanceNoAuth.post("/usermanager/weblogin", {
         username: username,
@@ -58,7 +60,7 @@ const loginMutation = useMutation({
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Blue header bar */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-blue-600"></div>
+      <div className="absolute top-0 left-0 right-0 h-2 bg-accent"></div>
 
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-12">
@@ -103,8 +105,8 @@ const loginMutation = useMutation({
 
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium"
-              disabled= {loginMutation?.isPending}
+              className="w-full bg-accent hover:bg-accent/70 text-white py-3 rounded-md font-medium"
+              disabled={loginMutation?.isPending}
             >
               {loginMutation?.isPending ? "Please wait" : "Sign In"}
             </Button>
@@ -114,7 +116,7 @@ const loginMutation = useMutation({
             <span className="text-sm text-gray-600">Don&apos;t have an account? </span>
             <Link
               href="/business-onboarding"
-              className="text-sm text-blue-600 hover:text-blue-700"
+              className="text-sm text-accent hover:text-accent/70"
             >
               Sign up
             </Link>
@@ -125,8 +127,10 @@ const loginMutation = useMutation({
       {/* Right side - Illustration */}
       <div className="hidden lg:flex lg:w-1/2 bg-gray-100 items-center justify-center p-8">
         <Image
-          src={posIcon}
+          src={bannerUrl}
           alt="POS System Illustration"
+          width={600}
+          height={600}
           className="max-w-full max-h-full object-contain"
         />
       </div>

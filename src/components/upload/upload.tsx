@@ -8,6 +8,7 @@ import { X, Download, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import axiosInstance from "@/utils/fetch-function";
+import useUser from '@/store/userStore';
 
 interface UploadBulkFormProps {
   uploadType: 'products' | 'categories';
@@ -37,6 +38,7 @@ interface BulkUploadRequest {
 
 const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  const { user } = useUser();
 
   const { register, handleSubmit, watch, formState: { errors }, setValue, resetField } = useForm<UploadFormData>({
     mode: 'onChange'
@@ -100,8 +102,8 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
         {
           headers,
           params: {
-            entityCode: 'H2P',
-            storeCode: 'STO445',
+            entityCode: user?.entityCode,
+            storeCode: user?.storeCode,
             FILETYPE: uploadType === 'products' ? 'PRODUCT' : 'PRODUCT_CATEGORY',
 
           }
