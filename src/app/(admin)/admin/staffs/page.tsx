@@ -349,7 +349,7 @@ export default function StaffsPage() {
                 pageSize: 10,
                 merchantCode: user?.merchantCode,
                 storeCode: user?.storeCode,
-                entityCode: 'H2P',
+                entityCode: 'FTD',
             }
         })
     });

@@ -27,7 +27,7 @@ const ProductDetail = ({ product, setIsOpen }: ProductDetailProps) => {
                 params: {
                     name: '',
                     storeCode: '',
-                    entityCode: 'H2P',
+                    entityCode: 'FTD',
                     category: product?.category || '',
                     tag: '',
                     pageNumber: 1,

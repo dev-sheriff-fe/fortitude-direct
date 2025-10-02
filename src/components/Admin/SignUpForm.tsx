@@ -138,9 +138,9 @@ export function SignUpForm() {
         countryCode: 'NG',
         onboardDocs: [],
 
-        entityCode: 'H2P',
+        entityCode: 'FTD',
         merchantGroupCode: 'M0001',
-        branchCode: 'ETZ_HO',
+        branchCode: 'FTD_HO',
         id: 0,
       }
     }),

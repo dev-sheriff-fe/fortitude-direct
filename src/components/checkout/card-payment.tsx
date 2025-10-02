@@ -35,7 +35,7 @@ const CardPayment = ({ setCurrentStep, setSelectedPayment }: CardPaymentProps) =
       url: '/stripe/checkout-sale',
       method: 'POST',
       params: {
-        entityCode: 'H2P',
+        entityCode: 'FTD',
         orderNo: checkoutData?.orderNo,
       },
       // data

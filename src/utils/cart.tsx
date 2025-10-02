@@ -28,7 +28,7 @@ const Cart = () => {
             url: '/store/save-cart',
             method: 'POST',
             params: {
-                entityCode: 'H2P',
+                entityCode: 'FTD',
                 storeCode
             },
             data

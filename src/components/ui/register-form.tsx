@@ -58,7 +58,7 @@ const RegisterForm = ({ setState }: RegisterProps) => {
             method: 'POST',
             data,
             headers: {
-                'x-source-code': 'HELP2PAY',
+                'x-source-code': 'FORTITUDE',
                 'x-client-id': 'TST03054745785188010772',
                 'x-client-secret': 'TST03722175625334233555707073458615741827171811840881'
             }
@@ -108,7 +108,7 @@ const RegisterForm = ({ setState }: RegisterProps) => {
             middlename: "",
             mobileNo: value?.mobile,
             email: value?.email,
-            entityCode: 'H2P',
+            entityCode: 'FTD',
             city: value?.address,
             countryCode: "NG",
             gender: "MALE",

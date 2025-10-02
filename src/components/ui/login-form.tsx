@@ -414,7 +414,7 @@ export const LoginForm = ({ setIsOpen }: LoginProps) => {
         const payload = {
             username: value?.username,
             password: value?.password,
-            entityCode: 'H2P',
+            entityCode: 'FTD',
             language: 'en',
             channelType: 'WEB',
             deviceId: ''

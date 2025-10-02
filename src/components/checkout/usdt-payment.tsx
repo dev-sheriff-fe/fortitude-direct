@@ -169,7 +169,7 @@ const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPayme
       chain: chain?.code,
       orderNo: checkoutData.orderNo,
       storeCode,
-      entityCode: 'H2P'
+      entityCode: 'FTD'
     };
 
     console.log('Generated payload:', payload);
@@ -233,7 +233,7 @@ const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPayme
       chain: chainDets?.chain,
       orderNo: checkoutData.orderNo,
       storeCode,
-      entityCode: 'H2P'
+      entityCode: 'FTD'
     }
 
     checkPaymentStatus(payload);

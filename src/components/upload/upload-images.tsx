@@ -136,7 +136,7 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
           {
             headers,
             params: {
-              entityCode: 'H2P',
+              entityCode: 'FTD',
               storeCode: 'STO445',
               FILETYPE: uploadType === 'product_images' ? 'PRODUCT_IMAGE' : 'PRODUCT_CATEGORY_IMAGE',
               [codeParamName]: imagePreview.code

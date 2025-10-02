@@ -11,7 +11,7 @@ export const useCategories = (retry?: any) => {
             url: '/ecommerce/products/categories',
             params: {
                 name: "",
-                entityCode: "H2P",
+                entityCode: "FTD",
                 category: '',
                 tag: '',
                 pageNumber: 1,

@@ -65,7 +65,7 @@ export default function CreateStaffPage() {
     userlang: 'en',
     deviceId: '0001',
     channelType: 'POS',
-    entityCode: 'H2P',
+    entityCode: 'FTD',
   });
 
   // Fetch staff details for editing

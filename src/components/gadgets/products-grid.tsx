@@ -32,7 +32,7 @@ const ProductsGrid = () => {
       params: {
         name,
         storeCode,
-        entityCode: 'H2P',
+        entityCode: 'FTD',
         category,
         tag: '',
         pageNumber: 1,

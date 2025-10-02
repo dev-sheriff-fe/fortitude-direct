@@ -64,7 +64,7 @@ export function SignInForm() {
     const payload = {
       username: username,
       password: password,
-      entityCode: 'H2P',
+      entityCode: 'FTD',
       language: 'en',
       channelType: 'WEB',
       deviceId: ''

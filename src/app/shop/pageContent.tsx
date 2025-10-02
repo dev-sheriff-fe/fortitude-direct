@@ -58,7 +58,7 @@ export default function HomeFortitude() {
                 params: {
                     name: '',
                     storeCode: storeCode,
-                    entityCode: 'H2P',
+                    entityCode: 'FTD',
                     category: '',
                     tag: '',
                     pageNumber: 1,
@@ -78,7 +78,7 @@ export default function HomeFortitude() {
                 params: {
                     name: '',
                     storeCode: storeCode,
-                    entityCode: 'H2P',
+                    entityCode: 'FTD',
                     category: selectedCategory,
                     tag: '',
                     pageNumber: 1,

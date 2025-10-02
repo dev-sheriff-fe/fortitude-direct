@@ -100,7 +100,7 @@ const UploadBulkForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps
         {
           headers,
           params: {
-            entityCode: 'H2P',
+            entityCode: 'FTD',
             storeCode: 'STO445',
             FILETYPE: uploadType === 'products' ? 'PRODUCT' : 'PRODUCT_CATEGORY',
 
