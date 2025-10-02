@@ -52,15 +52,16 @@ const RegisterForm = ({ setState }: RegisterProps) => {
     const storeCode = searchParams.get('storeCode') || ''
     const [registerStep, setRegisterStep] = useState<'credentials' | 'otp'>('credentials')
     const [registerData, setRegisterData] = useState('');
+    const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
     const { mutate, isPending } = useMutation({
         mutationFn: (data: any) => axiosCustomer.request({
             url: '/ecommerce/customer/simple-onboard',
             method: 'POST',
             data,
             headers: {
-                'x-source-code': 'FORTITUDE',
-                'x-client-id': 'TST03054745785188010772',
-                'x-client-secret': 'TST03722175625334233555707073458615741827171811840881'
+                'x-source-code': process.env.NEXT_PUBLIC_SOURCE_CODE || 'HELP2PAY',
+                'x-client-id': process.env.NEXT_PUBLIC_CLIENT_ID || 'TST03054745785188010772',
+                'x-client-secret': process.env.NEXT_PUBLIC_CLIENT_SECRET || 'TST03722175625334233555707073458615741827171811840881'
             }
         }),
         onSuccess: (data) => {
@@ -108,7 +109,7 @@ const RegisterForm = ({ setState }: RegisterProps) => {
             middlename: "",
             mobileNo: value?.mobile,
             email: value?.email,
-            entityCode: 'FTD',
+            entityCode: entityCode,
             city: value?.address,
             countryCode: "NG",
             gender: "MALE",

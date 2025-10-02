@@ -26,6 +26,8 @@ export default function HomeFortitude() {
   const [selectedProduct, setSelectedProduct] = useState<ProductProps | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE
+
   useEffect(() => {
     if (!searchParams?.get('storeCode')) {
       router.push(`?storeCode=STO445`);
@@ -41,7 +43,7 @@ export default function HomeFortitude() {
         params: {
           name: '',
           storeCode: storeCode,
-          entityCode: 'FTD',
+          entityCode: entityCode,
           category: selectedCategory,
           tag: '',
           pageNumber: 1,
@@ -60,7 +62,7 @@ export default function HomeFortitude() {
         params: {
           name: '',
           storeCode: storeCode,
-          entityCode: 'FTD',
+          entityCode: entityCode,
           category: '',
           tag: '',
           pageNumber: 1,

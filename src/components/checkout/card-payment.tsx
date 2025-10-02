@@ -8,6 +8,7 @@ import { useMutation } from '@tanstack/react-query'
 import { CheckoutStep, PaymentMethod } from '@/app/checkout/checkoutContent'
 import axiosInstance from '@/utils/fetch-function'
 import { toast } from 'sonner'
+import useCustomer from '@/store/customerStore'
 
 type CardPaymentProps = {
   setCurrentStep: (step: CheckoutStep) => void;
@@ -19,15 +20,43 @@ type method = 'stripe' | 'paystack' | null
 
 
 const CardPayment = ({ setCurrentStep, setSelectedPayment }: CardPaymentProps) => {
-  const [paymentMethod, setPaymentMethod] = useState<method>(null);
-  const { getCartTotal, mainCcy, cart } = useCart()
-  const currency = mainCcy()
-  const total = getCartTotal()
-  const [checkoutData, setCheckoutData] = useState<any>(null);
-  useEffect(() => {
-    const stored = sessionStorage.getItem('checkout');
-    if (stored) {
-      setCheckoutData(JSON.parse(stored));
+    const [paymentMethod, setPaymentMethod] = useState<method>(null);
+    const { getCartTotal, mainCcy, cart } = useCart()
+    const currency = mainCcy()
+    const total = getCartTotal() 
+    const [checkoutData, setCheckoutData] = useState<any>(null);
+    const { customer } = useCustomer();
+
+    useEffect(() => {
+          const stored = sessionStorage.getItem('checkout');
+          if (stored) {
+            setCheckoutData(JSON.parse(stored));
+          }
+        }, []);
+    const {mutate,isPending} = useMutation({
+      mutationFn: ()=>axiosInstance.request({
+        url: '/stripe/checkout-sale',
+        method: 'POST',
+        params: {
+          entityCode: customer?.entityCode || '',
+          orderNo: checkoutData?.orderNo,
+        },
+        // data
+      }),
+      onSuccess: (data) => {
+        if (data?.data?.responseCode!=='000') {
+          toast.error(data?.data?.responseMessage || 'An error occurred. Please try again.')
+          return
+        }
+        window.open(data?.data?.paymentLinkUrl, '_blank')
+      },
+      onError: (error) => {
+        toast.error('Something went wrong. Please try again.')
+      }
+    })
+
+    const handlePayment = ()=>{
+      mutate()
     }
   }, []);
   const { mutate, isPending } = useMutation({

@@ -51,8 +51,10 @@ const CreditScoreDashboard: React.FC<CreditScoreDashboardProps> = ({
   className
 }) => {
     const {customer} = useCustomer()
+    console.log(data);
+    
   return (
-    <div className={cn("max-w-4xl mx-auto p-6 space-y-8", className)}>
+    data?.scoreDetails ? <div className={cn("max-w-4xl mx-auto p-6 space-y-8", className)}>
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-foreground">Your Credit Score</h1>
@@ -133,6 +135,10 @@ const CreditScoreDashboard: React.FC<CreditScoreDashboardProps> = ({
           </p>
         </div>
       </Card>
+    </div>
+    : 
+    <div className="flex items-center justify-center h-64">
+      <p className="text-muted-foreground">No credit score data available.</p>
     </div>
   );
 };

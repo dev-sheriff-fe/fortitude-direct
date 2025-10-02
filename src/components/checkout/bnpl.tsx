@@ -77,6 +77,9 @@ const BNPL = () => {
       mutationFn: (data:any)=>axiosCustomer.request({
         url: '/ecomm-wallet/apply-bnpl',
         method: 'POST',
+        params: {
+          currency: customer?.ccy || 'GBP'
+        },
         data
       }),
       onSuccess: (data)=>{
@@ -215,7 +218,7 @@ const BNPL = () => {
       storeCode: storeCode,
       entityCode: customer?.entityCode,
       // orderNo: checkoutData?.orderNo,
-      ccy: customer?.ccy,
+      // currency: customer?.ccy || 'GBP',
       totalAmount: Number(dets?.totalAmount) || 0
     }
 

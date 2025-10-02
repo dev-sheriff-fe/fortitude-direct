@@ -60,14 +60,9 @@ const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPayme
   const [paymentVerificationStatus, setPaymentVerificationStatus] = useState<PaymentVerificationStatus>('idle');
   const [paymentResponse, setPaymentResponse] = useState<any>(null);
 
-  // Local copy function to avoid external dependencies
-  const handleCopyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success('Copied to clipboard!');
-    } catch (error) {
-      console.error('Copy failed:', error);
-      // Fallback for older browsers
+
+    // Local copy function to avoid external dependencies
+    const handleCopyToClipboard = async (text: string) => {
       try {
         const textArea = document.createElement('textarea');
         textArea.value = text;
@@ -151,9 +146,111 @@ const UsdtPayment = ({ setCurrentStep, copyToClipboard, currentStep }: UsdtPayme
   const generateAddress = useCallback((chain: any) => {
     console.log('generateAddress called with:', { chain, checkoutData });
 
-    if (!chain) {
-      console.log('No chain provided');
-      return;
+    console.log(chainList);
+    
+
+    // const {data, error, isLoading: loading} = useQuery({
+    //   queryKey: ['usdtPayment', currentStep],
+    //   queryFn: () => axiosCustomer.request({
+    //     url: '/store/wallet-details',
+    //     method: 'GET',
+    //     params: {
+    //       storeCode,
+    //       entityCode: 'H2P'
+    //     },
+    //   }).then(res => res.data),
+    //   refetchOnMount: false
+    // });
+
+    const generateAddress = useCallback((chain: any) => {
+      console.log('generateAddress called with:', { chain, checkoutData });
+      
+      if (!chain) {
+        console.log('No chain provided');
+        return;
+      }
+
+      if (!checkoutData?.orderNo) {
+        console.log('No orderNo in checkoutData');
+        toast.error('Order information missing. Please try again.');
+        return;
+      }
+
+      setIsGeneratingAddress(true);
+      
+      const payload = {
+        symbol: chain.code === 'BASE-SEPOLIA' ? 'USDC' : 'USDT',
+        chain: chain?.code,
+        orderNo: checkoutData.orderNo,
+        storeCode,
+        entityCode: customer?.entityCode || ''
+      };
+
+      console.log('Generated payload:', payload);
+      generateChain(payload);
+    }, [checkoutData, storeCode, generateChain]);
+
+    const handleChainSelection = (chain: any) => {
+      console.log('Chain selected:', chain);
+      setSelectedChain(chain);
+      generateAddress(chain);
+      setPaymentVerificationStatus('idle');
+    };
+
+
+    console.log(selectedChain);
+    console.log(chainDets);
+    
+    
+    const handleBackToChainSelection = () => {
+      setSelectedChain(null);
+      setChainDets(null);
+       setPaymentVerificationStatus('idle');
+    };
+
+    const {mutate: checkPaymentStatus, isPending: checkingPaymentStatus} = useMutation({
+      mutationFn: (data: any) => axiosCustomer.request({
+        url: '/store/payment-status',
+        method: 'POST',
+        data
+      }),
+      onSuccess: (data) => {
+        setPaymentResponse(data?.data);
+        
+        if (data?.data?.responseCode === '000') {
+          setPaymentVerificationStatus('success');
+          setTransactionDetails(data?.data)
+          toast.success('Payment confirmed successfully!');
+        }
+          else if(data?.data?.responseCode === 'PP') {
+            setPaymentVerificationStatus('pending')
+            toast('Transaction is processing!')
+          }
+         else {
+          setPaymentVerificationStatus('error');
+          toast.error(data?.data?.responseMessage || 'Payment verification failed');
+        }
+      },
+      onError: (error: any) => {
+        setPaymentVerificationStatus('error');
+        setPaymentResponse({
+          responseCode: 'ERROR',
+          responseMessage: error?.message || 'Network error occurred'
+        });
+        toast.error('Failed to check payment status');
+      }
+    });
+
+    const checkPayment = ()=>{
+      const payload = {
+        symbol: chainDets?.chain === 'BASE-SEPOLIA' ? 'USDC' : 'USDT',
+        chain: chainDets?.chain,
+        orderNo: checkoutData.orderNo,
+        storeCode,
+        entityCode: customer?.entityCode || ''
+      }
+
+      checkPaymentStatus(payload);
     }
 
     if (!checkoutData?.orderNo) {

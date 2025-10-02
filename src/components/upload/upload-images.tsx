@@ -8,6 +8,7 @@ import { X, Download, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import axiosInstance from "@/utils/fetch-function";
+import useUser from '@/store/userStore';
 
 interface UploadBulkFormProps {
   uploadType: 'product_images' | 'category_images';
@@ -41,6 +42,7 @@ interface ImagePreview {
 const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
+  const { user } = useUser();
 
   const { register, handleSubmit } = useForm();
 
@@ -136,8 +138,8 @@ const UploadBulkImagesForm = ({ uploadType, onSuccess, onCancel }: UploadBulkFor
           {
             headers,
             params: {
-              entityCode: 'FTD',
-              storeCode: 'STO445',
+              entityCode: user?.entityCode,
+              storeCode: user?.storeCode,
               FILETYPE: uploadType === 'product_images' ? 'PRODUCT_IMAGE' : 'PRODUCT_CATEGORY_IMAGE',
               [codeParamName]: imagePreview.code
             }

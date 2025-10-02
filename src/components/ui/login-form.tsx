@@ -384,6 +384,7 @@ export const LoginForm = ({ setIsOpen }: LoginProps) => {
     const { refresh,push } = useRouter()
     const [loginStep, setLoginStep] = useState<'credentials' | 'otp'>('credentials')
     const [loginData, setLoginData] = useState<FormData | null>(null);
+    const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
     const storeCode = searchParams.get('storeCode') || ''
     const { mutate, isPending } = useMutation({
         mutationFn: (data: any) => axiosInstance.request({
@@ -414,7 +415,7 @@ export const LoginForm = ({ setIsOpen }: LoginProps) => {
         const payload = {
             username: value?.username,
             password: value?.password,
-            entityCode: 'FTD',
+            entityCode: entityCode,
             language: 'en',
             channelType: 'WEB',
             deviceId: ''

@@ -6,7 +6,8 @@ import {
   StoreIcon,
   UsersRoundIcon,
   Clock,
-  Settings
+  Settings,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -18,11 +19,11 @@ const navigationItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Inventories', href: '/admin/inventories', icon: Box },
   { name: 'BNPL Customers', href: '/admin/bnpl-customers', icon: UsersRoundIcon },
+  { name: 'Payment Methods', href: '/admin/payment-methods', icon: CreditCard },
   { name: 'Orders', href: '/admin/orders', icon: Clock },
   { name: 'Stores', href: '/admin/stores', icon: StoreIcon },
   { name: 'Staffs', href: '/admin/staffs', icon: UsersRoundIcon },
   { name: 'Store Settings', href: '/admin/settings', icon: Settings },
-
 ];
 
 export const DashboardSidebar = () => {
