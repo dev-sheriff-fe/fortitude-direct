@@ -1,9 +1,10 @@
 import React from 'react'
 import { ShippingForm } from './shipping-form'
 import { CartReview } from './cart-review'
-import { CheckoutStep } from '@/app/checkout/checkoutContent'
+import { CheckoutStep, FormData } from '@/app/checkout/checkoutContent'
+import { UseFormReturn } from 'react-hook-form'
 
-const BnplManager = ({setCurrentStep}: {setCurrentStep:(currentStep:CheckoutStep)=>void}) => {
+const BnplManager = ({setCurrentStep,form}: {setCurrentStep:(currentStep:CheckoutStep)=>void, form:UseFormReturn<FormData>}) => {
   return (
     <div className="min-h-screen bg-[#f7f7f7]">
       <div className="container mx-auto px-4">
@@ -12,6 +13,7 @@ const BnplManager = ({setCurrentStep}: {setCurrentStep:(currentStep:CheckoutStep
           <div className="lg:pr-8">
             <ShippingForm 
                 setCurrentStep = {setCurrentStep}
+                form = {form}
             />
           </div>
           

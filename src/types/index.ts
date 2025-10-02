@@ -226,3 +226,29 @@ export interface SelectOption {
   id: string;
   name: string;
 }
+
+export interface PaymentMethod {
+  paymentType: string;
+  serviceProvider: string;
+  code: string;
+  name: string;
+  description: string;
+  country: string;
+  status: string;
+  fee: string;
+  vat: string | null;
+  feeType: "FLAT" | "PERCENT";
+  discount: string | null;
+  entityCode: string;
+  logo: string;
+  isRecommended: boolean;
+  recommendedTitle: string | null;
+  subTitle: string;
+  features: string[];
+}
+
+export interface PaymentMethodsResponse {
+  responseCode: string;
+  responseMessage: string;
+  list: PaymentMethod[];
+}
