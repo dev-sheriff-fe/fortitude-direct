@@ -90,6 +90,8 @@ const getStatusColor = (status: string): string => {
   switch (status.toLowerCase()) {
     case 'delivered':
     case 'completed':
+    case 'success':
+    case 'paid':
       return 'bg-green-500 text-white';
     case 'processing':
     case 'pending':
@@ -194,9 +196,9 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                 key={item.cartId}
                 className={`border-b border-gray-200 ${index === currentData.length - 1 ? 'border-b-0' : ''}`}
               >
-                {columnsWithHandler.map((column) => (
+                {columnsWithHandler.map((column:any) => (
                   <td key={column.key} className="p-3 text-sm">
-                    {column.render
+                    {column?.render
                       ? column.render(item[column.dataIndex as keyof Order], item, index)
                       : item[column.dataIndex as keyof Order]
                     }
