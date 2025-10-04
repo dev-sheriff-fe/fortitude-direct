@@ -674,7 +674,7 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
               </CardContent>
             </Card> */}
 
-            <Button
+            {/* <Button
               type="button"
               className="w-full bg-accent md:w-full"
               onClick={() => setCurrentStep('cart')}
@@ -685,7 +685,24 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
               }
             >
               Continue to Payment
-            </Button>
+            </Button> */}
+            <Button
+  type="button"
+  className="w-full bg-accent md:w-full"
+  onClick={() => {
+    // Validate form first
+    if (shippingMethod === 'delivery'
+      ? !getValues("selectedAddressId") || !selectedShippingOption
+      : !selectedStore
+    ) {
+      toast.error("Please complete all required fields");
+      return;
+    }
+    setCurrentStep('cart');
+  }}
+>
+  Continue to Payment Method Selection
+</Button>
           </div>
         </form>
       </div>

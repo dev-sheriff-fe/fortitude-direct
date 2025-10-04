@@ -10,6 +10,7 @@ import router from 'next/router';
 import SidebarMobile from './sidebar-mobile';
 import { Button } from '@aws-amplify/ui-react';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import Link from 'next/link';
 
 
 const formatCurrentDate = () => {
@@ -88,7 +89,9 @@ export const DashboardHeader = () => {
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => router.push('/admin-profile')}>My profile</DropdownMenuItem>
+                <DropdownMenuItem >
+                  <Link href="/admin-profile">My profile</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

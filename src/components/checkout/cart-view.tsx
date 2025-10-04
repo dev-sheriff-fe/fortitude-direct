@@ -62,7 +62,7 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
         url: '/payment-methods/fetch',
         params: {
           // country: customer?.country || 'NG',
-          storeCode: customer?.storeCode || 'STO445'
+          storeCode: customer?.storeCode || 'STO0715'
         }
       })
     })

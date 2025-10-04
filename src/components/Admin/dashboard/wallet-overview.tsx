@@ -580,7 +580,7 @@ export const WalletOverview = () => {
           {quickMenuData.map((item, index) => (
             // <Card key={index} className="border-border shadow-sm">
             // <CardContent className="flex justify-center items-center">
-            <div className='bg-background border border-border rounded-lg p-3 flex justify-center items-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer'>
+            <div className='bg-background border rounded-lg p-3 flex justify-center items-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer'>
               <div className="flex items-center justify-center">
                 <div className="flex items-center justify-center gap-2 lg:gap-3 min-w-0">
                   <div className={`rounded-lg flex items-center justify-center flex-shrink-0`}>

@@ -10,6 +10,7 @@ import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import SidebarMobile from './sidebar-mobile';
 import router from 'next/router';
+import Link from 'next/link';
 
 
 const formatCurrentDate = () => {
@@ -86,7 +87,9 @@ export const DashboardHeader = () => {
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => router.push('/customer-profile')}>My profile</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/customer-profile">My profile</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
