@@ -9,6 +9,7 @@ import useCustomer from '@/store/customerStore';
 import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import SidebarMobile from './sidebar-mobile';
+import router from 'next/router';
 
 
 const formatCurrentDate = () => {
@@ -23,30 +24,30 @@ const formatCurrentDate = () => {
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const month = months[date.getMonth()];
   const year = date.getFullYear();
-  
+
   return `${dayOfWeek}, ${day}${suffix} ${month} ${year}`;
 };
 
 export const DashboardHeader = () => {
   const currentDate = formatCurrentDate();
-  const {customer} = useCustomer()
+  const { customer } = useCustomer()
   return (
     <header className="bg-white border-b border-border px-4 lg:px-6 py-3 lg:py-4 w-full">
       <div className="flex items-center justify-between">
         <div className='flex gap-3 items-center'>
           <Sheet>
             <SheetTrigger asChild className='lg:hidden'>
-                  <Button className='bg-transparent text-gray-500'>
-                <Menu className='w-6 h-6'/>
+              <Button className='bg-transparent text-gray-500'>
+                <Menu className='w-6 h-6' />
               </Button>
             </SheetTrigger>
             <SheetContent side='left'>
-              <SidebarMobile/>
+              <SidebarMobile />
             </SheetContent>
           </Sheet>
           <div>
             <h1 className="text-lg lg:text-2xl font-semibold text-accent">{customer?.firstname}</h1>
-          <p className='text-xs text-muted-foreground'>{currentDate}</p>
+            <p className='text-xs text-muted-foreground'>{currentDate}</p>
           </div>
         </div>
         <div className='flex items-center gap-4 lg:gap-6'>
@@ -85,7 +86,7 @@ export const DashboardHeader = () => {
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem>My profile</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/customer-profile')}>My profile</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

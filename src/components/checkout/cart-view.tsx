@@ -30,6 +30,7 @@ const getPaymentIcon = (code: string) => {
     'CARD_PAYMENT': CreditCard,
     'BNPL_3_INSTALLMENTS': Calendar,
     'BANK_TRANSFER': Building2,
+    'REXPAY': Wallet,
   };
   return iconMap[code] || Wallet;
 };
@@ -41,6 +42,7 @@ const getIconColor = (code: string) => {
     'CARD_PAYMENT': 'text-gray-600',
     'BNPL_3_INSTALLMENTS': 'text-blue-600',
     'BANK_TRANSFER': 'text-purple-600',
+    'REXPAY': 'text-green-600',
   };
   return colorMap[code] || 'text-gray-600';
 };

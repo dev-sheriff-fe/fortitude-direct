@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader } from '../ui/dialog'
 import { DialogTitle } from '@radix-ui/react-dialog'
 import { Label } from '../ui/label'
@@ -21,196 +21,244 @@ type AddDeliveryForm = {
     addressType: string;
 }
 
+interface AddDeliveryAddressProps {
+    isOpen: boolean;
+    setIsOpen: (open: boolean) => void;
+    editingAddress?: any;
+    onAddressSaved?: () => void;
+}
 
-const AddDeliveryAddress = ({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (open: boolean) => void}) => {
-
-    const {register, formState: {errors},control,handleSubmit} = useForm<AddDeliveryForm>()
-    const addressTypeOptions = useGetLookup('ADDRESS_TYPE')
+const AddDeliveryAddress = ({ isOpen, setIsOpen, editingAddress, onAddressSaved }: AddDeliveryAddressProps) => {
+    const { register, formState: { errors }, control, handleSubmit, reset, setValue } = useForm<AddDeliveryForm>()
+    const addressTypeOptions = {
+        "HOME": "Home",
+        "WORK": "Work",
+        "OTHER": "Other"
+    }
+    
     const queryClient = useQueryClient()
-    const {isPending,mutate} = useMutation({
-        mutationFn: (data:any)=>axiosCustomer.request({
+    
+    const { isPending, mutate } = useMutation({
+        mutationFn: (data: any) => axiosCustomer.request({
             url: '/ecommerce/save-delivery-address',
             method: 'POST',
             data
         }),
-        onSuccess: (data)=>{
-            if (data?.data?.code!=='000') {
-                toast.error(data?.data?.desc)
+        onSuccess: (data) => {
+            if (data?.data?.code !== '000') {
+                toast.error(data?.data?.desc || 'Failed to save address')
                 return
             }
-            toast.success(data?.data?.desc)
+            toast.success(editingAddress ? 'Address updated successfully' : 'Address saved successfully')
             queryClient.invalidateQueries({
                 queryKey: ["delivery-addresses"]
             })
             setIsOpen(false)
-            return
+            reset()
+            onAddressSaved?.()
         },
-        onError: (error)=>{
-            console.log(error);
-            toast?.error('Something went wrong!')
-            return
+        onError: (error) => {
+            console.log(error)
+            toast.error('Something went wrong!')
         }
     })
 
-    const onSubmit = (data: AddDeliveryForm) => {
-        console.log(data);
+    useEffect(() => {
+        if (isOpen) {
+            if (editingAddress) {
+                setValue("state", editingAddress.state || "")
+                setValue("city", editingAddress.city || "")
+                setValue("street", editingAddress.street || "")
+                setValue("postCode", editingAddress.postCode || "")
+                setValue("landmark", editingAddress.landmark || "")
+                setValue("country", editingAddress.country || "")
+                setValue("addressType", editingAddress.addressType || "")
+            } else {
+                reset()
+            }
+        }
+    }, [isOpen, editingAddress, reset, setValue])
 
-        const payload = {
-            country: data?.country,
-            addressType: data?.addressType,
-            state: data?.state,
-            city: data?.city,
-            landmark: data?.landmark,
+    const onSubmit = (data: AddDeliveryForm) => {
+        console.log('Submitting address data:', data);
+        console.log('Editing address ID:', editingAddress?.id);
+
+        const payload: any = {
             street: data?.street,
+            landmark: data?.landmark,
             postCode: data?.postCode,
-            orderNo: ''
+            city: data?.city,
+            state: data?.state,
+            country: data?.country,
+            addressType: data?.addressType
         }
 
+        if (editingAddress && editingAddress.id) {
+            payload.id = editingAddress.id;
+        }
+
+        console.log('Final payload:', payload);
         mutate(payload)
     }
-  return (
-    <Dialog onOpenChange={setIsOpen} open={isOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-lg font-medium">
-              Add Delivery Address
-            </DialogTitle>
-          </DialogHeader>
-          <form className="space-y-4 mt-4" onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="w-full">
-              <Label htmlFor="addressType" className="text-checkout-text text-sm font-medium">
-                Address Type *
-              </Label>
-              <Controller
-                name="addressType"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className={`mt-1 ${errors.addressType ? "border-destructive" : ""} w-full`}>
-                      <SelectValue placeholder="Choose address type" />
-                    </SelectTrigger>
-                    <SelectContent className="w-full">
-                      {
-                        addressTypeOptions.map((option)=>(
-                          <SelectItem key={option.id} value={option.id}>{option.name}</SelectItem>
-                        ))
-                      }
-        
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.addressType && (
-                <p className="text-destructive text-sm mt-1">{errors.addressType.message}</p>
-              )}
-            </div>
-             <div className="w-full">
-              <Label htmlFor="country" className="text-checkout-text text-sm font-medium">
-                Country *
-              </Label>
-              <Controller
-                name="country"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className={`mt-1 ${errors.country ? "border-destructive" : ""} w-full`}>
-                      <SelectValue placeholder="Choose country" />
-                    </SelectTrigger>
-                    <SelectContent className="w-full">
-                      <SelectItem value="NG">Nigeria</SelectItem>
-                      <SelectItem value="US">United States</SelectItem>
-                      <SelectItem value="CA">Canada</SelectItem>
-                      <SelectItem value="UK">United Kingdom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.country && (
-                <p className="text-destructive text-sm mt-1">{errors.country.message}</p>
-              )}
-            </div>
-                <div>
-                    <Label htmlFor="state" className="text-checkout-text text-sm font-medium">
-                        State
-                    </Label>
-                    <Input
-                        id="state"
-                        placeholder="Enter state"
-                        {...register("state", { required: "State is required" })}
-                        className={`mt-1 ${errors.state ? "border-destructive" : ""}`}
-                    />
-                    {errors.state && (
-                        <p className="text-destructive text-sm mt-1">{errors.state.message}</p>
-                    )}
-                </div>
-                <div>
-                    <Label htmlFor="city" className="text-checkout-text text-sm font-medium">
-                        City
-                    </Label>
-                    <Input
-                        id="city"
-                        placeholder="Enter city"
-                        {...register("city")}
-                        className={`mt-1 ${errors.state ? "border-destructive" : ""}`}
-                    />
-                    {errors.city && (
-                        <p className="text-destructive text-sm mt-1">{errors.city.message}</p>
-                    )}
-                </div>
-                <div>
-                    <Label htmlFor="street" className="text-checkout-text text-sm font-medium">
-                        Street
-                    </Label>
-                    <Input
-                        id="street"
-                        placeholder="Enter Street"
-                        {...register("street")}
-                        className={`mt-1 ${errors.street ? "border-destructive" : ""}`}
-                    />
-                    {errors.street && (
-                        <p className="text-destructive text-sm mt-1">{errors.street.message}</p>
-                    )}
-                </div>
-                <div>
-                    <Label htmlFor="landmark" className="text-checkout-text text-sm font-medium">
-                        Landmark
-                    </Label>
-                    <Input
-                        id="landmark"
-                        placeholder="landmark"
-                        {...register("landmark")}
-                        className={`mt-1 ${errors.landmark ? "border-destructive" : ""}`}
-                    />
-                    {errors.landmark && (
-                        <p className="text-destructive text-sm mt-1">{errors.landmark?.message}</p>
-                    )}
-                </div>
-                <div className='md:col-span-2'>
-                    <Label htmlFor="postCode" className="text-checkout-text text-sm font-medium">
-                        Postal Code
-                    </Label>
-                    <Input
-                        id="postCode"
-                        placeholder="Postal Code"
-                        {...register("postCode")}
-                        className={`mt-1 ${errors.postCode ? "border-destructive" : ""}`}
-                    />
-                    {errors.postCode && (
-                        <p className="text-destructive text-sm mt-1">{errors.postCode?.message}</p>
-                    )}
-                </div>
-            </div>
-            <Button type="submit" 
-            className="w-full bg-accent hover:bg-accent/90 p-2 rounded-md text-white mt-4"
-            disabled = {isPending}
-            >
-                {isPending ? 'Please wait...': 'Save Address'}
-            </Button>
-            </form>
-        </DialogContent>
-    </Dialog>
-  )
+
+    const handleClose = () => {
+        setIsOpen(false)
+        reset()
+    }
+
+    return (
+        <Dialog onOpenChange={handleClose} open={isOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle className="text-lg font-medium">
+                        {editingAddress ? 'Edit Delivery Address' : 'Add Delivery Address'}
+                    </DialogTitle>
+                </DialogHeader>
+                <form className="space-y-4 mt-4" onSubmit={handleSubmit(onSubmit)}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="w-full">
+                            <Label htmlFor="addressType" className="text-checkout-text text-sm font-medium">
+                                Address Type *
+                            </Label>
+                            <Controller
+                                name="addressType"
+                                control={control}
+                                rules={{ required: "Address type is required" }}
+                                render={({ field }) => (
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger className={`mt-1 ${errors.addressType ? "border-destructive" : ""} w-full`}>
+                                            <SelectValue placeholder="Choose address type" />
+                                        </SelectTrigger>
+                                        <SelectContent className="w-full">
+                                            {Object.entries(addressTypeOptions).map(([key, value]) => (
+                                                <SelectItem key={key} value={key}>{value}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {errors.addressType && (
+                                <p className="text-destructive text-sm mt-1">{errors.addressType.message}</p>
+                            )}
+                        </div>
+                        <div className="w-full">
+                            <Label htmlFor="country" className="text-checkout-text text-sm font-medium">
+                                Country *
+                            </Label>
+                            <Controller
+                                name="country"
+                                control={control}
+                                rules={{ required: "Country is required" }}
+                                render={({ field }) => (
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger className={`mt-1 ${errors.country ? "border-destructive" : ""} w-full`}>
+                                            <SelectValue placeholder="Choose country" />
+                                        </SelectTrigger>
+                                        <SelectContent className="w-full">
+                                            <SelectItem value="NG">Nigeria</SelectItem>
+                                            <SelectItem value="US">United States</SelectItem>
+                                            <SelectItem value="CA">Canada</SelectItem>
+                                            <SelectItem value="UK">United Kingdom</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {errors.country && (
+                                <p className="text-destructive text-sm mt-1">{errors.country.message}</p>
+                            )}
+                        </div>
+                        <div>
+                            <Label htmlFor="state" className="text-checkout-text text-sm font-medium">
+                                State *
+                            </Label>
+                            <Input
+                                id="state"
+                                placeholder="Enter state"
+                                {...register("state", { required: "State is required" })}
+                                className={`mt-1 ${errors.state ? "border-destructive" : ""}`}
+                            />
+                            {errors.state && (
+                                <p className="text-destructive text-sm mt-1">{errors.state.message}</p>
+                            )}
+                        </div>
+                        <div>
+                            <Label htmlFor="city" className="text-checkout-text text-sm font-medium">
+                                City *
+                            </Label>
+                            <Input
+                                id="city"
+                                placeholder="Enter city"
+                                {...register("city", { required: "City is required" })}
+                                className={`mt-1 ${errors.city ? "border-destructive" : ""}`}
+                            />
+                            {errors.city && (
+                                <p className="text-destructive text-sm mt-1">{errors.city.message}</p>
+                            )}
+                        </div>
+                        <div>
+                            <Label htmlFor="street" className="text-checkout-text text-sm font-medium">
+                                Street Address *
+                            </Label>
+                            <Input
+                                id="street"
+                                placeholder="Enter street address"
+                                {...register("street", { required: "Street address is required" })}
+                                className={`mt-1 ${errors.street ? "border-destructive" : ""}`}
+                            />
+                            {errors.street && (
+                                <p className="text-destructive text-sm mt-1">{errors.street.message}</p>
+                            )}
+                        </div>
+                        <div>
+                            <Label htmlFor="landmark" className="text-checkout-text text-sm font-medium">
+                                Landmark
+                            </Label>
+                            <Input
+                                id="landmark"
+                                placeholder="Enter landmark"
+                                {...register("landmark")}
+                                className={`mt-1 ${errors.landmark ? "border-destructive" : ""}`}
+                            />
+                            {errors.landmark && (
+                                <p className="text-destructive text-sm mt-1">{errors.landmark?.message}</p>
+                            )}
+                        </div>
+                        <div className='md:col-span-2'>
+                            <Label htmlFor="postCode" className="text-checkout-text text-sm font-medium">
+                                Postal Code *
+                            </Label>
+                            <Input
+                                id="postCode"
+                                placeholder="Enter postal code"
+                                {...register("postCode", { required: "Postal code is required" })}
+                                className={`mt-1 ${errors.postCode ? "border-destructive" : ""}`}
+                            />
+                            {errors.postCode && (
+                                <p className="text-destructive text-sm mt-1">{errors.postCode?.message}</p>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                        <Button
+                            type="button"
+                            onClick={handleClose}
+                            className="flex-1 bg-gray-300 hover:bg-gray-400 p-2 rounded-md text-gray-700"
+                            disabled={isPending}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="flex-1 bg-accent hover:bg-accent/90 p-2 rounded-md text-white"
+                            disabled={isPending}
+                        >
+                            {isPending ? 'Please wait...' : (editingAddress ? 'Update Address' : 'Save Address')}
+                        </Button>
+                    </div>
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
 }
 
 export default AddDeliveryAddress
