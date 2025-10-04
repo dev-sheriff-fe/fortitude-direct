@@ -29,6 +29,7 @@ import { color } from 'framer-motion';
 import axiosCustomer from '@/utils/fetch-function-customer';
 import useCustomer from '@/store/customerStore';
 import { Button } from '@/components/ui/button';
+import dollarSign from '@/assets/dollar-sign-icons-gold-circle-2184236.webp'
 
 
 // Wallet data for the additional section
@@ -114,7 +115,7 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
         <div className="flex items-center mb-4">
           <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden">
             <Image
-              src={flag}
+              src={flag || dollarSign}
               alt={`${currency} flag`}
               width={32}
               height={32}
@@ -234,7 +235,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden">
             <Image
-              src={icon}
+              src={icon || dollarSign}
               alt={`${currency} icon`}
               width={32}
               height={32}
@@ -361,6 +362,7 @@ export const WalletOverview = () => {
         <div className="flex items-center justify-between mb-4 lg:mb-6">
           <h3 className="text-base lg:text-lg font-semibold">Wallet Overview</h3>
         
+
           <div className="flex items-center gap-2">
             <Badge className='bg-accent/70 flex items-center gap-2 px-3 py-1.5 hover:bg-accent/70 transition-colors'>
               <span className="text-sm text-foreground text-black">Show Balances</span>
@@ -421,7 +423,8 @@ export const WalletOverview = () => {
 
              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
             
-            {fiatBalances?.map((wallet:any, index:any) => (
+             {
+              fiatBalances ? fiatBalances?.map((wallet: any, index: number) => (
               <CurrenciesCard
                 key={index}
                 currency={wallet.symbol}
@@ -430,8 +433,10 @@ export const WalletOverview = () => {
                 currencyCode={wallet.symbol}
                 isActive={wallet.isActive}
                 forceHideAmount={hideAllBalances}
+
               />
-            ))}
+            )) : <p>No fiat balances available</p>
+            }
           </div>
           </>
          
@@ -443,7 +448,7 @@ export const WalletOverview = () => {
               balancesLoading && <BalancesLoadingCards/>
             }
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
-            {coinBalances?.map((wallet:any, index:number) => (
+            {coinBalances ? coinBalances.map((wallet: any, index: number) => (
               <CryptoCard
                 key={index}
                 currency={wallet.symbol}
@@ -455,8 +460,10 @@ export const WalletOverview = () => {
                 // change={wallet.change}
                 // changePositive={wallet.changePositive}
                 forceHideAmount={hideAllBalances}
+
               />
-            ))}
+            ))
+              : <p>No crypto balances available</p>}
           </div>
           </>
         )}
