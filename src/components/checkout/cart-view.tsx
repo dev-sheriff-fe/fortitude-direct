@@ -213,21 +213,10 @@ import { ArrowLeft, Bot, Building2, Calendar, CoinsIcon, CreditCard, DollarSign,
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useCart } from '@/store/cart';
-import { CurrencyCode, formatPrice } from '@/utils/helperfns';
 import { PaymentMethod } from '@/app/checkout/checkoutContent';
-import axiosInstance from '@/utils/fetch-function';
-import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { useForm } from 'react-hook-form';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import Image from "next/image";
-import rexpay from '@/components/images/rexpay.png'
-import { CheckoutStep, FormData, PaymentMethod } from '@/app/checkout/checkoutContent';
+import { CheckoutStep, FormData } from '@/app/checkout/checkoutContent';
 import { useRouter } from 'next/navigation';
-import { useForm, UseFormReturn } from 'react-hook-form';
-import { fa } from 'zod/v4/locales';
+import { UseFormReturn } from 'react-hook-form';
 import CardAlert from './card-alert';
 import { useQuery } from '@tanstack/react-query';
 import axiosCustomer from '@/utils/fetch-function-customer';
