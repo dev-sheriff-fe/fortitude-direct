@@ -40,6 +40,9 @@ jobs:
               --build-arg NEXT_PUBLIC_LOGO_URL=${{ secrets.NEXT_PUBLIC_LOGO_URL }} \
               --build-arg NEXT_PUBLIC_BANNER_URL=${{ secrets.NEXT_PUBLIC_BANNER_URL }} \
               --build-arg NEXT_PUBLIC_FONT_FAMILY=${{ secrets.NEXT_PUBLIC_FONT_FAMILY }} \
+              --build-arg NEXT_PUBLIC_ENTITYCODE=${{ secrets.NEXT_PUBLIC_ENTITYCODE }} \
+              --build-arg NEXT_PUBLIC_REACT_APP_API_URL=${{ secrets.NEXT_PUBLIC_REACT_APP_API_URL }} \
+              --build-arg NEXT_PUBLIC_SOURCE_CODE=${{ secrets.NEXT_PUBLIC_SOURCE_CODE }} \
               --no-cache -t nextjs-app:latest .
 
             # Run container (runtime vars optional, already baked in)
