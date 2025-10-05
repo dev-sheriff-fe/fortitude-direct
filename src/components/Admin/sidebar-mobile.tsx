@@ -1,23 +1,28 @@
 'use client'
 import { cn } from '@/lib/utils';
-import { CalendarClockIcon, Clock, EyeOff, Folder, Key, LayoutDashboard, ListOrdered, Send, Sheet, Store } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Box,
+  StoreIcon,
+  UsersRoundIcon,
+  Clock,
+  Settings,
+  CreditCard
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
 
 const navigationItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Orders', href: '/orders', icon: Clock },
-  { name: 'Transactions', href: '/transactions', icon: ListOrdered },
-  { name: 'Store Front', href: '/', icon: Store },
-  { name: 'My Credit Score', href: '/credit-score', icon: Sheet },
-  { name: 'Send Money', href: '/send-money', icon: Send },
-  { name: 'My Documents', href: '/documents', icon: Folder },
-  { name: 'BNPL Payment Plan', href: '/payment-plan', icon: CalendarClockIcon },
-  // { name: 'Reports', href: '/reports', icon: ClipboardList },
-  { name: 'API Key', href: '/api-key', icon: Key },
-  { name: 'Change Password', href: '/reset-password', icon: EyeOff },
+  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'Inventories', href: '/admin/inventories', icon: Box },
+  { name: 'BNPL Customers', href: '/admin/bnpl-customers', icon: UsersRoundIcon },
+  { name: 'Payment Methods', href: '/admin/payment-methods', icon: CreditCard },
+  { name: 'Orders', href: '/admin/orders', icon: Clock },
+  { name: 'Stores', href: '/admin/stores', icon: StoreIcon },
+  { name: 'Staffs', href: '/admin/staffs', icon: UsersRoundIcon },
+  { name: 'Store Settings', href: '/admin/settings', icon: Settings },
 ];
 
 const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL;

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { CreditCard, Wallet, Bot, CheckCircle, Copy,AlertCircle, TrendingUp, ArrowLeft } from 'lucide-react';
+import { CreditCard, Wallet, Bot, CheckCircle, Copy, AlertCircle, TrendingUp, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/app/hooks/use-toast';
 import { useCart } from '@/store/cart';
 import { useForm } from 'react-hook-form';
@@ -23,8 +23,9 @@ import axiosCustomer from '@/utils/fetch-function-customer';
 import BnplManager from '@/components/checkout/bnpl_checkout/bnpl-manager';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import RexpayPayment from '@/components/checkout/rexpay-payment';
 
-export type PaymentMethod = 'card' | 'crypto_token' | 'bnpl' | 'bank_transfer' | 'tron' | null;
+export type PaymentMethod = 'card' | 'crypto_token' | 'bnpl' | 'bank_transfer' | 'tron' | 'rexpay' | null;
 export type CheckoutStep = 'cart' | 'payment' | 'processing' | 'success' | 'info';
 export type BNPLStep = 'registration' | 'scoring' | 'approved' | 'rejected'
 
@@ -46,6 +47,8 @@ export interface CreditScoreData {
 
 const formSchema = z.object({
   shippingMethod: z.enum(["delivery", "pickup"]).default("delivery")?.optional(),
+  shippingOption: z.string().optional(),
+  pickupStore: z.string().optional(),
   fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
   country: z.string().min(1, "Please select a country"),
   addressType: z.string().min(1, "Please select address type").optional(),
@@ -68,25 +71,25 @@ const CheckoutContent = () => {
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('info');
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>(null);
   const [usdtPaid, setUsdtPaid] = useState(false);
-  const [checkoutData,setCheckoutData] = useState(null)
+  const [checkoutData, setCheckoutData] = useState(null)
   const form = useForm<FormData>({
-      resolver: zodResolver(formSchema),
-      defaultValues: {
-        shippingMethod: "delivery",
-        fullName: "",
-        country: "",
-        city: "",
-        state: "",
-        zipCode: "",
-        agreeTerms: false,
-      },
-    });
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      shippingMethod: "delivery",
+      fullName: "",
+      country: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      agreeTerms: false,
+    },
+  });
 
-   const searchParams = useSearchParams()
-      const storeCode = searchParams.get('storeCode') || ''
-      console.log(storeCode);
-      
-  
+  const searchParams = useSearchParams()
+  const storeCode = searchParams.get('storeCode') || ''
+  console.log(storeCode);
+
+
   const { toast } = useToast();
 
 
@@ -98,7 +101,7 @@ const CheckoutContent = () => {
   }, []);
 
   console.log(checkoutData);
-  
+
 
   const handlePaymentSelect = (method: PaymentMethod) => {
     setSelectedPayment(method);
@@ -121,10 +124,10 @@ const CheckoutContent = () => {
       return (
         <Suspense>
           <UsdtPayment
-        copyToClipboard={copyToClipboard}
-        setCurrentStep={setCurrentStep}
-        currentStep={currentStep}
-        />
+            copyToClipboard={copyToClipboard}
+            setCurrentStep={setCurrentStep}
+            currentStep={currentStep}
+          />
         </Suspense>
       );
     }
@@ -138,8 +141,17 @@ const CheckoutContent = () => {
     //   );
     // }
 
+    if (selectedPayment === 'rexpay') {
+      return (
+        <RexpayPayment
+          setCurrentStep={setCurrentStep}
+          setSelectedPayment={setSelectedPayment}
+        />
+      );
+    }
+
     console.log(selectedPayment);
-    
+
     // if (selectedPayment === 'bnpl') {
     //   return (
     //     <div className='h-screen'>
@@ -180,26 +192,26 @@ const CheckoutContent = () => {
     </div>
   );
 
-  
+
 
   return (
-    
-      <div className="min-h-screen bg-background p-4">
+
+    <div className="min-h-screen p-4">
       <div className="max-w-6xl mx-auto py-8">
-        {currentStep === 'info' && <BnplManager setCurrentStep={setCurrentStep} form={form}/>}
-        {currentStep === 'cart' && <CartView 
-        handlePaymentSelect={handlePaymentSelect} 
-        setCurrentStep = {setCurrentStep}
-        paymentMethod = {selectedPayment}
-        setSelectedPayment = {setSelectedPayment}
-        form = {form}
+        {currentStep === 'info' && <BnplManager setCurrentStep={setCurrentStep} form={form} />}
+        {currentStep === 'cart' && <CartView
+          handlePaymentSelect={handlePaymentSelect}
+          setCurrentStep={setCurrentStep}
+          paymentMethod={selectedPayment}
+          setSelectedPayment={setSelectedPayment}
+          form={form}
         />}
         {currentStep === 'payment' && <PaymentView />}
         {currentStep === 'processing' && <ProcessingView />}
-        
+
       </div>
     </div>
-    
+
   );
 };
 

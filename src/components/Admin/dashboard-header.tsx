@@ -1,11 +1,17 @@
 'use client'
 import React from 'react';
-import { Search, Bell, User } from 'lucide-react';
+import { Search, Bell, User, Menu} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { logout } from '@/utils/auth-utils';
 import useUser from '../store/userStore';
+import router from 'next/router';
+import SidebarMobile from './sidebar-mobile';
+import { Button } from '@aws-amplify/ui-react';
+import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import Link from 'next/link';
+
 
 const formatCurrentDate = () => {
   const date = new Date();
@@ -19,7 +25,7 @@ const formatCurrentDate = () => {
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const month = months[date.getMonth()];
   const year = date.getFullYear();
-  
+
   return `${dayOfWeek}, ${day}${suffix} ${month} ${year}`;
 };
 
@@ -30,10 +36,23 @@ export const DashboardHeader = () => {
   return (
     <header className="bg-white border-b border-border px-4 lg:px-6 py-3 lg:py-4 w-full">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg lg:text-2xl font-semibold text-accent">{user?.fullname}</h1>
-          <p className='text-xs text-muted-foreground'>{currentDate}</p>
+        <div className='flex gap-3 items-center'>
+          <Sheet>
+            <SheetTrigger asChild className='lg:hidden'>
+              <Button className='bg-transparent text-gray-500'>
+                <Menu className='w-6 h-6' />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side='left'>
+              <SidebarMobile />
+            </SheetContent>
+          </Sheet>
+          <div>
+            <h1 className="text-lg lg:text-2xl font-semibold text-accent">{user?.fullname}</h1>
+            <p className='text-xs text-muted-foreground'>{currentDate}</p>
+          </div>
         </div>
+
         <div className='flex items-center gap-4 lg:gap-6'>
           <svg width="21" height="27" viewBox="0 0 21 27" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M21 21.6H0L2.625 18.9V10.8C2.62688 8.88722 3.28682 7.03683 4.48794 5.57655C5.68906 4.11626 7.35386 3.1403 9.1875 2.8215V1.35C9.1875 0.991958 9.32578 0.64858 9.57192 0.395406C9.81806 0.142232 10.1519 0 10.5 0C10.8481 0 11.1819 0.142232 11.4281 0.395406C11.6742 0.64858 11.8125 0.991958 11.8125 1.35V2.8215C12.3996 2.93324 12.9721 3.11445 13.5187 3.3615C13.1912 4.18091 13.0651 5.07074 13.1517 5.95223C13.2382 6.83371 13.5347 7.67965 14.0149 8.41517C14.4951 9.1507 15.1441 9.75311 15.9046 10.1691C16.6652 10.585 17.5136 10.8018 18.375 10.8V18.9L21 21.6ZM10.5 27C11.1962 27 11.8639 26.7155 12.3562 26.2092C12.8484 25.7028 13.125 25.0161 13.125 24.3H7.875C7.875 25.0161 8.15156 25.7028 8.64384 26.2092C9.13613 26.7155 9.80381 27 10.5 27ZM18.375 2.7C17.8558 2.7 17.3483 2.85835 16.9166 3.15503C16.4849 3.45171 16.1485 3.87339 15.9498 4.36675C15.7511 4.86012 15.6992 5.403 15.8004 5.92674C15.9017 6.45049 16.1517 6.93159 16.5188 7.30919C16.886 7.68679 17.3537 7.94394 17.8629 8.04812C18.3721 8.1523 18.8999 8.09883 19.3795 7.89448C19.8592 7.69012 20.2692 7.34405 20.5576 6.90004C20.846 6.45603 21 5.93401 21 5.4C21 4.68392 20.7234 3.99716 20.2312 3.49081C19.7389 2.98446 19.0712 2.7 18.375 2.7Z" fill="black" />
@@ -70,7 +89,9 @@ export const DashboardHeader = () => {
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem>My profile</DropdownMenuItem>
+                <DropdownMenuItem >
+                  <Link href="/admin-profile">My profile</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
