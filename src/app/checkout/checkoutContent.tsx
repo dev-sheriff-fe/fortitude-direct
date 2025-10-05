@@ -152,7 +152,7 @@ const CheckoutContent = () => {
     //       />
     //   </div>
     //   )     
-    // }
+
 
 
     if (selectedPayment == 'bank_transfer') {
