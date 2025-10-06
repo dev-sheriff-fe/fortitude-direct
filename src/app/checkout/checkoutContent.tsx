@@ -150,7 +150,7 @@ const CheckoutContent = () => {
       );
     }
 
-    console.log(selectedPayment);
+    console.log('Selected payment:', selectedPayment);
 
     // if (selectedPayment === 'bnpl') {
     //   return (

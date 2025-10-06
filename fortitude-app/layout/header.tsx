@@ -13,6 +13,7 @@ import CartTriggerDesktop from '@/utils/cart-trigger'
 import CustomerLoginModal from "../../src/components/ui/customer-login-modal";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Cart from '@/utils/cart'
+import useCustomer from "@/store/customerStore";
 import { ta } from "zod/v4/locales";
 
 const mainNavItems = [
@@ -46,6 +47,8 @@ export default function Header() {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const { customer } = useCustomer()
+
 
   const { data, isLoading, error } = useCategories()
   const searchParams = useSearchParams()
@@ -105,7 +108,7 @@ export default function Header() {
                 <svg width="24" height="14" viewBox="0 0 24 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M23.375 8.196V10.263C23.375 10.7778 22.9564 11.1964 22.4416 11.1964H21.4432C21.2638 9.9562 20.1952 9.0046 18.9056 9.0046C17.6212 9.0046 16.5526 9.9562 16.3706 11.1964H7.879C7.6996 9.9562 6.631 9.0046 5.344 9.0046C4.057 9.0046 2.991 9.9562 2.809 11.1964H1.561C1.0462 11.1964 0.6276 10.7778 0.6276 10.263V8.196H23.375ZM7.0574 3.20395H6.5244L6.3294 4.2128H6.8468C7.1926 4.2128 7.4786 3.97615 7.4786 3.58095C7.4812 3.34175 7.3226 3.20395 7.0574 3.20395ZM20.8426 11.5682C20.8426 12.6368 19.9742 13.5052 18.9056 13.5052C17.8344 13.5052 16.966 12.6368 16.966 11.5682C16.966 10.497 17.8344 9.6286 18.9056 9.6286C19.9742 9.6286 20.8426 10.497 20.8426 11.5682ZM19.8754 11.5682C19.8754 11.0326 19.4386 10.601 18.9082 10.601C18.3726 10.601 17.941 11.0326 17.941 11.5682C17.941 12.1012 18.3726 12.5354 18.9082 12.5354C19.4386 12.5354 19.8754 12.0986 19.8754 11.5682ZM7.281 11.5682C7.281 12.6368 6.4152 13.5052 5.344 13.5052C4.2728 13.5052 3.407 12.6368 3.407 11.5682C3.407 10.497 4.2728 9.6286 5.344 9.6286C6.4152 9.6286 7.281 10.497 7.281 11.5682ZM6.3138 11.5682C6.3138 11.0326 5.8822 10.601 5.3466 10.601C4.811 10.601 4.3794 11.0326 4.3794 11.5682C4.3794 12.1012 4.811 12.5354 5.3466 12.5354C5.8822 12.5354 6.3138 12.0986 6.3138 11.5682ZM23.375 7.6786H0.625V1.42815C0.625 0.910751 1.0462 0.494751 1.5584 0.494751H15.6738C16.1912 0.494751 16.6072 0.913351 16.6072 1.42815V2.12235H18.461C18.7886 2.12235 19.1032 2.25235 19.3346 2.48375L23.0058 6.1134C23.2398 6.3474 23.3724 6.6646 23.3724 6.9974L23.375 7.6786ZM3.94 4.1192L4.1116 3.20395H5.3856L5.4818 2.69955H3.6306L3.004 5.9288H3.5864L3.8412 4.6236H4.915L5.0112 4.1192H3.94ZM7.346 4.569V4.5612C7.8322 4.4026 8.0818 3.92415 8.0818 3.48475C8.0818 3.15195 7.918 2.90235 7.645 2.78535C7.5124 2.72555 7.3538 2.70475 7.1822 2.70475H6.0408L5.4142 5.9314H5.9992L6.2306 4.7276H6.813L7.2212 5.9314H7.8478L7.4162 4.7354C7.3772 4.6158 7.346 4.569 7.346 4.569ZM10.9262 2.69955H8.9996L8.3678 5.9288H10.3724L10.4686 5.4244H9.0516L9.218 4.556H10.3048L10.4036 4.0516H9.3168L9.4806 3.20655H10.8274L10.9262 2.69955ZM13.5314 2.69955H11.6048L10.973 5.9288H12.9776L13.0738 5.4244H11.6568L11.8258 4.556H12.9126L13.0114 4.0516H11.922L12.0858 3.20655H13.43L13.5314 2.69955ZM21.5056 5.9834L18.6326 3.24035C18.604 3.21435 18.5676 3.19875 18.5312 3.19875H17.8552C17.7746 3.19875 17.7096 3.26375 17.7096 3.34435V6.0874C17.7096 6.168 17.7746 6.233 17.8552 6.233H21.4068C21.5368 6.2356 21.6018 6.0718 21.5056 5.9834Z" fill="white" />
                 </svg>
-                <p className="text-xs md:text-sm">Free shipping on orders £100+</p>
+                <p className="text-xs md:text-sm">Free shipping on orders ₦100k+</p>
               </div>
               <div className="hidden md:block">|</div>
               <div className="hidden md:block">
@@ -133,7 +136,7 @@ export default function Header() {
                 alt="Fortitude Logo"
                 width={150}
                 height={50}
-                className="h-8 md:h-10 w-auto"
+                className="h-8 w-auto md:h-10"
                 priority />
             </Link>
 
@@ -150,19 +153,28 @@ export default function Header() {
             </div>
 
             {/* Account and cart icons */}
-            <div className="flex items-center space-x-4 md:space-x-8">
-              <div className="hidden md:flex items-center space-x-2">
-                <svg width="25" height="26" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div className="flex items-center space-x-6 md:space-x-8">
+              <div className="flex items-center space-x-2 cursor-pointer font-semibold hover:underline hover:text-accent">
+                <svg width="20" height="20" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12.79 12.4048C13.9767 12.4048 15.1367 12.0557 16.1234 11.4016C17.1101 10.7476 17.8792 9.81792 18.3333 8.73026C18.7874 7.64261 18.9062 6.44578 18.6747 5.29113C18.4432 4.13648 17.8718 3.07587 17.0326 2.24341C16.1935 1.41096 15.1244 0.84405 13.9605 0.614376C12.7967 0.384702 11.5903 0.502579 10.4939 0.953101C9.39758 1.40362 8.46051 2.16655 7.80122 3.14542C7.14193 4.12428 6.79004 5.27511 6.79004 6.45238C6.79163 8.03057 7.42428 9.54367 8.54915 10.6596C9.67403 11.7756 11.1992 12.4032 12.79 12.4048ZM12.79 2.48413C13.5811 2.48413 14.3545 2.71686 15.0123 3.1529C15.6701 3.58894 16.1828 4.2087 16.4855 4.9338C16.7883 5.6589 16.8675 6.45679 16.7131 7.22655C16.5588 7.99632 16.1778 8.70339 15.6184 9.25836C15.059 9.81333 14.3463 10.1913 13.5704 10.3444C12.7944 10.4975 11.9902 10.4189 11.2593 10.1186C10.5284 9.81822 9.90369 9.3096 9.46416 8.65703C9.02464 8.00445 8.79004 7.23723 8.79004 6.45238C8.79004 5.39994 9.21147 4.3906 9.96161 3.6464C10.7118 2.90221 11.7291 2.48413 12.79 2.48413Z" fill="#313133" />
                   <path d="M12.79 14.3889C10.4039 14.3915 8.11626 15.3331 6.429 17.0069C4.74175 18.6808 3.79269 20.9503 3.79004 23.3175C3.79004 23.5806 3.8954 23.8329 4.08293 24.019C4.27047 24.205 4.52482 24.3096 4.79004 24.3096C5.05526 24.3096 5.30961 24.205 5.49715 24.019C5.68468 23.8329 5.79004 23.5806 5.79004 23.3175C5.79004 21.4757 6.52754 19.7094 7.84029 18.407C9.15305 17.1047 10.9335 16.373 12.79 16.373C14.6465 16.373 16.427 17.1047 17.7397 18.407C19.0525 19.7094 19.79 21.4757 19.79 23.3175C19.79 23.5806 19.8954 23.8329 20.0829 24.019C20.2704 24.205 20.5248 24.3096 20.79 24.3096C21.0552 24.3096 21.3096 24.205 21.4971 24.019C21.6846 23.8329 21.79 23.5806 21.79 23.3175C21.7874 20.9503 20.8383 18.6808 19.151 17.0069C17.4638 15.3331 15.1761 14.3915 12.79 14.3889Z" fill="#313133" />
                 </svg>
-                <div className="flex flex-col items-start">
-                  <span
-                    className="text-sm pointer cursor-pointer font-semibold hover:underline hover:text-accent"
-                    onClick={() => setIsOpen(true)}
-                  >
-                    Login
-                  </span>
+                <div className="flex-col items-start">
+                  {customer?.firstname ? (
+                    <Link
+                      href="/dashboard"
+                      className="text-sm font-semibold hover:underline hover:text-accent"
+                    >
+                      {customer.firstname}
+                    </Link>
+                  ) : (
+                    <span
+                      className="text-sm font-semibold hover:underline hover:text-accent"
+                      onClick={() => setIsOpen(true)}
+                    >
+                      Login
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -187,7 +199,6 @@ export default function Header() {
                 isOpen={isCartOpen}
                 onOpenChange={setIsCartOpen} />
             </div>
-
             {/* Mobile Menu Button */}
             <button
               className="md:hidden text-charcoal z-50"
@@ -319,11 +330,13 @@ export default function Header() {
                 </SheetContent>
               </Sheet> */}
 
+
+
             <div className="flex items-center space-x-2 cursor-pointer">
               <CartIconWithBadge />
-              <div className="hidden md:block">
+              {/* <div className="hidden md:block">
                 <span className="text-sm font-semibold">Cart</span>
-              </div>
+              </div> */}
             </div>
 
             <div className="relative w-full">

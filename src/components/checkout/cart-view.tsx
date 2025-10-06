@@ -71,7 +71,7 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
     
     const {getValues} = form
 
-    console.log(getValues());
+    console.log('Form values:', getValues());
     
     useEffect(() => {
       const stored = sessionStorage.getItem('checkout');
