@@ -257,6 +257,7 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
                         <SelectItem value="STABLECOIN">Stablecoin</SelectItem>
                         <SelectItem value="WALLET">Wallet</SelectItem>
                         <SelectItem value="BNPL">Buy Now Pay Later</SelectItem>
+                        <SelectItem value="REXPAY">RexPay</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
