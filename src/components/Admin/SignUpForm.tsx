@@ -140,8 +140,9 @@ export function SignUpForm() {
         onboardDocs: [],
 
         entityCode: entityCode,
+        storeCode: '',
         merchantGroupCode: 'M0001',
-        branchCode: 'FTD_HO',
+        branchCode: 'HO',
         id: 0,
       }
     }),

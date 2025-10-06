@@ -72,15 +72,15 @@ const CategoriesTable = ({ categories, onEdit }: CategoriesTableProps) => {
         <Badge variant="secondary">{sector || "General"}</Badge>
       ),
     },
-    {
-      title: "Quantity",
-      dataIndex: "qty",
-      key: "qty",
-      width: 100,
-      render: (qty: string) => (
-        <span className="text-sm font-medium">{qty || "N/A"}</span>
-      ),
-    },
+    // {
+    //   title: "Quantity",
+    //   dataIndex: "qty",
+    //   key: "qty",
+    //   width: 100,
+    //   render: (qty: string) => (
+    //     <span className="text-sm font-medium">{qty || "N/A"}</span>
+    //   ),
+    // },
     {
       title: "Tags",
       dataIndex: "tags",

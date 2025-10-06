@@ -355,6 +355,8 @@ import * as z from 'zod'
 import useCustomer from '@/store/customerStore'
 import { hasAccess, setAuthCredentials } from '@/utils/auth-utils-customer'
 import { Label } from '@radix-ui/react-dropdown-menu'
+import { Eye, EyeOff } from "lucide-react"
+
 export type LoginProps = {
     // setState: React.Dispatch<React.SetStateAction<'login' | 'register'>>,
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -386,6 +388,8 @@ export const LoginForm = ({ setIsOpen }: LoginProps) => {
     const [loginData, setLoginData] = useState<FormData | null>(null);
     const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || '';
     const storeCode = searchParams.get('storeCode') || ''
+  const [showPassword, setShowPassword] = useState(false)
+    
     const { mutate, isPending } = useMutation({
         mutationFn: (data: any) => axiosInstance.request({
             url: '/ecommerce/login',
@@ -423,6 +427,9 @@ export const LoginForm = ({ setIsOpen }: LoginProps) => {
 
         mutate(payload)
     }
+      const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
     return (
         <div className='space-y-3'>
             <DialogHeader className='flex flex-col'>
@@ -445,13 +452,25 @@ export const LoginForm = ({ setIsOpen }: LoginProps) => {
                             </div>
                             <div className='w-full'>
                                 <Label>Password</Label>
+                                <div className="relative">
                                 <Input
                                     {...register('password')}
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="Password"
                                     className='mt-2'
                                 />
-
+                                <button
+                                    type="button"
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                                    onClick={togglePasswordVisibility}
+                                    >
+                                    {showPassword ? (
+                                        <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                        <Eye className="h-4 w-4" />
+                                    )}
+                                </button>
+                            </div>
                                 <Link href="/forgot-password" className="text-sm relative right-0 text-accent underline">
                                     Forgot your password?
                                 </Link>

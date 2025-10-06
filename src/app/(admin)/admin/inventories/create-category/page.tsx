@@ -74,7 +74,7 @@ const CreateCategoryPage = ({
       logo: "",
       tags: "",
       topCategory: "",
-      qty: ""
+      // qty: ""
     }
   });
 
@@ -120,7 +120,7 @@ useEffect(() => {
         logo: category?.logo || "",
         tags: category?.tags || "",
         topCategory: category?.topCategory || "",
-        qty: category?.qty || ""
+        // qty: category?.qty || ""
       };
       
       console.log('Form data to be set:', categoryObj); // Debug log
@@ -139,7 +139,7 @@ useEffect(() => {
       logo: "",
       tags: "",
       topCategory: "",
-      qty: ""
+      // qty: ""
     });
   }
 }, [categoryData, isEditMode, reset]);
@@ -197,7 +197,7 @@ useEffect(() => {
         description: values?.description,
         topCategory: values?.topCategory,
         sector: values?.sector,
-        qty: values?.qty,
+        // qty: values?.qty,
         entityCode: user?.entityCode,
       };
 
@@ -360,13 +360,13 @@ useEffect(() => {
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="qty" className="text-sm font-medium">Quantity/Unit</Label>
                 <Input
                   id="qty"
                   {...register("qty")}
                 />
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <Label htmlFor="tags" className="text-sm font-medium">Tags</Label>

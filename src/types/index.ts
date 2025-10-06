@@ -160,6 +160,9 @@ export interface UserProfile {
   twoFaLinkData?: string | null;
   twoFaReferenceNo?: string | null;
   storeCode?: string | null;
+  merchantCode?: string | null;
+  twoFaLinked?: 'Y' | 'N';
+  lastname?: string;
 }
 
 export interface Attachment {
