@@ -13,6 +13,7 @@ import { set } from 'zod'
 import CustomerLoginModal from './customer-login-modal'
 import { getAuthCredentials } from '@/utils/auth-utils-customer'
 import axiosCustomer from '@/utils/fetch-function-customer'
+import useUser from '@/store/userStore'
 
 
 const Cart = () => {
@@ -22,12 +23,13 @@ const Cart = () => {
     const router = useRouter()
     const [isOpen,setIsOpen] = useState(false)
     const {customer} = useCustomer()
+    const { user } = useUser()
     const rand = generateRandomNumber(15)
     const { token, permissions } = getAuthCredentials();
     const isUserAuthenticated = !!token && Array.isArray(permissions) && permissions.length > 0;
     const currentDate = getCurrentDate()
     const searchParams = useSearchParams()
-    const storeCode = searchParams.get('storeCode') || ''
+    const storeCode = searchParams.get('storeCode') || 'STO0715'
 
     const {mutate,isPending} = useMutation({
         mutationFn: (data:any)=>axiosCustomer.request({
