@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { logout } from '@/utils/auth-utils';
-import useUser from '../store/userStore';
+import useUser from '@/store/userStore';
 import router from 'next/router';
 import SidebarMobile from './sidebar-mobile';
 import { Button } from '@aws-amplify/ui-react';

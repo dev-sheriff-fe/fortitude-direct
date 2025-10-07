@@ -393,7 +393,7 @@ export const WalletOverview = () => {
         // merchantCode: user?.merchantCode,
         // datePeriod: getCurrentDate(),
         datePeriod: "",
-        storeCode: user?.storeCode || 'STO445',
+        storeCode: user?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
         username: user?.username,
         entityCode: user?.entityCode
       }
@@ -408,7 +408,7 @@ export const WalletOverview = () => {
       params: {
         username: user?.username,
         entityCode: user?.entityCode,
-        storeCode: user?.storeCode || 'STO445'
+        storeCode: user?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
       }
     })
   })
@@ -444,7 +444,7 @@ export const WalletOverview = () => {
       method: 'GET',
       params: {
         storeCode: user?.storeCode,
-        entityCode: user?.entityCode || 'STO445'
+        entityCode: user?.entityCode || process.env.NEXT_PUBLIC_STORE_CODE
       }
     })
   })
