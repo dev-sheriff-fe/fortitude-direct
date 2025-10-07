@@ -46,6 +46,7 @@ jobs:
               --build-arg NEXT_PUBLIC_REXPAY_USERNAME=${{ secrets.NEXT_PUBLIC_REXPAY_USERNAME }} \
               --build-arg NEXT_PUBLIC_REXPAY_CLIENT_ID=${{ secrets.NEXT_PUBLIC_REXPAY_CLIENT_ID }} \
               --build-arg NEXT_PUBLIC_REXPAY_SECRET_KEY=${{ secrets.NEXT_PUBLIC_REXPAY_SECRET_KEY }} \
+              --build-arg NEXT_PUBLIC_STORE_CODE=${{ secrets.NEXT_PUBLIC_STORE_CODE }} \
               --no-cache -t nextjs-app:latest .
 
             # Run container (runtime vars optional, already baked in)
