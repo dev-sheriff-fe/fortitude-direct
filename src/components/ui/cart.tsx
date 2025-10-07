@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { SheetContent, SheetHeader } from './sheet'
+import { SheetContent, SheetFooter, SheetHeader } from './sheet'
 import { ShoppingBag, Plus, Minus, X, ShoppingBagIcon } from 'lucide-react'
 import { Button } from './button'
 import Link from 'next/link'
@@ -103,7 +103,7 @@ const Cart = () => {
     
     return (
         <>
-            <SheetContent className='min-w-[400px] lg:min-w-[450px] '>
+            <SheetContent className='w-screen lg:min-w-[450px] px-2'>
             <SheetHeader className='w-full items-center border-b gap-1 text-accent text-[18px] font-semibold'>
                 <span><ShoppingBag size={20} strokeWidth={2.5} /></span> <span>{cart.length > 1 ? `${cart.length} items` : `${cart.length} item`}</span>
             </SheetHeader>
@@ -189,7 +189,7 @@ const Cart = () => {
 
             </div>
 
-            <div className='p-4 w-full'>
+            <SheetFooter>
                         <Button className='w-full bg-accent hover:bg-accent-foreground rounded-full text-white font-semibold p-3 h-full flex items-center text-center justify-between px-4' disabled={cart.length === 0} onClick={submitOrder}>
                         {isPending? 'Processing Order...': <>
                             <span>Checkout</span>
@@ -198,7 +198,7 @@ const Cart = () => {
                         </span>
                         </>}
                     </Button>
-            </div>
+            </SheetFooter>
         </SheetContent>
 
         <CustomerLoginModal 
