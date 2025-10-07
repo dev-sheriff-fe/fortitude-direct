@@ -22,7 +22,7 @@ export default function PaymentSuccess() {
 
         {/* Buttons */}
         <div className="space-y-3">
-          <button className="w-full bg-accent hover:bg-accent-foreground text-white font-semibold py-3 px-6 rounded-lg transition-colors" onClick={()=>router?.push(`/customer-dashboard`)}>
+          <button className="w-full bg-accent hover:bg-accent-foreground text-white font-semibold py-3 px-6 rounded-lg transition-colors" onClick={()=>router?.push(`/dashboard`)}>
             View Order
           </button>
           <button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold py-3 px-6 rounded-lg transition-colors" onClick={()=>router?.push(`/`)}>
