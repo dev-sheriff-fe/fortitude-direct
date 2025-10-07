@@ -24,7 +24,7 @@ export default function HomeFortitude() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const initialCategory = searchParams ? searchParams.get('category') || '' : '';
-    const storeCode = searchParams ? searchParams.get('storeCode') || 'STO445' : 'STO445';
+    const storeCode = searchParams ? searchParams.get('storeCode') || 'STO0715' : 'STO0715';
     const [selectedProduct, setSelectedProduct] = useState<ProductProps | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -34,7 +34,7 @@ export default function HomeFortitude() {
 
     useEffect(() => {
         if (!searchParams?.get('storeCode')) {
-            router.push(`?storeCode=STO445`);
+            router.push(`?storeCode=STO0715`);
         }
     }, [router, searchParams]);
 

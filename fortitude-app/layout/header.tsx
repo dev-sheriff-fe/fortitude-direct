@@ -12,7 +12,8 @@ import { CartIconWithBadge } from '@/utils/cart-with-badge'
 import CartTriggerDesktop from '@/utils/cart-trigger'
 import CustomerLoginModal from "../../src/components/ui/customer-login-modal";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import Cart from '@/utils/cart'
+// import Cart from '@/utils/cart'
+import Cart from '@/components/ui/cart'
 import useCustomer from "@/store/customerStore";
 import { ta } from "zod/v4/locales";
 
@@ -32,6 +33,11 @@ const mainNavItems = [
   {
     title: "Account",
     href: "/customer-login",
+    target: "_blank",
+  },
+    {
+    title: "Business",
+    href: "/admin-login",
     target: "_blank",
   },
   {
@@ -145,7 +151,7 @@ export default function Header() {
                 <input
                   type="text"
                   placeholder="What are you looking for?"
-                  className="w-full md:w-[500px] lg:w-[600px] py-1 md:py-4 pl-12 pr-4 border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-[#d8480b]" />
+                  className="text-xs md:text-sm w-full md:w-[300px] md:h-[50px] lg:w-[550px] py-1 md:py-4 pl-12 pr-4 border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-[#d8480b]" />
                 <div className="absolute inset-y-0 right-0 flex items-center p-4 pointer-events-none bg-[#d8480b] rounded-r-full">
                   <Search className="h-5 w-10 text-white" />
                 </div>
@@ -155,7 +161,7 @@ export default function Header() {
             {/* Account and cart icons */}
             <div className="flex items-center space-x-6 md:space-x-8">
               <div className="flex items-center space-x-2 cursor-pointer font-semibold hover:underline hover:text-accent">
-                <svg width="20" height="20" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="17" height="17" viewBox="0 0 25 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12.79 12.4048C13.9767 12.4048 15.1367 12.0557 16.1234 11.4016C17.1101 10.7476 17.8792 9.81792 18.3333 8.73026C18.7874 7.64261 18.9062 6.44578 18.6747 5.29113C18.4432 4.13648 17.8718 3.07587 17.0326 2.24341C16.1935 1.41096 15.1244 0.84405 13.9605 0.614376C12.7967 0.384702 11.5903 0.502579 10.4939 0.953101C9.39758 1.40362 8.46051 2.16655 7.80122 3.14542C7.14193 4.12428 6.79004 5.27511 6.79004 6.45238C6.79163 8.03057 7.42428 9.54367 8.54915 10.6596C9.67403 11.7756 11.1992 12.4032 12.79 12.4048ZM12.79 2.48413C13.5811 2.48413 14.3545 2.71686 15.0123 3.1529C15.6701 3.58894 16.1828 4.2087 16.4855 4.9338C16.7883 5.6589 16.8675 6.45679 16.7131 7.22655C16.5588 7.99632 16.1778 8.70339 15.6184 9.25836C15.059 9.81333 14.3463 10.1913 13.5704 10.3444C12.7944 10.4975 11.9902 10.4189 11.2593 10.1186C10.5284 9.81822 9.90369 9.3096 9.46416 8.65703C9.02464 8.00445 8.79004 7.23723 8.79004 6.45238C8.79004 5.39994 9.21147 4.3906 9.96161 3.6464C10.7118 2.90221 11.7291 2.48413 12.79 2.48413Z" fill="#313133" />
                   <path d="M12.79 14.3889C10.4039 14.3915 8.11626 15.3331 6.429 17.0069C4.74175 18.6808 3.79269 20.9503 3.79004 23.3175C3.79004 23.5806 3.8954 23.8329 4.08293 24.019C4.27047 24.205 4.52482 24.3096 4.79004 24.3096C5.05526 24.3096 5.30961 24.205 5.49715 24.019C5.68468 23.8329 5.79004 23.5806 5.79004 23.3175C5.79004 21.4757 6.52754 19.7094 7.84029 18.407C9.15305 17.1047 10.9335 16.373 12.79 16.373C14.6465 16.373 16.427 17.1047 17.7397 18.407C19.0525 19.7094 19.79 21.4757 19.79 23.3175C19.79 23.5806 19.8954 23.8329 20.0829 24.019C20.2704 24.205 20.5248 24.3096 20.79 24.3096C21.0552 24.3096 21.3096 24.205 21.4971 24.019C21.6846 23.8329 21.79 23.5806 21.79 23.3175C21.7874 20.9503 20.8383 18.6808 19.151 17.0069C17.4638 15.3331 15.1761 14.3915 12.79 14.3889Z" fill="#313133" />
                 </svg>
@@ -163,13 +169,13 @@ export default function Header() {
                   {customer?.firstname ? (
                     <Link
                       href="/dashboard"
-                      className="text-sm font-semibold hover:underline hover:text-accent"
+                      className="text-xs md:text-sm font-semibold hover:underline hover:text-accent"
                     >
                       {customer.firstname}
                     </Link>
                   ) : (
                     <span
-                      className="text-sm font-semibold hover:underline hover:text-accent"
+                      className="text-xs md:text-sm font-semibold hover:underline hover:text-accent"
                       onClick={() => setIsOpen(true)}
                     >
                       Login
@@ -283,10 +289,10 @@ export default function Header() {
               ))}
             </nav>
 
-            <div className="hidden md:block">|</div>
+            <div className="hidden lg:block">|</div>
 
             {/* Contact info - hidden on mobile */}
-            <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
+            <div className="hidden lg:flex items-center space-x-4 lg:space-x-6">
               <div className="flex items-center gap-2">
                 <PhoneCall className="h-5 w-5 text-[#d8480b]" />
                 <p className="text-xs">

@@ -119,7 +119,7 @@ const PaymentSchedulePreview = ({totalAmount}:{totalAmount:any}) => {
                   </div>
 
                   <div className="text-xs text-muted-foreground">
-                    Approval limits range from £150 to £750 based on your credit tier.
+                    Approval limits range from ₦150 to ₦750 based on your credit tier.
                   </div>
                 </CardContent>
               </Card>

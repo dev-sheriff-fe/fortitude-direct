@@ -41,7 +41,7 @@ const settingTypeExamples = {
     PAYMENT_METHODS: '["credit_card", "debit_card", "cash", "bank_transfer", "digital_wallet"]',
     SHIPPING_OPTIONS: '{"standard": {"price": 5.99, "deliveryDays": 3}, "express": {"price": 12.99, "deliveryDays": 1}}',
     TAX_SETTINGS: '{"taxRate": 0.08, "taxInclusive": true, "taxNumber": "12345"}',
-    CURRENCY: '{"currency": "USD", "symbol": "$", "decimalPlaces": 2}',
+    CURRENCY: '{"currency": "NGN", "symbol": "₦", "decimalPlaces": 2}',
     NOTIFICATIONS: '{"email": true, "sms": false, "push": true, "lowStockAlert": true}',
     SECURITY: '{"sessionTimeout": 30, "passwordExpiry": 90, "twoFactorAuth": false}',
     INTEGRATIONS: '{"stripe": {"enabled": true, "testMode": false}, "mailchimp": {"enabled": false}}',
