@@ -3,7 +3,7 @@ import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { ProductProps } from '@/types/index';
-import { useCart } from '@/components/store/cart';
+import { useCart } from '@/store/cart';
 import { CurrencyCode, formatPrice } from '@/utils/helperfns';
 
 interface ProductDetailsModalProps {

@@ -407,7 +407,7 @@ export default function OrderHistory(): React.ReactElement {
       url: '/customer-dashboard/fetch-recent-orders',
       method: 'GET',
       params: {
-        storeCode: customer?.storeCode || "STO445",
+        storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
         entityCode: customer?.entityCode
       }
     })

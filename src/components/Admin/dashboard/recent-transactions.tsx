@@ -235,7 +235,7 @@ export default function TransactionHistory(): React.ReactElement {
       url: '/store-dashboard/fetchRecentTrans',
       method: 'GET',
       params: {
-        storeCode: user?.storeCode ||  'STO445',
+        storeCode: user?.storeCode ||  process.env.NEXT_PUBLIC_STORE_CODE,
         entityCode: user?.entityCode
       }
     })

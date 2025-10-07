@@ -23,6 +23,7 @@ const navigationItems = [
   { name: 'Orders', href: '/admin/orders', icon: Clock },
   { name: 'Stores', href: '/admin/stores', icon: StoreIcon },
   { name: 'Staffs', href: '/admin/staffs', icon: UsersRoundIcon },
+  { name: 'Reports', href: '/admin/reports', icon: LayoutDashboard },
   { name: 'Store Settings', href: '/admin/settings', icon: Settings },
 ];
 
