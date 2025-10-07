@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CreditCard, Calendar, DollarSign } from "lucide-react";
+import { CreditCard, Calendar, BadgeDollarSign } from "lucide-react";
 import { PaymentPlanSummary as PaymentPlanSummaryType } from "@/types/index";
 
 interface PaymentPlanSummaryProps {
@@ -39,7 +39,7 @@ export function PaymentPlanSummary({ summary }: PaymentPlanSummaryProps) {
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
-            <DollarSign className="h-4 w-4 text-primary" />
+            <BadgeDollarSign className="h-4 w-4 text-primary" />
             <div>
               <p className="text-sm text-muted-foreground">Per Installment</p>
               <p className="font-medium">{summary?.installmentAmountDisplay}</p>

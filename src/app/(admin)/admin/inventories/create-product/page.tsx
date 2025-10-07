@@ -13,7 +13,7 @@ import {
   X, 
   Package, 
   Barcode, 
-  DollarSign, 
+  BadgeDollarSign, 
   Warehouse, 
   ImageIcon,
   Tag,
@@ -319,7 +319,7 @@ const onSubmitForm = async (values: ProductFormData) => {
           <Card className="border-accent/20 border-2 shadow-md">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-                <DollarSign className="h-5 w-5" />
+                <BadgeDollarSign className="h-5 w-5" />
                 Pricing
               </CardTitle>
               <CardDescription>Product pricing information</CardDescription>
@@ -332,7 +332,7 @@ const onSubmitForm = async (values: ProductFormData) => {
                     <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <BadgeDollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="productPrice"
                       type="number"
@@ -352,7 +352,7 @@ const onSubmitForm = async (values: ProductFormData) => {
                 <div className="space-y-2">
                   <Label htmlFor="costPrice" className="text-sm font-medium">Cost Price</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <BadgeDollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="costPrice"
                       type="number"

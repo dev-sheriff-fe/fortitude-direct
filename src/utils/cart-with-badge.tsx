@@ -20,7 +20,7 @@ export const CartIconWithBadge = (props: CartIconWithBadgeProps) => {
   if (!isMounted) {
     return (
       <div className="relative cursor-pointer">
-        <ShoppingBag size={24} className="text-[#313133]" />
+        <ShoppingBag size={20} className="text-[#313133]" />
         <span className="sr-only">Cart</span>
       </div>
     );
@@ -28,7 +28,7 @@ export const CartIconWithBadge = (props: CartIconWithBadgeProps) => {
 
   return (
     <div className="relative cursor-pointer" >
-      <ShoppingBag size={24} className="text-[#313133]" />
+      <ShoppingBag size={20} className="text-[#313133]" />
       {itemCount > 0 && (
         <span className="absolute -top-2 -right-2 bg-[#d8480b] text-white text-xs font-semibold rounded-full h-5 w-5 flex items-center justify-center">
           {itemCount}

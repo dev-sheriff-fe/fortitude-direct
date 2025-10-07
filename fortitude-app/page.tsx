@@ -166,9 +166,9 @@ export default function HomeFortitude() {
 
       <div className="py-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Delivery Card */}
-            <div className="bg-[#ffffff] p-6 rounded-xl shadow-md flex items-start gap-4">
+            <div className="bg-[#ffffff] p-6 rounded-xl shadow-md flex items-start gap-4 max-w-md">
               <div className="">
                 <svg width="76" height="76" viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                   <rect width="75" height="75" transform="translate(0.333313 0.409912)" fill="url(#pattern0_1410_31698)" />
@@ -189,7 +189,7 @@ export default function HomeFortitude() {
             </div>
 
             {/* Quality Assurance Card */}
-            <div className="bg-[#ffffff] p-6 rounded-xl shadow-md flex items-start gap-4">
+            <div className="bg-[#ffffff] p-6 rounded-xl shadow-md flex items-start gap-4 max-w-md">
               <div className="">
                 <svg width="75" height="76" viewBox="0 0 75 76" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                   <rect width="75" height="75" transform="translate(0 0.409912)" fill="url(#pattern0_1410_31718)" />
@@ -210,7 +210,7 @@ export default function HomeFortitude() {
             </div>
 
             {/* Secure Payment Card */}
-            <div className="bg-[#ffffff] p-6 rounded-xl shadow-md flex items-start gap-4">
+            <div className="bg-[#ffffff] p-6 rounded-xl shadow-md flex items-start gap-4 max-w-md">
               <div className="">
                 <svg width="76" height="76" viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                   <rect width="75" height="75" transform="translate(0.666718 0.409912)" fill="url(#pattern0_1410_31720)" />

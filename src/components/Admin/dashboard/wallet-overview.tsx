@@ -7,7 +7,7 @@ import {
   Users,
   Headphones,
   CreditCard,
-  DollarSign,
+  // BadgeDollarSign,
   PiggyBank,
   Wallet,
   TrendingDown,
@@ -18,7 +18,7 @@ import {
   Target,
   ShoppingCart,
   Banknote,
-  CircleDollarSign,
+  BadgeDollarSign,
   Eye,
   EyeOff,
   Warehouse,
@@ -163,87 +163,87 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
 
   const displayAmount = forceHideAmount ? false : showAmount;
   return (
-     <Card
-          className={cn(
-            'relative overflow-hidden border border-border rounded-xl transition-all duration-300 cursor-pointer group',
-            'hover:shadow-lg hover:-translate-y-1',
-            isActive
-              ? 'bg-accent text-white'
-              : 'bg-white text-foreground',
-            className
-          )}
-        >
-          {isActive && (
-            <div className="absolute top-0 right-0 w-40 h-40 overflow-hidden">
-              <div className="rounded-xl absolute top-4 -right-22 rotate-40 w-44 h-25 bg-white/20  transform origin-center"></div>
-              <div className="rounded-xl absolute top-8 -right-24 rotate-40 w-44 h-30 bg-white/20  transform origin-center"></div>
-            </div>
-          )}
-    
-          {!isActive && (
-            <div className="absolute top-0 right-0 w-40 h-40 overflow-hidden">
-              <div className="rounded-xl absolute top-4 -right-22 rotate-40 w-44 h-25 bg-accent/30  transform origin-center"></div>
-              <div className="rounded-xl absolute top-8 -right-24 rotate-40 w-44 h-30 bg-accent/30  transform origin-center"></div>
-            </div>
-          )}
-    
-          <CardContent className="p-5 relative z-10">
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden">
-                <Image
-                  src={flag || dollarSign}
-                  alt={`${currency} flag`}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 object-cover"
-                />
-              </div>
-              <span className="text-sm font-medium">{currency}</span>
-            </div>
-    
-            <div className="flex items-center gap-7 mb-2">
-              <span className={cn(
-                "text-xs",
-                isActive ? "text-white" : "text-muted-foreground"
-              )}>
-                Available Balance
-              </span>
-              <button
-                onClick={toggleAmountVisibility}
-                className={cn(
-                  "transition-colors",
-                  isActive
-                    ? "text-white hover:text-muted"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                disabled={forceHideAmount}
-              >
-                {displayAmount ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-    
-            <div className="mb-4">
-              <p className="text-xl font-bold">
-                {displayAmount ? amount : '••••••••'}
-              </p>
-            </div>
-    
-            <div>
-              <Badge variant="secondary" className="text-xs">
-                <span className={cn(
-                  "text-xs",
-                  isActive ? "text-black" : "text-muted-foreground"
-                )}>
-                  {currencyCode}
-                </span>
-              </Badge>
-            </div>
-    
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            </div>
-          </CardContent>
-        </Card>
+    <Card
+      className={cn(
+        'relative overflow-hidden border border-border rounded-xl transition-all duration-300 cursor-pointer group',
+        'hover:shadow-lg hover:-translate-y-1',
+        isActive
+          ? 'bg-accent text-white'
+          : 'bg-white text-foreground',
+        className
+      )}
+    >
+      {isActive && (
+        <div className="absolute top-0 right-0 w-40 h-40 overflow-hidden">
+          <div className="rounded-xl absolute top-4 -right-22 rotate-40 w-44 h-25 bg-white/20  transform origin-center"></div>
+          <div className="rounded-xl absolute top-8 -right-24 rotate-40 w-44 h-30 bg-white/20  transform origin-center"></div>
+        </div>
+      )}
+
+      {!isActive && (
+        <div className="absolute top-0 right-0 w-40 h-40 overflow-hidden">
+          <div className="rounded-xl absolute top-4 -right-22 rotate-40 w-44 h-25 bg-accent/30  transform origin-center"></div>
+          <div className="rounded-xl absolute top-8 -right-24 rotate-40 w-44 h-30 bg-accent/30  transform origin-center"></div>
+        </div>
+      )}
+
+      <CardContent className="p-5 relative z-10">
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden">
+            <Image
+              src={flag || dollarSign}
+              alt={`${currency} flag`}
+              width={32}
+              height={32}
+              className="w-8 h-8 object-cover"
+            />
+          </div>
+          <span className="text-sm font-medium">{currency}</span>
+        </div>
+
+        <div className="flex items-center gap-7 mb-2">
+          <span className={cn(
+            "text-xs",
+            isActive ? "text-white" : "text-muted-foreground"
+          )}>
+            Available Balance
+          </span>
+          <button
+            onClick={toggleAmountVisibility}
+            className={cn(
+              "transition-colors",
+              isActive
+                ? "text-white hover:text-muted"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            disabled={forceHideAmount}
+          >
+            {displayAmount ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <p className="text-xl font-bold">
+            {displayAmount ? amount : '••••••••'}
+          </p>
+        </div>
+
+        <div>
+          <Badge variant="secondary" className="text-xs">
+            <span className={cn(
+              "text-xs",
+              isActive ? "text-black" : "text-muted-foreground"
+            )}>
+              {currencyCode}
+            </span>
+          </Badge>
+        </div>
+
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -262,7 +262,7 @@ interface CryptoCardProps {
 }
 
 const CryptoCard: React.FC<CryptoCardProps> = ({
-   currency,
+  currency,
   amount,
   icon,
   currencyCode,
@@ -283,91 +283,91 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
 
   return (
     <Card
-          className={cn(
-            'relative overflow-hidden border border-border rounded-xl transition-all duration-300 cursor-pointer group',
-            'hover:shadow-lg hover:-translate-y-1',
-            isActive
-              ? 'bg-accent text-white'
-              : 'bg-white text-foreground',
-            className
-          )}
-        >
-          {isActive && (
-            <div className="absolute top-0 right-0 w-40 h-40 overflow-hidden">
-              <div className="rounded-xl absolute top-4 -right-22 rotate-40 w-44 h-25 bg-white/20  transform origin-center"></div>
-              <div className="rounded-xl absolute top-8 -right-24 rotate-40 w-44 h-30 bg-white/10  transform origin-center"></div>
+      className={cn(
+        'relative overflow-hidden border border-border rounded-xl transition-all duration-300 cursor-pointer group',
+        'hover:shadow-lg hover:-translate-y-1',
+        isActive
+          ? 'bg-accent text-white'
+          : 'bg-white text-foreground',
+        className
+      )}
+    >
+      {isActive && (
+        <div className="absolute top-0 right-0 w-40 h-40 overflow-hidden">
+          <div className="rounded-xl absolute top-4 -right-22 rotate-40 w-44 h-25 bg-white/20  transform origin-center"></div>
+          <div className="rounded-xl absolute top-8 -right-24 rotate-40 w-44 h-30 bg-white/10  transform origin-center"></div>
+        </div>
+      )}
+
+      {!isActive && (
+        <div className="absolute top-0 right-0 w-40 h-40 overflow-hidden">
+          <div className="rounded-xl absolute top-4 -right-22 rotate-40 w-44 h-25 bg-accent/30  transform origin-center"></div>
+          <div className="rounded-xl absolute top-8 -right-24 rotate-40 w-44 h-30 bg-accent/30  transform origin-center"></div>
+        </div>
+      )}
+
+      <CardContent className="p-5 relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden">
+              <Image
+                src={icon || dollarSign}
+                alt={`${currency} icon`}
+                width={32}
+                height={32}
+                className="w-8 h-8 object-cover"
+              />
             </div>
-          )}
-    
-          {!isActive && (
-            <div className="absolute top-0 right-0 w-40 h-40 overflow-hidden">
-              <div className="rounded-xl absolute top-4 -right-22 rotate-40 w-44 h-25 bg-accent/30  transform origin-center"></div>
-              <div className="rounded-xl absolute top-8 -right-24 rotate-40 w-44 h-30 bg-accent/30  transform origin-center"></div>
-            </div>
-          )}
-    
-          <CardContent className="p-5 relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden">
-                <Image
-                  src={icon || dollarSign}
-                  alt={`${currency} icon`}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 object-cover"
-                />
-              </div>
-                <span className="text-sm font-medium">{currency}</span>
-              </div>
-              <Button variant={'ghost'} onClick={()=>copyToClipboard(publicAddress!)}>
-                <Copy className='w-5 h-5 text-white'/>
-              </Button>
-            </div>
-    
-            <div className="flex items-center gap-7 mb-2">
-              <span className={cn(
-                "text-xs",
-                isActive ? "text-white" : "text-muted-foreground"
-              )}>
-                Holdings
-              </span>
-              <button
-                onClick={toggleAmountVisibility}
-                className={cn(
-                  "transition-colors",
-                  isActive
-                    ? "text-white hover:text-muted"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                disabled={forceHideAmount}
-              >
-                {displayAmount ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-    
-            <div className="mb-2">
-              <p className="text-xl font-bold">
-                {displayAmount ? amount : '••••••••'}
-              </p>
-            </div>
-    
-            <div>
-              <Badge variant="secondary" className="text-xs">
-                <span className={cn(
-                  "text-xs",
-                  isActive ? "text-black" : "text-muted-foreground"
-                )}>
-                  {currencyCode}
-                </span>
-              </Badge>
-            </div>
-    
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            </div>
-          </CardContent>
-        </Card>    
+            <span className="text-sm font-medium">{currency}</span>
+          </div>
+          <Button variant={'ghost'} onClick={() => copyToClipboard(publicAddress!)}>
+            <Copy className='w-5 h-5 text-white' />
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-7 mb-2">
+          <span className={cn(
+            "text-xs",
+            isActive ? "text-white" : "text-muted-foreground"
+          )}>
+            Holdings
+          </span>
+          <button
+            onClick={toggleAmountVisibility}
+            className={cn(
+              "transition-colors",
+              isActive
+                ? "text-white hover:text-muted"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            disabled={forceHideAmount}
+          >
+            {displayAmount ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+
+        <div className="mb-2">
+          <p className="text-xl font-bold">
+            {displayAmount ? amount : '••••••••'}
+          </p>
+        </div>
+
+        <div>
+          <Badge variant="secondary" className="text-xs">
+            <span className={cn(
+              "text-xs",
+              isActive ? "text-black" : "text-muted-foreground"
+            )}>
+              {currencyCode}
+            </span>
+          </Badge>
+        </div>
+
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -482,13 +482,15 @@ export const WalletOverview = () => {
             )}
           </button> */}
           <div className="flex items-center gap-2">
-            <Badge className='bg-accent/70 flex items-center gap-2 px-3 py-1.5 hover:bg-accent/70 transition-colors'>
-              <span className="text-sm text-foreground text-black">Show Balances</span>
+            <div className='border-2 border-accent rounded-xl bg-accent/10 flex items-center gap-2 px-3 py-1.5'>
+              <span className="text-sm text-foreground text-black font-semibold mr-2">
+                {hideAllBalances ? 'Show' : 'Hide'}
+              </span>
 
               <button
                 onClick={toggleAllBalances}
                 className={cn(
-                  "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2",
+                  "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
                   hideAllBalances ? "bg-accent" : "bg-gray-300"
                 )}
               >
@@ -499,7 +501,7 @@ export const WalletOverview = () => {
                   )}
                 />
               </button>
-            </Badge>
+            </div>
           </div>
         </div>
 
@@ -536,17 +538,17 @@ export const WalletOverview = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
             {
               fiatBalances ? fiatBalances?.map((wallet: any, index: number) => (
-              <CurrenciesCard
-                key={index}
-                currency={wallet.symbol}
-                amount={wallet.balance}
-                flag={wallet.logo}
-                currencyCode={wallet.symbol}
-                isActive={wallet.isActive}
-                forceHideAmount={hideAllBalances}
+                <CurrenciesCard
+                  key={index}
+                  currency={wallet.symbol}
+                  amount={wallet.balance}
+                  flag={wallet.logo}
+                  currencyCode={wallet.symbol}
+                  isActive={wallet.isActive}
+                  forceHideAmount={hideAllBalances}
 
-              />
-            )) : <p>No fiat balances available</p>
+                />
+              )) : <p>No fiat balances available</p>
             }
           </div>
         )}
@@ -645,7 +647,7 @@ export const WalletOverview = () => {
 
             switch (item.title) {
               case "Completed & Paid Orders":
-                IconComponent = CircleDollarSign;
+                IconComponent = BadgeDollarSign;
                 color = "bg-green-500";
                 subtitle = "Successful transactions";
                 break;
@@ -696,7 +698,7 @@ export const WalletOverview = () => {
                       {item.subTitle || subtitle}
                     </p>
                     <p className="text-lg lg:text-2xl font-bold text-foreground truncate">
-                      £{parseFloat(item.amount as string).toLocaleString()}
+                      ₦{parseFloat(item.amount as string).toLocaleString()}
                     </p>
                   </div>
 

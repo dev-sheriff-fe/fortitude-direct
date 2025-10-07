@@ -364,13 +364,16 @@ export const WalletOverview = () => {
         
 
           <div className="flex items-center gap-2">
-            <Badge className='bg-accent/70 flex items-center gap-2 px-3 py-1.5 hover:bg-accent/70 transition-colors'>
-              <span className="text-sm text-foreground text-black">Show Balances</span>
+            <div className='border-2 border-accent rounded-xl bg-accent/10 flex items-center gap-2 px-3 py-1.5'>
+              <span className="text-sm text-foreground text-black font-semibold mr-2">
+                {hideAllBalances ? 'Show' : 'Hide'}
+              </span>
+
 
             <button
               onClick={toggleAllBalances}
               className={cn(
-                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2",
+                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
                 hideAllBalances ? "bg-accent" : "bg-gray-300"
               )}
             >
@@ -381,7 +384,7 @@ export const WalletOverview = () => {
                 )}
               />
             </button>
-                        </Badge>
+          </div>
           </div>
         </div>
 

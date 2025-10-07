@@ -382,16 +382,16 @@ export const ShippingForm = ({ setCurrentStep, form }: { setCurrentStep: (curren
     return null;
   };
 
-const handleEditAddress = async (address: any, e: React.MouseEvent) => {
-  e.preventDefault();
-  e.stopPropagation();
-  
-  const addressDetails = await fetchAddressById(address.id);
-  if (addressDetails) {
-    setEditingAddress(addressDetails);
-    setIsModalOpen(true);
-  }
-};
+  const handleEditAddress = async (address: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const addressDetails = await fetchAddressById(address.id);
+    if (addressDetails) {
+      setEditingAddress(addressDetails);
+      setIsModalOpen(true);
+    }
+  };
 
   const handleAddNewAddress = () => {
     setEditingAddress(null);
@@ -413,10 +413,16 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
   return (
     <>
       <div className="w-full">
-        {/* <div className="flex items-center gap-1 mb-8">
-          <button className="h-fit" onClick={() => back()}><ArrowLeft /></button>
-          <h1 className="text-2xl font-semibold text-checkout-text">Checkout</h1>
-        </div> */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => back()}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <h2 className="text-2xl font-bold">Checkout</h2>
+        </div>
 
         <form>
           <div className="mb-8">
@@ -466,8 +472,8 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
                         <div
                           key={address.id}
                           className={`border rounded-lg p-4 cursor-pointer transition-all ${watch("selectedAddressId") === address.id
-                              ? "border-accent bg-accent/5 shadow-sm"
-                              : "border-gray-200 hover:border-accent/50"
+                            ? "border-accent bg-accent/5 shadow-sm"
+                            : "border-gray-200 hover:border-accent/50"
                             }`}
                           onClick={() => handleAddressSelect(address)}
                         >
@@ -508,8 +514,8 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
                               <div className="ml-2">
                                 <div
                                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${watch("selectedAddressId") === address.id
-                                      ? "border-accent bg-accent"
-                                      : "border-gray-300"
+                                    ? "border-accent bg-accent"
+                                    : "border-gray-300"
                                     }`}
                                 >
                                   {watch("selectedAddressId") === address.id && (
@@ -549,8 +555,8 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
                       <div
                         key={store.id}
                         className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedStore === store.id
-                            ? "border-accent bg-accent/5 shadow-sm"
-                            : "border-gray-200 hover:border-accent/50"
+                          ? "border-accent bg-accent/5 shadow-sm"
+                          : "border-gray-200 hover:border-accent/50"
                           }`}
                         onClick={() => handleStoreSelect(store.id)}
                       >
@@ -585,8 +591,8 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
                           <div className="ml-4">
                             <div
                               className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedStore === store.id
-                                  ? "border-accent bg-accent"
-                                  : "border-gray-300"
+                                ? "border-accent bg-accent"
+                                : "border-gray-300"
                                 }`}
                             >
                               {selectedStore === store.id && (
@@ -617,8 +623,8 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
                       <div
                         key={option.id}
                         className={`border rounded-lg p-4 cursor-pointer transition-all ${selectedShippingOption === option.id
-                            ? 'border-accent bg-accent/5 shadow-sm'
-                            : 'border-gray-200 hover:border-accent/50'
+                          ? 'border-accent bg-accent/5 shadow-sm'
+                          : 'border-gray-200 hover:border-accent/50'
                           }`}
                       >
                         <label
@@ -674,7 +680,7 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
               </CardContent>
             </Card> */}
 
-            {/* <Button
+            <Button
               type="button"
               className="w-full bg-accent md:w-full"
               onClick={() => setCurrentStep('cart')}
@@ -685,24 +691,7 @@ const handleEditAddress = async (address: any, e: React.MouseEvent) => {
               }
             >
               Continue to Payment
-            </Button> */}
-            <Button
-  type="button"
-  className="w-full bg-accent md:w-full"
-  onClick={() => {
-    // Validate form first
-    if (shippingMethod === 'delivery'
-      ? !getValues("selectedAddressId") || !selectedShippingOption
-      : !selectedStore
-    ) {
-      toast.error("Please complete all required fields");
-      return;
-    }
-    setCurrentStep('cart');
-  }}
->
-  Continue to Payment Method Selection
-</Button>
+            </Button>
           </div>
         </form>
       </div>
