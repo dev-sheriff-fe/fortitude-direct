@@ -62,7 +62,7 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
         url: '/payment-methods/fetch',
         params: {
           // country: customer?.country || 'NG',
-          storeCode: customer?.storeCode || 'STO0715'
+          storeCode: customer?.storeCode || 'STO445'
         }
       })
     })
@@ -81,7 +81,7 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
     }, []);
 
     // Check if payment method requires modal (CARD or BNPL)
-    const requiresModal = (code: string) => {
+    const requiresModal:any = (code: string) => {
       return code === 'CARD_PAYMENT' || code === 'BNPL_3_INSTALLMENTS';
     };
 
