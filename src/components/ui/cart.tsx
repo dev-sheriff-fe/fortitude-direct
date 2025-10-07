@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { SheetContent, SheetHeader } from './sheet'
+import { SheetContent, SheetFooter, SheetHeader } from './sheet'
 import { ShoppingBag, Plus, Minus, X, ShoppingBagIcon } from 'lucide-react'
 import { Button } from './button'
 import Link from 'next/link'
@@ -17,7 +17,7 @@ import useUser from '@/store/userStore'
 
 
 const Cart = () => {
-    const { cart, decrement, increment, removeItem, mainCcy, _version } = useCart();
+    const { cart, decrement, increment, removeItem, mainCcy } = useCart();
     const ccy = mainCcy();
     const totalAmount = cart.reduce((total, item) => total + item.subTotal, 0);
     const router = useRouter();
@@ -32,8 +32,8 @@ const Cart = () => {
     const storeCode = searchParams.get('storeCode') || process.env.NEXT_PUBLIC_STORE_CODE;
 
     useEffect(() => {
-        console.log('Cart updated:', cart, 'Version:', _version);
-    }, [cart, _version]);
+        console.log('Cart updated:', cart,);
+    }, [cart]);
 
     const { mutate, isPending } = useMutation({
         mutationFn: (data: any) => axiosCustomer.request({
@@ -106,7 +106,7 @@ const Cart = () => {
     }
     return (
         <>
-            <SheetContent className='min-w-[400px] lg:min-w-[450px] '>
+            <SheetContent className='w-screen lg:min-w-[450px] px-2'>
             <SheetHeader className='w-full items-center border-b gap-1 text-accent text-[18px] font-semibold'>
                 <span><ShoppingBag size={20} strokeWidth={2.5} /></span> 
                 <span>{cart.length > 1 ? `${cart.length} items` : `${cart.length} item`}</span>
@@ -121,7 +121,7 @@ const Cart = () => {
                     </div>
                 )}
                 {cart.map((item, index) => (
-                    <div key={`${item.id}-${item.quantity}-${_version}`} 
+                    <div key={`${item.id}-${item.quantity}-${index}`} 
                          className={`${cart.length === index + 1 ? 'border-b-0' : 'border-b'}`}>
                         {/* Your cart item JSX remains the same */}
                         <div className='p-4 flex items-center gap-3'>
@@ -187,17 +187,17 @@ const Cart = () => {
 
                 </div>
 
-                <div className='p-4 w-full'>
-                    <Button className='w-full bg-accent hover:bg-accent-foreground rounded-full text-white font-semibold p-3 h-full flex items-center text-center justify-between px-4' disabled={cart.length === 0} onClick={submitOrder}>
-                        {isPending ? 'Processing Order...' : <>
+            <SheetFooter>
+                        <Button className='w-full bg-accent hover:bg-accent-foreground rounded-full text-white font-semibold p-3 h-full flex items-center text-center justify-between px-4' disabled={cart.length === 0} onClick={submitOrder}>
+                        {isPending? 'Processing Order...': <>
                             <span>Checkout</span>
                             <span className={`${cart.length === 0 && 'hidden'} px-4 py-2 rounded-full bg-white text-accent`}>
                                 {formatPrice(totalAmount, ccy as CurrencyCode)}
                             </span>
                         </>}
                     </Button>
-                </div>
-            </SheetContent>
+            </SheetFooter>
+        </SheetContent>
 
             <CustomerLoginModal
                 isOpen={isOpen}
