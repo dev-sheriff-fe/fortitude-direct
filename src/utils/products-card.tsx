@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { ProductProps } from '@/types/index';
 import { CurrencyCode, formatPrice } from '@/utils/helperfns';
-import { useCart } from '@/components/store/cart';
+import { useCart } from '@/store/cart';
 
 interface ProductCardProps {
   product: ProductProps;

@@ -39,7 +39,7 @@ const PaymentMethods: React.FC = () => {
         url: '/payment-methods/fetch',
         method: 'GET',
         params: {
-            storeCode: user?.storeCode || 'STO445'
+            storeCode: user?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE
         }
     })
   });
@@ -50,7 +50,7 @@ const PaymentMethods: React.FC = () => {
         url: '/payment-methods/save',
         method: 'POST',
         params: {
-            storeCode: user?.storeCode || 'STO445'
+            storeCode: user?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE
         },
         data
     }),

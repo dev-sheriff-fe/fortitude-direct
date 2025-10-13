@@ -314,7 +314,7 @@ export const WalletOverview = () => {
         // merchantCode: user?.merchantCode,
         // datePeriod: getCurrentDate(),
         datePeriod: "",
-        storeCode: customer?.storeCode || "STO445",
+        storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
         username: customer?.username,
         entityCode: customer?.entityCode
       }
@@ -327,7 +327,7 @@ export const WalletOverview = () => {
       method: 'GET',
       url: '/customer-dashboard/balance',
       params: {
-        storeCode: customer?.storeCode || 'STO445',
+        storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
         username: customer?.username,
         entityCode: customer?.entityCode
       }
