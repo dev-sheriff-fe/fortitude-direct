@@ -147,18 +147,19 @@ export function SignUpForm() {
       }
     }),
     onSuccess: (response) => {
-      if (response?.data?.code === '000') {
-        toast.success(response?.data?.desc ?? 'Registration successful');
-        // Open liveness page in new tab
-        window.open(`/liveness?id=${response?.data?.id}`, '_blank');
-        return
-      } else {
-        toast.error(response.data?.desc);
-      }
-    },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message ?? 'An error occurred');
-    },
+        if (response?.data?.code === '000') {
+          toast.success(response?.data?.desc ?? 'Registration successful');
+          // Open liveness page in new tab
+          window.open(`/liveness?id=${response?.data?.id}`, '_blank');
+          window.open('/admin-login', '_self');
+          return
+        } else {
+          toast.error(response.data?.desc);
+        }
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message ?? 'An error occurred');
+      },
   })
   const onSubmit = (data: FormData) => {
     console.log("Form submitted:", data)
