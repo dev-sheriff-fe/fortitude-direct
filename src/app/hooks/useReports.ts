@@ -126,18 +126,18 @@
 //     isLoadingDefinitions,
 //     definitionsError,
 //     refetchDefinitions,
-    
+
 //     // Generate report data and state
 //     generateReport: generateReportMutation.mutateAsync,
 //     generateReportData: generateReportMutation.data, // Fixed: was generatedReport
 //     isGenerating: generateReportMutation.isPending,
 //     generateError: generateReportMutation.error,
-    
+
 //     // Download report
 //     downloadReport: downloadReportMutation.mutateAsync,
 //     isDownloading: downloadReportMutation.isPending,
 //     downloadError: downloadReportMutation.error,
-    
+
 //     // Mutation utilities
 //     resetGenerate: generateReportMutation.reset,
 //     resetDownload: downloadReportMutation.reset
@@ -173,6 +173,9 @@ export interface ReportFilters {
   keyword?: string;
   page?: number;
   limit?: number;
+  tranCode?: string;
+  tranStatus?: string;
+  code?: string;
 }
 
 export interface ReportResponse {
@@ -184,19 +187,32 @@ export interface ReportResponse {
 
 export const useReports = () => {
   const { user } = useUser();
+  const formatDate = (date: Date | null) => {
+    if (!date) return null;
+    return date.toLocaleDateString('en-GB').split('/').reverse().join('-');
+  };
 
   const generateReportMutation = useMutation({
     mutationFn: async ({ reportCode, filters }: { reportCode: string; filters: ReportFilters }) => {
       const response = await axiosInstance.request({
-        url: '/reports/generate',
+        url: '/dashboard/generateReport',
         method: 'POST',
+        params: { entityCode: user?.entityCode },
         data: {
-          reportCode,
-          filters: {
-            ...filters,
-            entityCode: user?.entityCode
-          }
-        }
+          entityCode: user?.entityCode,
+          startDate: formatDate(filters.startDate ? new Date(filters.startDate) : null) || '01-01-2025',
+          endDate: formatDate(filters.endDate ? new Date(filters.endDate) : null) || '31-12-2025',
+          datePeriod: 'M',
+          tranCode: filters.tranCode || '',
+          keyword: filters.keyword || '',
+          pageSize: 5000,
+          tranStatus: filters.tranStatus || '',
+          terminalId: filters.terminalId || '',
+          pageNumber: 1,
+          reportCode: reportCode,
+          merchantCode: filters.merchantCode || '',
+          offset: '0',
+        },
       });
       return {
         data: response.data?.data || [],
@@ -208,12 +224,12 @@ export const useReports = () => {
   });
 
   const downloadReportMutation = useMutation({
-    mutationFn: async ({ 
-      reportCode, 
-      filters, 
-      format = 'PDF' 
-    }: { 
-      reportCode: string; 
+    mutationFn: async ({
+      reportCode,
+      filters,
+      format = 'PDF'
+    }: {
+      reportCode: string;
       filters: ReportFilters;
       format?: 'PDF' | 'EXCEL' | 'CSV';
     }) => {
@@ -249,7 +265,7 @@ export const useReports = () => {
     generateReportData: generateReportMutation.data,
     isGenerating: generateReportMutation.isPending,
     generateError: generateReportMutation.error,
-    
+
     downloadReport: downloadReportMutation.mutateAsync,
     isDownloading: downloadReportMutation.isPending,
     downloadError: downloadReportMutation.error,
