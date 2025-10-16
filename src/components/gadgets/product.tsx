@@ -3,6 +3,7 @@ import { ProductProps } from '@/types'
 import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 import Image from 'next/image'
 import React from 'react'
+import placeholder from '@/assets/shopping-cart-realistic_1284-6011.jpg'
 
 export const Product = ({ product, onClick }: { product: ProductProps, onClick: () => void }) => {
     const discount = product?.salePrice ? Math.ceil((product.oldPrice! - product.salePrice!) / product.oldPrice! * 100):0
@@ -19,7 +20,7 @@ export const Product = ({ product, onClick }: { product: ProductProps, onClick: 
         )}
         <div className='relative w-[200px] h-[200px] mx-auto flex justify-center'>
             <Image
-                src={product.picture || ''}
+                src={product.picture || placeholder?.src}
                 alt={product.name!}
                 fill
                 className='object-contain'

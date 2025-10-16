@@ -63,7 +63,6 @@ const CreateCategoryPage = ({
   const { user } = useUser();
   const [isEditMode, setIsEditMode] = useState(mode === 'edit');
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
-  
   const { register, watch, handleSubmit, control, reset, formState: { errors } } = useForm<Category>({
     defaultValues: {
       id: 0,
