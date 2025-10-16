@@ -137,25 +137,28 @@ useEffect(() => {
   }
 }, [productData, isEditMode, user, reset]);
 
+
+
 const onSubmitForm = async (values: ProductFormData) => {
   try {
     const payload = {
-      productId: isEditMode ? editingProductId : null,
-      productName: values.productName,
-      productDescription: values.productDescription,
-      productCategory: values.productCategory,
-      productCode: values.productCode,
-      productPrice: values.productPrice,
-      stockQuantity: values.stockQuantity,
-      unitQuantity: values.unitQuantity,
-      base64Image: "",
-      imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values.imageURL) || ""),
-      costPrice: values.costPrice,
-      storeId: user?.storeCode || '',
-      barCode: values.barCode,
-      brand: values.brand,
-      ccy: values.ccy || 'NGN'
-    };
+        productId: isEditMode ? (editingProductId || product?.id || product?.productId) : '',
+        productName: values?.productName,
+        productDescription: values?.productDescription,
+        productCategory: values?.productCategory,
+        productCode: values?.productCode,
+        productPrice: values?.productPrice,
+        stockQuantity: values?.stockQuantity,
+        unitQuantity: values?.unitQuantity,
+        base64Image: "",
+        imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values?.imageURL) || ""),
+        costPrice: values?.costPrice,
+        storeId: user?.storeCode || 'STO445',
+        barCode: values?.barCode,
+        brand: values?.brand,
+        ccy: values?.ccy || 'NGN',
+      };
+
 
     console.log('Submitting payload:', payload);
     await saveProduct(payload);

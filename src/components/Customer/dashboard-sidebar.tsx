@@ -12,7 +12,8 @@ import {
   Clock,
   ListOrdered,
   LucideCurrency,
-  CalendarClockIcon
+  CalendarClockIcon,
+  Settings2Icon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -27,6 +28,7 @@ const navigationItems = [
   { name: 'Store Front', href: '/', icon: Store },
   { name: 'My Credit Score', href: '/credit-score', icon: Sheet },
   { name: 'Send Money', href: '/send-money', icon: Send },
+  {name: 'Manage Accounts', href: '/add-bank-account', icon: Settings2Icon},
   { name: 'My Documents', href: '/documents', icon: Folder },
   { name: 'BNPL Payment Plan', href: '/payment-plan', icon: CalendarClockIcon },
   // { name: 'Reports', href: '/reports', icon: ClipboardList },

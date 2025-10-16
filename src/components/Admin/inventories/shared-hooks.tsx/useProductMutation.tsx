@@ -3,11 +3,11 @@
 import axiosInstance from '@/utils/fetch-function';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const useProductMutation = () => {
   const router = useRouter();
-
+  const queryClient = useQueryClient()
   return useMutation(
    {
      mutationFn: (data: any) => axiosInstance.request({
@@ -23,7 +23,10 @@ export const useProductMutation = () => {
         
         const message = 'Product updated successfully'
         toast.success(message);
-        router.refresh();
+        queryClient.invalidateQueries({
+          queryKey: ['products']
+        })
+        return
       },
       onError: (error: any) => {
         console.error('Product mutation error:', error);
