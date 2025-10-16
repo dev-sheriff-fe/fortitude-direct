@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 export default function Home() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const storeCode = searchParams ? searchParams.get('storeCode') || 'STO445' : 'STO445';
+  const storeCode = searchParams ? searchParams.get('storeCode') || process.env.NEXT_PUBLIC_STORE_CODE : process.env.NEXT_PUBLIC_STORE_CODE;
   useEffect(()=>{
     router?.push(`?storeCode=${storeCode}`)
   },[router])

@@ -413,15 +413,16 @@ export const ShippingForm = ({ setCurrentStep, form }: { setCurrentStep: (curren
   return (
     <>
       <div className="w-full">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => back()}
+            className="bg-accent/15 hover:bg-accent/50 hover:text-white"
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h2 className="text-2xl font-bold">Checkout</h2>
+          <h2 className="text-2xl font-bold"></h2>
         </div>
 
         <form>

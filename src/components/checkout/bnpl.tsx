@@ -61,7 +61,7 @@ const BNPL = () => {
     // const [checkoutData,setCheckoutData] = useState<any>(null)
     const {customer} = useCustomer()
     useEffect(()=>{
-          router?.push(`?storeCode=STO445`)
+          router?.push(`?storeCode=${process.env.NEXT_PUBLIC_STORE_CODE}`)
         },[router])
     console.log(customer);
       const totalAmount = form.watch('totalAmount')

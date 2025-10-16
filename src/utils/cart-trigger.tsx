@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import CartWrapper from './cart-wrapper'
 import { ShoppingBag } from 'lucide-react'
-import Cart from './cart'
-import { useCart } from '@/components/store/cart'
+import Cart from '@/components/ui/cart'
+import { useCart } from '@/store/cart'
 import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 
 interface CartTriggerDesktopProps {

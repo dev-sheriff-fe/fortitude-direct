@@ -151,6 +151,7 @@ export function SignUpForm() {
           toast.success(response?.data?.desc ?? 'Registration successful');
           // Open liveness page in new tab
           window.open(`/liveness?id=${response?.data?.id}`, '_blank');
+          window.open('/admin-login', '_self');
           return
         } else {
           toast.error(response.data?.desc);

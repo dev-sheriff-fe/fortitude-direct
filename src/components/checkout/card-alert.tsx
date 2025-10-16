@@ -73,7 +73,7 @@ const CardAlert = ({modalOpen, setModalOpen,form,paymentMethod}:{modalOpen: bool
         deviceId: customer?.deviceID,
         orderSatus: "",
         paymentStatus: "",
-        storeCode: customer?.storeCode || "STO445",
+        storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
         customerName: customer?.fullname,
         username: customer?.username,
         deliveryAddress: {

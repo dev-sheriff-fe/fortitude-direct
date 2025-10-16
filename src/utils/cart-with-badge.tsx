@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ShoppingBag } from 'lucide-react';
-import { useCart } from '@/components/store/cart';
+import { useCart } from '@/store/cart';
 
 interface CartIconWithBadgeProps {
   // onClick: () => void;
