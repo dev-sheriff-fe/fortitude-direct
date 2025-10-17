@@ -1,6 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAccount, useSendTransaction, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { parseEther, parseUnits, encodeFunctionData } from 'viem'
 import Link from 'next/link'
@@ -28,17 +28,21 @@ const ERC20_ABI = [
 
 // Common token addresses (example for Ethereum mainnet)
 const TOKENS = {
-//   ETH: { address: null, decimals: 18, symbol: 'ETH' },
   USDT: { address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', decimals: 6, symbol: 'USDT' },
   USDC: { address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', decimals: 6, symbol: 'USDC' },
-  // DAI: { address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18, symbol: 'DAI' },
 }
 
 const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
   const [selectedToken, setSelectedToken] = useState<'USDT'|'USDC'>('USDC')
-  const [amount, setAmount] = useState('')
   const [recipient, setRecipient] = useState('0x19fa03190443C8bAc83Df11a771b3431c31FaA7b')
-  const {isConnected} = useAccount()
+  const [mounted, setMounted] = useState(false)
+  
+  const {isConnected, address, chain} = useAccount()
+
+  // Hydration fix
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // For native ETH transactions
   const {
@@ -68,13 +72,19 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
   })
 
   async function handleSend() {
+    // Additional connection check
+    if (!isConnected || !address) {
+      alert('Please connect your wallet first')
+      return
+    }
+
     if (!checkoutData?.payingAmount || parseFloat(checkoutData?.payingAmount) <= 0) {
       alert('Invalid amount')
       return
     }
 
-    const token = TOKENS[selectedToken]
-      // Send ERC-20 token
+    try {
+      const token = TOKENS[selectedToken]
       const amountInWei = parseUnits(checkoutData?.payingAmount?.toString(), token.decimals)
       
       writeContract({
@@ -83,13 +93,21 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
         functionName: 'transfer',
         args: [recipient as `0x${string}`, amountInWei]
       })
+    } catch (err) {
+      console.error('Transaction error:', err)
+    }
   }
 
-  console.log(error?.cause);
-
-  console.log(hash);
-  
-  
+  // Don't render until mounted (prevents hydration mismatch)
+  if (!mounted) {
+    return (
+      <div className='min-h-screen flex items-center justify-center bg-gray-50'>
+        <div className='text-center'>
+          <p className='text-gray-600'>Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className='min-h-screen relative flex items-center justify-center bg-gray-50 p-4'>
@@ -99,6 +117,20 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
       <div className='bg-white p-8 rounded-lg shadow-lg max-w-md w-full space-y-4'>
         <h2 className='text-2xl font-bold text-center mb-6'>Send Transaction</h2>
         
+        {/* Connection Status */}
+        {isConnected && address && (
+          <div className='p-3 bg-green-50 border border-green-200 rounded-md mb-4'>
+            <p className='text-sm text-green-800'>
+              ✓ Wallet Connected: {address.slice(0, 6)}...{address.slice(-4)}
+            </p>
+            {chain && (
+              <p className='text-xs text-green-600 mt-1'>
+                Chain: {chain.name} (ID: {chain.id})
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Token Selection */}
         <div className='space-y-2'>
           <label className='block text-sm font-medium text-gray-700'>
@@ -117,13 +149,25 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
           </select>
         </div>
 
+        {/* Amount Display */}
+        {checkoutData?.payingAmount && (
+          <div className='p-3 bg-gray-50 border border-gray-200 rounded-md'>
+            <p className='text-sm text-gray-700'>
+              Amount: <span className='font-bold'>{checkoutData.payingAmount} {TOKENS[selectedToken].symbol}</span>
+            </p>
+          </div>
+        )}
+
         {/* Send Button */}
         <Button 
           onClick={handleSend}
-          disabled={isPending || isConfirming}
-          className='w-full bg-accent text-white py-2 rounded-md transition-colors'
+          disabled={!isConnected || isPending || isConfirming}
+          className='w-full bg-accent text-white py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
         >
-          {isPending ? 'Confirming...' : isConfirming ? 'Processing...' : 'Send Transaction'}
+          {!isConnected ? 'Wallet Not Connected' : 
+           isPending ? 'Confirming...' : 
+           isConfirming ? 'Processing...' : 
+           'Send Transaction'}
         </Button>
 
         {/* Status Messages */}
@@ -145,18 +189,27 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
         
         {error && (
           <div className='p-3 bg-red-50 border border-red-200 rounded-md'>
-            <p className='text-sm text-red-800'>
+            <p className='text-sm text-red-800 break-words'>
               Error: {error.message}
             </p>
           </div>
         )}
-        {
-          !isConnected && (
-            <div>
-              You&apos;re not connected, please connect <Link href={`/connect_wallet`} className='text-accent underline font-semibold' target='_blank'>Here</Link>
-            </div>
-          )
-        }
+
+        {/* Connection Warning */}
+        {!isConnected && (
+          <div className='p-4 bg-yellow-50 border border-yellow-200 rounded-md'>
+            <p className='text-sm text-yellow-800 mb-2'>
+              You&apos;re not connected. Please connect your wallet.
+            </p>
+            <Link 
+              href={`/connect_wallet`} 
+              className='text-accent underline font-semibold hover:text-accent/80' 
+              target='_blank'
+            >
+              Connect Wallet →
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   )

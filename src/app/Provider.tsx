@@ -25,7 +25,7 @@ export default function Providers({ children, initialState }: Props) {
   const [config] = useState(() => getConfig());
 
   return (
-    <WagmiProvider config={config} initialState={initialState}>
+    <WagmiProvider config={config} initialState={initialState} reconnectOnMount={true}>
       <QueryClientProvider client={queryClient}>
       {children}
       </QueryClientProvider>
