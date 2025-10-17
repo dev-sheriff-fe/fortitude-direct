@@ -40,7 +40,6 @@ export function Header() {
             
           </div>
           <div className="">
-            <ConnectButton/>
             {
               isUserAuthenticated ? (
                 <DropdownMenu>
@@ -57,7 +56,7 @@ export function Header() {
                         <Link href={`/dashboard`} target="_blank">Dashboard</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        <ConnectButton/>
+                        <Link href={`/connect_wallet`} target="_blank">Connect Wallet</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={()=>logout()}>Log out</DropdownMenuItem>
                   </DropdownMenuContent>

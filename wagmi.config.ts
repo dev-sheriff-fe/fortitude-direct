@@ -1,11 +1,11 @@
 // wagmi.config.ts
 import { createConfig, http, cookieStorage, createStorage } from "wagmi";
-import { lineaSepolia, linea, mainnet, baseSepolia,sepolia, monadTestnet } from "wagmi/chains";
-import { injected, metaMask } from "wagmi/connectors";
+import {baseSepolia} from "wagmi/chains";
+import { metaMask } from "wagmi/connectors";
 
 export function getConfig() {
   return createConfig({
-    chains: [lineaSepolia, linea, mainnet, baseSepolia, sepolia, monadTestnet],
+    chains: [baseSepolia],
     // connectors: [
     //   injected({ target: 'metaMask' }), // This will work with MetaMask
     // ],
@@ -19,12 +19,7 @@ export function getConfig() {
       storage: cookieStorage,
     }),
     transports: {
-      [lineaSepolia.id]: http(),
-      [linea.id]: http(),
-      [mainnet.id]: http(),
       [baseSepolia.id]: http(),
-      [sepolia?.id]: http(),
-      [monadTestnet?.id]: http()
     },
   });
 }

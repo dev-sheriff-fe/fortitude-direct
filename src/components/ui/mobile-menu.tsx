@@ -32,35 +32,35 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         </div>
 
         <nav className="p-4">
-          <div className="space-y-6">
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+          <div className="space-y-6 text-md">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               Shops
             </a>
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               Offers
             </a>
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               Contact
             </a>
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               Flash Sale
             </a>
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               Manufacturers/Publishers
             </a>
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               Authors
             </a>
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               FAQ
             </a>
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               Terms & Conditions
             </a>
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               Customer Refund Policy
             </a>
-            <a href="#" className="block text-lg text-gray-700 hover:text-gray-900">
+            <a href="#" className="block text-gray-700 hover:text-gray-900">
               Vendor Refund Policy
             </a>
           </div>
