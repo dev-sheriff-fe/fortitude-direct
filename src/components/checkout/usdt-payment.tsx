@@ -127,10 +127,10 @@ const UsdtPayment = ({setCurrentStep, copyToClipboard, currentStep}: UsdtPayment
                 setStep = {setStep}
               />}
               {step === 'pay-to-address' && <PayToAddress
-                checkoutData={checkoutData}
-                selectedChain={selectedChain}
-                setSelectedChain={setSelectedChain}
-                setStep= {setStep}
+                checkoutData = {checkoutData}
+                selectedChain = {selectedChain}
+                setSelectedChain = {setSelectedChain}
+                setStep = {setStep}
               />}
               {step === 'metamask' && <MetamaskPayment
                 setStep = {setStep}

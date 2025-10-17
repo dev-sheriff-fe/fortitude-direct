@@ -1,18 +1,21 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import React, { useState, useEffect } from 'react'
-import { useAccount, useSendTransaction, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
-import { parseEther, parseUnits, encodeFunctionData } from 'viem'
+import { useAccount, useDisconnect, useSendTransaction, useWaitForTransactionReceipt, useWriteContract, useReadContract } from 'wagmi'
+import { parseEther, parseUnits, encodeFunctionData, formatUnits } from 'viem'
 import Link from 'next/link'
 import { stepProps } from '../usdt-payment'
 import { ArrowLeft } from 'lucide-react'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import ConnectPage from '@/app/connect_wallet/page'
+
 
 type MetamaskPaymentProps = {
     setStep : (step:stepProps)=>void,
     checkoutData : any
 }
 
-// ERC-20 ABI for transfer function
+// ERC-20 ABI for transfer and balanceOf functions
 const ERC20_ABI = [
   {
     name: 'transfer',
@@ -23,6 +26,13 @@ const ERC20_ABI = [
       { name: 'amount', type: 'uint256' }
     ],
     outputs: [{ name: '', type: 'bool' }]
+  },
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'owner', type: 'address' }],
+    outputs: [{ name: 'balance', type: 'uint256' }]
   }
 ] as const
 
@@ -35,14 +45,43 @@ const TOKENS = {
 const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
   const [selectedToken, setSelectedToken] = useState<'USDT'|'USDC'>('USDC')
   const [recipient, setRecipient] = useState('0x19fa03190443C8bAc83Df11a771b3431c31FaA7b')
+  const {disconnect} = useDisconnect()
   const [mounted, setMounted] = useState(false)
   
   const {isConnected, address, chain} = useAccount()
+
+  // Fetch token balance
+  const { 
+    data: balance,
+    isError: isBalanceError,
+    isLoading: isBalanceLoading,
+    refetch: refetchBalance
+  } = useReadContract({
+    address: TOKENS[selectedToken].address as `0x${string}`,
+    abi: ERC20_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address && isConnected
+    }
+  })
+
+  // Format balance for display
+  const formattedBalance = balance 
+    ? formatUnits(balance, TOKENS[selectedToken].decimals)
+    : '0'
 
   // Hydration fix
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Refetch balance when token changes
+  useEffect(() => {
+    if (isConnected && address) {
+      refetchBalance()
+    }
+  }, [selectedToken, isConnected, address, refetchBalance])
 
   // For native ETH transactions
   const {
@@ -66,11 +105,21 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
 
   const { 
     isLoading: isConfirming,
-    isSuccess: isConfirmed 
+    isSuccess: isConfirmed ,
+    data
   } = useWaitForTransactionReceipt({
     hash: txHash
   })
 
+  // Refetch balance after successful transaction
+  useEffect(() => {
+    if (isConfirmed) {
+      refetchBalance()
+    }
+  }, [isConfirmed, refetchBalance])
+
+  console.log(data);
+  
   async function handleSend() {
     // Additional connection check
     if (!isConnected || !address) {
@@ -83,10 +132,16 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
       return
     }
 
+    // Check if user has sufficient balance
+    const token = TOKENS[selectedToken]
+    const amountInWei = parseUnits(checkoutData?.payingAmount?.toString(), token.decimals)
+    
+    if (balance && amountInWei > balance) {
+      alert(`Insufficient ${token.symbol} balance`)
+      return
+    }
+
     try {
-      const token = TOKENS[selectedToken]
-      const amountInWei = parseUnits(checkoutData?.payingAmount?.toString(), token.decimals)
-      
       writeContract({
         address: token.address as `0x${string}`,
         abi: ERC20_ABI,
@@ -149,11 +204,29 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
           </select>
         </div>
 
+        {/* Balance Display */}
+        {isConnected && address && (
+          <div className='p-3 bg-blue-50 border border-blue-200 rounded-md'>
+            <p className='text-sm text-gray-700'>
+              Your Balance: 
+              {isBalanceLoading ? (
+                <span className='ml-2 text-gray-500'>Loading...</span>
+              ) : isBalanceError ? (
+                <span className='ml-2 text-red-600'>Error loading balance</span>
+              ) : (
+                <span className='ml-2 font-bold text-blue-800'>
+                  {parseFloat(formattedBalance).toFixed(2)} {TOKENS[selectedToken].symbol}
+                </span>
+              )}
+            </p>
+          </div>
+        )}
+
         {/* Amount Display */}
         {checkoutData?.payingAmount && (
           <div className='p-3 bg-gray-50 border border-gray-200 rounded-md'>
             <p className='text-sm text-gray-700'>
-              Amount: <span className='font-bold'>{checkoutData.payingAmount} {TOKENS[selectedToken].symbol}</span>
+              Amount to Send: <span className='font-bold'>{checkoutData.payingAmount?.toFixed(2)} {TOKENS[selectedToken].symbol}</span>
             </p>
           </div>
         )}
@@ -161,7 +234,7 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
         {/* Send Button */}
         <Button 
           onClick={handleSend}
-          disabled={!isConnected || isPending || isConfirming}
+          disabled={!isConnected || isPending || isConfirming || isBalanceLoading}
           className='w-full bg-accent text-white py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
         >
           {!isConnected ? 'Wallet Not Connected' : 
@@ -201,15 +274,20 @@ const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
             <p className='text-sm text-yellow-800 mb-2'>
               You&apos;re not connected. Please connect your wallet.
             </p>
-            <Link 
-              href={`/connect_wallet`} 
-              className='text-accent underline font-semibold hover:text-accent/80' 
-              target='_blank'
-            >
-              Connect Wallet →
-            </Link>
+
+            <Dialog>
+              <DialogTrigger className='text-accent underline font-semibold hover:text-accent/80' >Connect Wallet →</DialogTrigger>
+              <DialogContent>
+                <ConnectPage/>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
+        {
+          isConnected && address && (
+            <button className='text-accent underline font-semibold hover:text-accent/80' onClick={()=>disconnect()}>Disconnect Wallet</button>
+          )
+        }
       </div>
     </div>
   )
