@@ -114,7 +114,7 @@ const BnplManager = ({setCurrentStep,form}: {setCurrentStep:(currentStep:Checkou
   }, [watchShippingOption]);
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] p-8">
+    <div className="min-h-screen w-full bg-[#f7f7f7] py-1">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
           <div className="lg:pr-8">

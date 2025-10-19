@@ -205,7 +205,7 @@ const CheckoutContent = () => {
 
   return (
 
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen p-2">
       <div className="max-w-6xl mx-auto py-8">
         {currentStep === 'info' && <BnplManager setCurrentStep={setCurrentStep} form={form} />}
         {currentStep === 'cart' && <CartView
