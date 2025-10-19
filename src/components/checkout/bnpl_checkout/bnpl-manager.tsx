@@ -77,28 +77,28 @@ const BnplManager = ({setCurrentStep,form}: {setCurrentStep:(currentStep:Checkou
           id: "economy",
           name: "Economy",
           price: 10,
-          description: "Estimated Arrival, Dec 20-23",
+          description: "Estimated Arrival, Oct 24-25",
           icon: "🚚"
         },
         regular: {
           id: "regular",
           name: "Regular",
           price: 15,
-          description: "Estimated Arrival, Dec 20-22",
+          description: "Estimated Arrival, Oct 23-25",
           icon: "📦"
         },
         cargo: {
           id: "cargo",
           name: "Cargo",
           price: 20,
-          description: "Estimated Arrival, Dec 19-20",
+          description: "Estimated Arrival, Oct 22-25",
           icon: "🚢"
         },
         express: {
           id: "express",
           name: "Express",
           price: 30,
-          description: "Estimated Arrival, Dec 18-19",
+          description: "Estimated Arrival, Oct 21-25",
           icon: "⚡"
         }
       };
