@@ -7,7 +7,6 @@ const AppLayoutH2P = ({children}: {children: ReactNode}) => {
 
   return (
     <div className='min-h-screen flex flex-col'>
-      <Providers>
         <Suspense>
           <Header/>
         </Suspense>
@@ -15,7 +14,6 @@ const AppLayoutH2P = ({children}: {children: ReactNode}) => {
         <Suspense>
           <MobileNavigation/>
         </Suspense>
-      </Providers>
     </div>
   )
 }

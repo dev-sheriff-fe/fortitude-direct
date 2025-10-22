@@ -19,16 +19,23 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 interface StoreSetting {
-    id: number;
-    settingCode: string;
+    id?: number;
+    originalId?: number;
+    originalSettingType?: string;
     settingType: string;
     description: string;
-    value: string;
+    settingValues: string[];
     status: string;
-    merchantCode: string;
+    merchantCode?: string;
     storeCode: string;
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+interface ApiResponse {
+    responseCode: string;
+    responseMessage: string;
+    settings: StoreSetting[];
 }
 
 interface Column {
@@ -53,6 +60,9 @@ const getStatusColor = (status: string): string => {
 };
 
 const getDisplayValue = (value: any): string => {
+    if (Array.isArray(value)) {
+        return value.join(', ') || 'N/A';
+    }
     return value?.toString() || 'N/A';
 };
 
@@ -154,7 +164,7 @@ const DynamicTable = ({
                     <tbody>
                         {currentData.map((item, index) => (
                             <tr
-                                key={item.id}
+                                key={item.settingType + index}
                                 className={`border-b border-gray-200 ${index === currentData.length - 1 ? 'border-b-0' : ''}`}
                             >
                                 {columnsWithHandler.map((column) => (
@@ -213,7 +223,7 @@ const DynamicTable = ({
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader className='flex flex-col'>
-                        <DialogTitle>Setting Details - {selectedSetting?.settingCode || 'N/A'}</DialogTitle>
+                        <DialogTitle>Setting Details - {selectedSetting?.settingType || 'N/A'}</DialogTitle>
                         <DialogDescription>
                             Detailed information about the store setting
                         </DialogDescription>
@@ -223,7 +233,7 @@ const DynamicTable = ({
                         <div className="py-4">
                             <div className="flex items-center justify-between mb-6">
                                 <div>
-                                    <h3 className="text-lg font-semibold">{getDisplayValue(selectedSetting.settingCode)}</h3>
+                                    <h3 className="text-lg font-semibold">{getDisplayValue(selectedSetting.settingType)}</h3>
                                     <div className="flex items-center gap-2 mt-2">
                                         <Badge className={`${getSettingTypeColor(selectedSetting.settingType)} text-xs px-2 py-1`}>
                                             {getDisplayValue(selectedSetting.settingType)}
@@ -237,21 +247,19 @@ const DynamicTable = ({
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div className="space-y-2">
-                                    <p className="text-sm font-medium">Setting Code:</p>
-                                    <p className="text-sm font-mono bg-gray-50 p-2 rounded">{getDisplayValue(selectedSetting.settingCode)}</p>
-                                </div>
-                                <div className="space-y-2">
                                     <p className="text-sm font-medium">Setting Type:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedSetting.settingType)}</p>
+                                    <p className="text-sm font-mono bg-gray-50 p-2 rounded">{getDisplayValue(selectedSetting.settingType)}</p>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium">Store Code:</p>
                                     <p className="text-sm">{getDisplayValue(selectedSetting.storeCode)}</p>
                                 </div>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium">Merchant Code:</p>
-                                    <p className="text-sm">{getDisplayValue(selectedSetting.merchantCode)}</p>
-                                </div>
+                                {selectedSetting.merchantCode && (
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-medium">Merchant Code:</p>
+                                        <p className="text-sm">{getDisplayValue(selectedSetting.merchantCode)}</p>
+                                    </div>
+                                )}
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium">Status:</p>
                                     <Badge className={`${getStatusColor(selectedSetting.status)} text-xs px-2 py-1 w-fit`}>
@@ -268,24 +276,34 @@ const DynamicTable = ({
                             </div>
 
                             <div className="border-t pt-4 mt-4">
-                                <h4 className="font-medium mb-3">Setting Value</h4>
+                                <h4 className="font-medium mb-3">Setting Values</h4>
                                 <div className="bg-gray-50 p-3 rounded">
-                                    <pre className="text-sm whitespace-pre-wrap break-words">
-                                        {getDisplayValue(selectedSetting.value)}
-                                    </pre>
+                                    {selectedSetting.settingValues && selectedSetting.settingValues.length > 0 ? (
+                                        <ul className="text-sm space-y-1">
+                                            {selectedSetting.settingValues.map((value, index) => (
+                                                <li key={index} className="py-1 border-b border-gray-200 last:border-b-0">
+                                                    <span className="font-mono">{value}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p className="text-sm text-gray-500">No values set</p>
+                                    )}
                                 </div>
                             </div>
 
-                            <div className="border-t pt-4 mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium">Created At:</p>
-                                    <p className="text-sm">{new Date(selectedSetting.createdAt).toLocaleString()}</p>
+                            {selectedSetting.createdAt && selectedSetting.updatedAt && (
+                                <div className="border-t pt-4 mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-medium">Created At:</p>
+                                        <p className="text-sm">{new Date(selectedSetting.createdAt).toLocaleString()}</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-medium">Updated At:</p>
+                                        <p className="text-sm">{new Date(selectedSetting.updatedAt).toLocaleString()}</p>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium">Updated At:</p>
-                                    <p className="text-sm">{new Date(selectedSetting.updatedAt).toLocaleString()}</p>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     )}
                 </DialogContent>
@@ -303,8 +321,8 @@ const MobileSettingCard = ({ setting, onViewDetails }: { setting: StoreSetting; 
                         <Settings className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-gray-900">{getDisplayValue(setting.settingCode)}</p>
-                        <p className="text-xs text-gray-500">{getDisplayValue(setting.settingType)}</p>
+                        <p className="text-sm font-semibold text-gray-900">{getDisplayValue(setting.settingType)}</p>
+                        <p className="text-xs text-gray-500">{getDisplayValue(setting.description)}</p>
                     </div>
                 </div>
                 <Badge className={`${getStatusColor(setting.status)} text-xs px-2 py-1`}>
@@ -317,8 +335,14 @@ const MobileSettingCard = ({ setting, onViewDetails }: { setting: StoreSetting; 
             </div>
 
             <div className="text-sm text-gray-600">
-                <p className="font-medium">Value:</p>
-                <p className="text-xs bg-white p-2 rounded mt-1 line-clamp-2">{getDisplayValue(setting.value)}</p>
+                <p className="font-medium">Values:</p>
+                <div className="text-xs bg-white p-2 rounded mt-1">
+                    {setting.settingValues && setting.settingValues.length > 0 ? (
+                        <p className="line-clamp-2">{getDisplayValue(setting.settingValues)}</p>
+                    ) : (
+                        <p className="text-gray-500">No values</p>
+                    )}
+                </div>
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-gray-200">
@@ -343,12 +367,11 @@ export default function StoreSettingsPage() {
     const { user } = useUser();
     const router = useRouter();
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ['store-settings-list'],
+        queryKey: ['store-settings-list', user?.storeCode],
         queryFn: () => axiosInstance.request({
-            url: '/store-settings/list',
+            url: '/store-settings/fetch-all',
             method: 'GET',
             params: {
-                merchantCode: user?.merchantCode,
                 storeCode: user?.storeCode
             }
         })
@@ -358,12 +381,22 @@ export default function StoreSettingsPage() {
     const [selectedSetting, setSelectedSetting] = useState<StoreSetting | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const settings: StoreSetting[] = data?.data?.data || [];
-    const filteredSettings = settings.filter(setting =>
-        setting.settingCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    // Extract settings from the API response
+    const apiResponse: ApiResponse = data?.data || {};
+    const settings: StoreSetting[] = apiResponse.settings || [];
+    
+    // Add storeCode to each setting if not present
+    const settingsWithStoreCode = settings.map(setting => ({
+        ...setting,
+        storeCode: setting.storeCode || user?.storeCode || ''
+    }));
+
+    const filteredSettings = settingsWithStoreCode.filter(setting =>
         setting.settingType.toLowerCase().includes(searchTerm.toLowerCase()) ||
         setting.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        setting.value.toLowerCase().includes(searchTerm.toLowerCase())
+        (setting.settingValues && setting.settingValues.some(value => 
+            value.toLowerCase().includes(searchTerm.toLowerCase())
+        ))
     );
 
     const handleViewDetails = (setting: StoreSetting) => {
@@ -372,14 +405,30 @@ export default function StoreSettingsPage() {
     };
 
     const handleEditDetails = (setting: StoreSetting) => {
-        router.push(`/admin/settings/add-settings?edit=true&id=${setting.id}`);
+        // For edit, we need to pass the setting data including originalId and originalSettingType
+        const params = new URLSearchParams({
+            edit: 'true',
+            settingType: setting.settingType,
+            description: setting.description,
+            status: setting.status,
+            settingValues: JSON.stringify(setting.settingValues || [])
+        });
+
+        if (setting.originalId) {
+            params.append('originalId', setting.originalId.toString());
+        }
+        if (setting.originalSettingType) {
+            params.append('originalSettingType', setting.originalSettingType);
+        }
+
+        router.push(`/admin/settings/add-settings?${params.toString()}`);
     };
 
     const columns: Column[] = [
         {
-            title: 'Setting Code',
-            dataIndex: 'settingCode',
-            key: 'settingCode',
+            title: 'Setting Type',
+            dataIndex: 'settingType',
+            key: 'settingType',
             width: 200,
             render: (text: string, record: StoreSetting) => (
                 <div className="flex items-center gap-3">
@@ -396,15 +445,6 @@ export default function StoreSettingsPage() {
             ),
         },
         {
-            title: 'Type',
-            dataIndex: 'settingType',
-            key: 'type',
-            width: 150,
-            render: (text: string) => (
-                <p className="text-sm capitalize">{getDisplayValue(text).replace(/_/g, ' ').toLowerCase()}</p>
-            ),
-        },
-        {
             title: 'Description',
             dataIndex: 'description',
             key: 'description',
@@ -414,12 +454,12 @@ export default function StoreSettingsPage() {
             ),
         },
         {
-            title: 'Value',
-            dataIndex: 'value',
-            key: 'value',
+            title: 'Values',
+            dataIndex: 'settingValues',
+            key: 'settingValues',
             width: 200,
-            render: (text: string) => (
-                <p className="text-sm line-clamp-2 font-mono">{getDisplayValue(text)}</p>
+            render: (values: string[]) => (
+                <p className="text-sm line-clamp-2 font-mono">{getDisplayValue(values)}</p>
             ),
         },
         {
@@ -546,9 +586,9 @@ export default function StoreSettingsPage() {
                             ) : (
                                 <>
                                     <div className="block lg:hidden space-y-4">
-                                        {filteredSettings.map((setting) => (
+                                        {filteredSettings.map((setting, index) => (
                                             <MobileSettingCard
-                                                key={setting.id}
+                                                key={setting.settingType + index}
                                                 setting={setting}
                                                 onViewDetails={handleViewDetails}
                                             />

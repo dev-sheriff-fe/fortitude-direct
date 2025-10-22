@@ -24,8 +24,9 @@ import BnplManager from '@/components/checkout/bnpl_checkout/bnpl-manager';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import RexpayPayment from '@/components/checkout/rexpay-payment';
+import SolanaPay from '@/components/checkout/solana/solana-pay';
 
-export type PaymentMethod = 'card' | 'crypto_token' | 'bnpl' | 'bank_transfer' | 'tron' | 'rexpay' | null;
+export type PaymentMethod = 'card' | 'crypto_token' | 'bnpl' | 'bank_transfer' | 'tron' | 'rexpay' | 'solana_pay' | null;
 export type CheckoutStep = 'cart' | 'payment' | 'processing' | 'success' | 'info';
 export type BNPLStep = 'registration' | 'scoring' | 'approved' | 'rejected'
 
@@ -150,6 +151,14 @@ const CheckoutContent = () => {
       );
     }
 
+    if (selectedPayment === 'solana_pay') {
+      return (
+        <SolanaPay
+        setCurrentStep = {setCurrentStep}
+        />
+      );
+    }
+
     console.log('Selected payment:', selectedPayment);
 
     // if (selectedPayment === 'bnpl') {
@@ -196,7 +205,7 @@ const CheckoutContent = () => {
 
   return (
 
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen p-2">
       <div className="max-w-6xl mx-auto py-8">
         {currentStep === 'info' && <BnplManager setCurrentStep={setCurrentStep} form={form} />}
         {currentStep === 'cart' && <CartView
@@ -206,6 +215,7 @@ const CheckoutContent = () => {
           setSelectedPayment={setSelectedPayment}
           form={form}
         />}
+        
         {currentStep === 'payment' && <PaymentView />}
         {currentStep === 'processing' && <ProcessingView />}
 

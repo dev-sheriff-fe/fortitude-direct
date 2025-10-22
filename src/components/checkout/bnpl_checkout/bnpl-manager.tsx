@@ -77,28 +77,28 @@ const BnplManager = ({setCurrentStep,form}: {setCurrentStep:(currentStep:Checkou
           id: "economy",
           name: "Economy",
           price: 10,
-          description: "Estimated Arrival, Dec 20-23",
+          description: "Estimated Arrival, Oct 24-25",
           icon: "🚚"
         },
         regular: {
           id: "regular",
           name: "Regular",
           price: 15,
-          description: "Estimated Arrival, Dec 20-22",
+          description: "Estimated Arrival, Oct 23-25",
           icon: "📦"
         },
         cargo: {
           id: "cargo",
           name: "Cargo",
           price: 20,
-          description: "Estimated Arrival, Dec 19-20",
+          description: "Estimated Arrival, Oct 22-25",
           icon: "🚢"
         },
         express: {
           id: "express",
           name: "Express",
           price: 30,
-          description: "Estimated Arrival, Dec 18-19",
+          description: "Estimated Arrival, Oct 21-25",
           icon: "⚡"
         }
       };
@@ -114,7 +114,7 @@ const BnplManager = ({setCurrentStep,form}: {setCurrentStep:(currentStep:Checkou
   }, [watchShippingOption]);
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] p-8">
+    <div className="min-h-screen w-full bg-[#f7f7f7] py-1">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
           <div className="lg:pr-8">

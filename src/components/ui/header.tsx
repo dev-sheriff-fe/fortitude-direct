@@ -14,6 +14,7 @@ import CustomerLoginModal from "./customer-login-modal"
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
 import { getAuthCredentials, logout } from "@/utils/auth-utils-customer"
 import useCustomer from "@/store/customerStore"
+import { ConnectButton } from "./connect"
 
 export function Header() {
   const [openSearch,setOpenSearch] = useState(false)
@@ -35,6 +36,7 @@ export function Header() {
                 className="object-cover"
                 />
               </div>
+              
             
           </div>
           <div className="">
@@ -52,6 +54,9 @@ export function Header() {
                   <DropdownMenuContent>
                       <DropdownMenuItem>
                         <Link href={`/dashboard`} target="_blank">Dashboard</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href={`/connect_wallet`} target="_blank">Connect Wallet</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={()=>logout()}>Log out</DropdownMenuItem>
                   </DropdownMenuContent>
@@ -120,7 +125,6 @@ export function Header() {
               Contact
             </a>
           </nav>
-
           {/* Right Side Actions */}
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900" onClick={() => setOpenSearch(true)}>
@@ -145,6 +149,9 @@ export function Header() {
                   <DropdownMenuContent>
                       <DropdownMenuItem>
                         <Link href={`/dashboard`} target="_blank">Dashboard</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link href={`/connect_wallet`} target="_blank">Connect Wallet</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={()=>logout()}>Log out</DropdownMenuItem>
                   </DropdownMenuContent>

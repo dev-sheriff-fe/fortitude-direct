@@ -1,9 +1,18 @@
 'use client'
+import { getConfig } from '@/wagmi.config'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type * as React from 'react'
 import { useState } from 'react'
+import { State, WagmiProvider } from 'wagmi'
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+
+
+type Props = {
+  children: React.ReactNode;
+  initialState: State | undefined;
+};
+
+export default function Providers({ children, initialState }: Props) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -13,9 +22,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     },
   }))
 
+  const [config] = useState(() => getConfig());
+
   return (
-    <QueryClientProvider client={queryClient}>
+    <WagmiProvider config={config} initialState={initialState} reconnectOnMount={true}>
+      <QueryClientProvider client={queryClient}>
       {children}
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </WagmiProvider> 
   )
 }
