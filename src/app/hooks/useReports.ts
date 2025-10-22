@@ -187,6 +187,7 @@ export interface ReportResponse {
 
 export const useReports = () => {
   const { user } = useUser();
+  const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || user?.entityCode || 'FTD';
   const formatDate = (date: Date | null) => {
     if (!date) return null;
     return date.toLocaleDateString('en-GB').split('/').reverse().join('-');
@@ -197,9 +198,9 @@ export const useReports = () => {
       const response = await axiosInstance.request({
         url: '/dashboard/generateReport',
         method: 'POST',
-        params: { entityCode: user?.entityCode },
+        params: { entityCode: entityCode },
         data: {
-          entityCode: user?.entityCode,
+          entityCode: entityCode,
           startDate: formatDate(filters.startDate ? new Date(filters.startDate) : null) || '01-01-2025',
           endDate: formatDate(filters.endDate ? new Date(filters.endDate) : null) || '31-12-2025',
           datePeriod: 'M',
