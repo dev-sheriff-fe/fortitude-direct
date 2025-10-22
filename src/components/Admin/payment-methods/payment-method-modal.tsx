@@ -258,6 +258,7 @@ export const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
                         <SelectItem value="WALLET">Wallet</SelectItem>
                         <SelectItem value="BNPL">Buy Now Pay Later</SelectItem>
                         <SelectItem value="REXPAY">RexPay</SelectItem>
+                        <SelectItem value="SOLANA_PAY">Solana Pay</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

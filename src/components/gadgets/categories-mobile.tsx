@@ -17,7 +17,13 @@ const CategoriesMoile = () => {
         setRetry(!retry)
       }
   return (
-    <SheetContent side='left' className='p-4'>
+    <SheetContent 
+      side='left' 
+      className='p-4 h-full overflow-y-auto'
+      style={{
+        scrollbarWidth: 'none'
+      }}
+    >
       <SheetTitle>Categories</SheetTitle>
       {isLoading && <div>Loading...</div>}
       {error && <div className='hidden lg:flex flex-col items-center justify-center lg:w-[380px] xl:w-[380px] lg:sticky lg:top-22 lg:self-start lg:max-h-screen'>

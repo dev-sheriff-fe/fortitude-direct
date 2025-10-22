@@ -78,6 +78,11 @@ import "./globals.css";
 import Providers from "./Provider";
 import { Toaster } from "@/components/ui/sonner";
 import { LocationProvider } from "@/components/Providers/location-provider";
+import { cookieToInitialState } from "wagmi";
+import { getConfig } from "../../wagmi.config";
+import { headers } from "next/headers";
+
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -106,7 +111,7 @@ export const metadata: Metadata = {
   description: "Revolutionising the e-commerce world",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -122,6 +127,12 @@ export default function RootLayout({
   const fontClassName = selectedFont === 'albert-sans' 
     ? 'font-albert-sans' 
     : 'font-roboto';
+
+    const headersList = await headers();
+    const initialState = cookieToInitialState(
+      getConfig(),
+      headersList.get("cookie") ?? ""
+    );
 
   return (
     <html lang="en">
@@ -144,8 +155,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${fontVariable} antialiased ${fontClassName} bg-[#f3f4f6]`}
       >
-        <Providers>
-          <LocationProvider autoDetect={true}>
+        <Providers initialState={initialState}>
+            <LocationProvider autoDetect={true}>
             {children}
           </LocationProvider>
         </Providers>

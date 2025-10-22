@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { useState } from 'react'
 import { Button } from '../ui/button'
+import categories_placeholder from '@/assets/categories_placeholder.jpg'
 
 const CategoriesDesktop = () => {
   const [retry,setRetry] = useState(false)
@@ -65,7 +66,7 @@ const CategoriesDesktop = () => {
               >
                 <div className='w-12 h-12 mb-3 relative flex-shrink-0'>
                   <Image
-                    src={category?.logo!}
+                    src={category?.logo! || categories_placeholder?.src}
                     alt={category?.name!}
                     fill
                     className='object-contain'

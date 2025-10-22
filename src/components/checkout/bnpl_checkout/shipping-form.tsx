@@ -267,33 +267,33 @@ export const ShippingForm = ({ setCurrentStep, form }: { setCurrentStep: (curren
     {
       id: 'economy',
       name: 'Economy',
-      description: 'Estimated Arrival, Dec 20-23',
+      description: "Estimated Arrival, Oct 24-25",
       price: 10,
-      estimatedArrival: 'Dec 20-23',
+      estimatedArrival: 'Oct 24-25',
       icon: '🚚'
     },
     {
       id: 'regular',
       name: 'Regular',
-      description: 'Estimated Arrival, Dec 20-22',
+      description: "Estimated Arrival, Oct 23-25",
       price: 15,
-      estimatedArrival: 'Dec 20-22',
+      estimatedArrival: 'Oct 23-25',
       icon: '📦'
     },
     {
       id: 'cargo',
       name: 'Cargo',
-      description: 'Estimated Arrival, Dec 19-20',
+      description: "Estimated Arrival, Oct 22-25",
       price: 20,
-      estimatedArrival: 'Dec 19-20',
+      estimatedArrival: 'Oct 22-25',
       icon: '🚢'
     },
     {
       id: 'express',
       name: 'Express',
-      description: 'Estimated Arrival, Dec 18-19',
+      description: "Estimated Arrival, Oct 21-25",
       price: 30,
-      estimatedArrival: 'Dec 18-19',
+      estimatedArrival: 'Oct 21-25',
       icon: '⚡'
     }
   ];

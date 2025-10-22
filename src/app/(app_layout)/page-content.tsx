@@ -8,6 +8,7 @@ import ProductsGrid from "@/components/gadgets/products-grid";
 import CartTriggerDesktop from "@/components/ui/cart-trigger-desktop";
 import { Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ConnectButton } from "@/components/ui/connect";
 
 export default function Home() {
   const router = useRouter()
@@ -31,6 +32,8 @@ export default function Home() {
               alt="Banner"
               className="object-cover w-full"
             />
+
+            <ConnectButton/>
           </div>
 
           {/* filter header */}
