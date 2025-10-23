@@ -76,7 +76,7 @@ COPY . .
 RUN yarn build
 
 # Production stage
-FROM node:18-alpine AS runner
+FROM node:20.18.0-alpine AS runner
 
 # Install libc6-compat for Alpine compatibility
 RUN apk add --no-cache libc6-compat
