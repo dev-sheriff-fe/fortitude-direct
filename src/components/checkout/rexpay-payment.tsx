@@ -205,7 +205,7 @@ import { ArrowLeft, Building2, CheckCircle, Loader2, XCircle } from 'lucide-reac
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { useCart } from '@/store/cart';
 import { CurrencyCode, formatPrice } from '@/utils/helperfns';
-import { CheckoutStep, PaymentMethod } from '@/app/checkout/checkoutContent';
+import { CheckoutStep, PaymentMethod } from '@/app/(app_layout)/checkout/checkoutContent';
 import { toast } from 'sonner';
 import RexPayClient from '@/lib/rexpay-client';
 import rexpay from '@/components/images/rexpay.png'

@@ -6,7 +6,7 @@ import { Label } from '../ui/label';
 import { useToast } from '@/app/hooks/use-toast';
 import { useCart } from '@/store/cart';
 import { CurrencyCode, formatPrice } from '@/utils/helperfns';
-import { CheckoutStep } from '@/app/checkout/checkoutContent';
+import { CheckoutStep } from '@/app/(app_layout)/checkout/checkoutContent';
 
 
 type Props = {

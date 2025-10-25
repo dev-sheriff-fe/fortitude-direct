@@ -32,7 +32,7 @@
 import React, { useState, useEffect } from 'react'
 import { ShippingForm } from './shipping-form'
 import { CartReview } from './cart-review'
-import { CheckoutStep, FormData } from '@/app/checkout/checkoutContent'
+import { CheckoutStep, FormData } from '@/app/(app_layout)/checkout/checkoutContent'
 import { UseFormReturn } from 'react-hook-form'
 
 interface ShippingData {
