@@ -12,12 +12,6 @@ const nextConfig = {
   },
    webpack: (config, { isServer }) => {
 
-      if (!isServer) {
-        config.resolve.fallback = {
-          ...config.resolve.fallback,
-          ...webpackFallback
-        }
-      }
     // Prevent errors from React Native imports in MetaMask SDK
     config.resolve.fallback = {
       ...config.resolve.fallback,

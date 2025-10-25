@@ -1,17 +1,10 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
-import { Button } from '../ui/button'
-import { ArrowLeft, Copy, Wallet, CheckCircle, ExternalLink, Clock, X, RefreshCw, AlertCircle } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Label } from '../ui/label'
+import React, { useEffect, useState } from 'react'
+import { ArrowLeft, Clock} from 'lucide-react'
 import { useCart } from '@/store/cart'
-import { CurrencyCode, formatPrice } from '@/utils/helperfns'
 import { CheckoutStep, FormData } from '@/app/(app_layout)/checkout/checkoutContent'
 import { toast } from 'sonner'
-import Image from 'next/image'
-import PayToAddress from './usdt-payment/pay-to-address'
-import SelectPaymentMode from './usdt-payment/select-mode'
-import MetamaskPayment from './usdt-payment/metmask-payment'
+
 import { useQuery } from '@tanstack/react-query'
 import axiosCustomer from '@/utils/fetch-function-customer'
 import PaymentHeader from './usdt-payment/payment-header'
@@ -20,7 +13,7 @@ import PaymentMethodSelector from './usdt-payment/payment-method-selector'
 import DirectTransferFlow from './usdt-payment/directTransferFlow'
 import MetaMaskFlow from './usdt-payment/metamask-flow'
 import { UseFormReturn } from 'react-hook-form'
-import AlgorandTransfer from './usdt-payment/algorandTransfer'
+
 
 type UsdtPaymentProps = {
   setCurrentStep: (step: CheckoutStep) => void;
