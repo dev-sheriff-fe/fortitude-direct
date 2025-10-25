@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-import { webpackFallback } from '@txnlab/use-wallet-react'
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
