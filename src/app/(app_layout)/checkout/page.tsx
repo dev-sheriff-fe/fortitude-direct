@@ -2,7 +2,8 @@ import React, { Suspense } from 'react'
 import CheckoutContent from './checkoutContent'
 import PrivateRoute from '@/utils/private-route-customer'
 import { Metadata } from 'next'
-import TwoFaWrapper from '../TwoFaWrapper'
+import TwoFaWrapper from '@/app/TwoFaWrapper'
+
 
 export const metadata: Metadata ={
   title: 'Checkout'

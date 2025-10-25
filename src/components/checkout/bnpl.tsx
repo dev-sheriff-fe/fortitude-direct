@@ -19,7 +19,7 @@ import { toast } from 'sonner'
 import { fileUrlFormatted, getCurrentDate } from '@/utils/helperfns'
 import { useRouter, useSearchParams } from 'next/navigation'
 import BNPLApproved from './bnpl-approved'
-import { BNPLStep, CheckoutStep, CreditScoreData } from '@/app/checkout/checkoutContent'
+import { BNPLStep, CheckoutStep, CreditScoreData } from '@/app/(app_layout)/checkout/checkoutContent'
 import axiosCustomer from '@/utils/fetch-function-customer'
 import useCustomer from '@/store/customerStore'
 

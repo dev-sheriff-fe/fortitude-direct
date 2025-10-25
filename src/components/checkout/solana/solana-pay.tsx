@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, QrCode, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import { CheckoutStep } from '@/app/checkout/checkoutContent';
+import { CheckoutStep } from '@/app/(app_layout)/checkout/checkoutContent';
 
 interface PaymentResponse {
   url: string;

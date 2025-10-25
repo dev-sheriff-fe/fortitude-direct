@@ -1,25 +1,14 @@
 'use client';
 import React, { Suspense, useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { CreditCard, Wallet, Bot, CheckCircle, Copy, AlertCircle, TrendingUp, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/app/hooks/use-toast';
 import { useCart } from '@/store/cart';
 import { useForm } from 'react-hook-form';
 import CartView from '@/components/checkout/cart-view';
 import UsdtPayment from '@/components/checkout/usdt-payment';
-import CardPayment from '@/components/checkout/card-payment';
-import BNPL from '@/components/checkout/bnpl';
-import BNPLApproved from '@/components/checkout/bnpl-approved';
+
 import BankPayment from '@/components/checkout/bank-payment';
 import { useSearchParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import axiosInstance from '@/utils/fetch-function';
-import EscrowCheckout from '@/components/checkout/tron-payment';
-import axiosCustomer from '@/utils/fetch-function-customer';
 import BnplManager from '@/components/checkout/bnpl_checkout/bnpl-manager';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -68,10 +57,9 @@ export type FormData = z.infer<typeof formSchema>;
 
 
 const CheckoutContent = () => {
-  const { getCartTotal, usdTotal } = useCart();
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('info');
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>(null);
-  const [usdtPaid, setUsdtPaid] = useState(false);
+  const [wallets,setWallets] = useState<any | null>(null)
   const [checkoutData, setCheckoutData] = useState(null)
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -90,9 +78,7 @@ const CheckoutContent = () => {
   const storeCode = searchParams.get('storeCode') || ''
   console.log(storeCode);
 
-
   const { toast } = useToast();
-
 
   useEffect(() => {
     const stored = sessionStorage.getItem('checkout');
@@ -103,13 +89,10 @@ const CheckoutContent = () => {
 
   console.log(checkoutData);
 
-
   const handlePaymentSelect = (method: PaymentMethod) => {
     setSelectedPayment(method);
     setCurrentStep('payment');
   };
-
-
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -119,15 +102,15 @@ const CheckoutContent = () => {
     });
   };
 
-
   const PaymentView = () => {
     if (selectedPayment == 'crypto_token') {
       return (
         <Suspense>
           <UsdtPayment
-            copyToClipboard={copyToClipboard}
             setCurrentStep={setCurrentStep}
             currentStep={currentStep}
+            wallets = {wallets}
+            form = {form}
           />
         </Suspense>
       );
@@ -213,6 +196,7 @@ const CheckoutContent = () => {
           setCurrentStep={setCurrentStep}
           paymentMethod={selectedPayment}
           setSelectedPayment={setSelectedPayment}
+          setWallets = {setWallets}
           form={form}
         />}
         
