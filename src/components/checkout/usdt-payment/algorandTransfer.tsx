@@ -275,7 +275,7 @@ function AlgorandUSDCSender({amount,orderNo}:AlgorandTransferProps) {
                  </p>
                  {txId && (
                    <a
-                     href={`https://testnet.algoexplorer.io/tx/${txId}`}
+                     href={`https://testnet.explorer.perawallet.app/tx//${txId}`}
                      target="_blank"
                      rel="noopener noreferrer"
                      className="text-xs text-blue-600 hover:text-blue-800 underline mt-2 block break-all"
