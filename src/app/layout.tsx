@@ -81,6 +81,8 @@ import { LocationProvider } from "@/components/Providers/location-provider";
 import { cookieToInitialState } from "wagmi";
 import { getConfig } from "../../wagmi.config";
 import { headers } from "next/headers";
+import { WalletProvider } from "@txnlab/use-wallet-react";
+import AlgorandWalletProvider from "./AlgorandWalletProvider";
 
 
 
@@ -158,13 +160,15 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${fontVariable} antialiased ${fontClassName} bg-[#f3f4f6]`}
       >
         <Providers initialState={initialState}>
-              <LocationProvider autoDetect={true}>
+              
+          <AlgorandWalletProvider>
+            <LocationProvider autoDetect={true}>
             {children}
           </LocationProvider>
-          
+          </AlgorandWalletProvider>
         </Providers>
         <Toaster/>
       </body>
     </html>
-  );
+  )
 }

@@ -1,15 +1,20 @@
 "use client"
 
 import { Wallet, Send } from "lucide-react"
+import Image from "next/image"
+import metamaskIcon from '@/assets/Metamask-Digital-Asset-Logo-PNG-thumb.png'
+import algorandIcon from '@/assets/algo.png'
 
 interface PaymentMethodSelectorProps {
   selectedMethod: "direct" | "metamask" | "algorand"
   onMethodChange: (method: "direct" | "metamask" | "algorand") => void
 }
 
+
+
 export default function PaymentMethodSelector({ selectedMethod, onMethodChange }: PaymentMethodSelectorProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       {/* Direct Transfer Option */}
       <button
         onClick={() => onMethodChange("direct")}
@@ -46,7 +51,11 @@ export default function PaymentMethodSelector({ selectedMethod, onMethodChange }
               selectedMethod === "metamask" ? "bg-accent text-white" : "bg-secondary text-foreground"
             }`}
           >
-            <Wallet className="h-6 w-6" />
+            <Image
+              src={metamaskIcon}
+              className="h-6 w-6 object-cover"
+              alt="algorandIcon"
+            />
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-foreground">MetaMask Wallet</h3>
@@ -57,7 +66,7 @@ export default function PaymentMethodSelector({ selectedMethod, onMethodChange }
       </button>
 
       {/* Algorand Option */}
-      {/* <button
+      <button
         onClick={() => onMethodChange("algorand")}
         className={`relative rounded-lg border-2 p-6 text-left transition-all ${
           selectedMethod === "algorand" ? "border-accent bg-accent/5" : "border-border bg-card hover:border-muted"
@@ -69,7 +78,11 @@ export default function PaymentMethodSelector({ selectedMethod, onMethodChange }
               selectedMethod === "algorand" ? "bg-accent text-white" : "bg-secondary text-foreground"
             }`}
           >
-            <Wallet className="h-6 w-6" />
+            <Image
+              src={algorandIcon}
+              className="h-6 w-6 object-cover"
+              alt="algorandIcon"
+            />
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-foreground">Algorand Wallet</h3>
@@ -77,7 +90,7 @@ export default function PaymentMethodSelector({ selectedMethod, onMethodChange }
           </div>
         </div>
         {selectedMethod === "algorand" && <div className="absolute right-4 top-4 h-3 w-3 rounded-full bg-accent" />}
-      </button> */}
+      </button>
     </div>
   )
 }

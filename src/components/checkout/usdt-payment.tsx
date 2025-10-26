@@ -13,6 +13,7 @@ import PaymentMethodSelector from './usdt-payment/payment-method-selector'
 import DirectTransferFlow from './usdt-payment/directTransferFlow'
 import MetaMaskFlow from './usdt-payment/metamask-flow'
 import { UseFormReturn } from 'react-hook-form'
+import AlgorandTransfer from './usdt-payment/algorandTransfer'
 
 
 type UsdtPaymentProps = {
@@ -82,7 +83,7 @@ const UsdtPayment = ({setCurrentStep, currentStep,wallets,form}: UsdtPaymentProp
             amount={checkoutData?.payingAmount?.toFixed(2)||null}
             orderNo={checkoutData?.orderNo}
           />
-          <div className={`${paymentStatus==='pending' && 'pointer-events-none opacity-15'}`}>
+          <div className={`${paymentStatus==='pending' || paymentMethod ==='algorand' && ('pointer-events-none opacity-15')}`}>
             <NetworkSelector
             selectedNetwork={selectedNetwork} 
             onNetworkChange={setSelectedNetwork}
@@ -110,7 +111,8 @@ const UsdtPayment = ({setCurrentStep, currentStep,wallets,form}: UsdtPaymentProp
               setPaymentStatus = {setPaymentStatus}
             />
           ) 
-           :
+           : paymentMethod === 'metamask'
+           ?
           (
             <MetaMaskFlow
               amount={checkoutData?.payingAmount}
@@ -122,8 +124,11 @@ const UsdtPayment = ({setCurrentStep, currentStep,wallets,form}: UsdtPaymentProp
               setPaymentStatus = {setPaymentStatus}
             />
           )
-          // :
-          // <AlgorandTransfer/>
+          :
+          <AlgorandTransfer
+            amount={checkoutData?.payingAmount}
+            orderNo={checkoutData?.orderNo}
+          />
         }
         </div>
         </div>
