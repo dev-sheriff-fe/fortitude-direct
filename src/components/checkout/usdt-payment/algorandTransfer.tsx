@@ -171,7 +171,8 @@ function AlgorandUSDCSender({amount,orderNo}:AlgorandTransferProps) {
             <h3 className="text-lg font-semibold text-foreground mb-2">Connect Your Wallet</h3>
             <p className="text-sm text-muted-foreground mb-6">Connect Defly wallet to proceed with the payment</p>
 
-            {wallets.map((wallet) => (
+            <div className='flex flex-col gap-y-2'>
+              {wallets.map((wallet) => (
                    <button
                      key={wallet.id}
                      onClick={() => wallet.connect()}
@@ -180,6 +181,7 @@ function AlgorandUSDCSender({amount,orderNo}:AlgorandTransferProps) {
                      Connect {wallet.metadata.name}
                    </button>
             ))}
+            </div>
 
           </div>
         )
@@ -275,7 +277,7 @@ function AlgorandUSDCSender({amount,orderNo}:AlgorandTransferProps) {
                  </p>
                  {txId && (
                    <a
-                     href={`https://testnet.explorer.perawallet.app/tx//${txId}`}
+                     href={`https://testnet.explorer.perawallet.app/tx/${txId}`}
                      target="_blank"
                      rel="noopener noreferrer"
                      className="text-xs text-blue-600 hover:text-blue-800 underline mt-2 block break-all"

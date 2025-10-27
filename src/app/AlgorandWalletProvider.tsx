@@ -8,7 +8,7 @@ const network = process.env.ALGOD_NETWORK || 'testnet'
 const walletManager = new WalletManager({
   wallets: [
     WalletId.DEFLY,
-    // WalletId.PERA,
+    WalletId.PERA,
     // WalletId.EXODUS,
   ],
   networks: {
