@@ -169,7 +169,7 @@ function AlgorandUSDCSender({amount,orderNo}:AlgorandTransferProps) {
             </div>
 
             <h3 className="text-lg font-semibold text-foreground mb-2">Connect Your Wallet</h3>
-            <p className="text-sm text-muted-foreground mb-6">Connect Defly wallet to proceed with the payment</p>
+            <p className="text-sm text-muted-foreground mb-6">Connect your wallet to proceed with the payment</p>
 
             <div className='flex flex-col gap-y-2'>
               {wallets.map((wallet) => (
