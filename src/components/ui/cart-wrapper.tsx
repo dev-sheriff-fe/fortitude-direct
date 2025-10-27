@@ -1,13 +1,22 @@
 'use client'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { Sheet } from './sheet'
+import { usePathname } from 'next/navigation'
 
-const CartWrappper = ({children}:{children:ReactNode}) => {
+const CartWrapper = ({children}:{children:ReactNode}) => {
+  const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+  
+  useEffect(() => {
+    // Close the sheet whenever pathname changes
+    setOpen(false)
+  }, [pathname])
+  
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
         {children}
     </Sheet>
   )
 }
 
-export default CartWrappper
+export default CartWrapper
