@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { any, z } from "zod";
@@ -43,9 +43,8 @@ interface Coin {
 
 const transferSchema = z.object({
   fromAmount: z.string().trim().min(1, "Amount is required"),
-  toAmount: z.string().min(1, "Amount is required"),
   fromCurrency: z.object({
-    id: z.string().nullable(),
+    id: z.number().nullable().optional(),
     accountNo: z.string(),
     accountType: z.string(),
     entityCode: z.string().nullable(),
@@ -61,25 +60,7 @@ const transferSchema = z.object({
     lcyCcy: z.string().nullable(),
     logo: z.string(),
     status: z.string().nullable(),
-  }).optional(),
-  toCurrency: z.object({
-    id: z.string().nullable(),
-    accountNo: z.string(),
-    accountType: z.string(),
-    entityCode: z.string().nullable(),
-    symbol: z.string(),
-    chain: z.string(),
-    username: z.string().nullable(),
-    publicAddress: z.string(),
-    name: z.string(),
-    label: z.string().nullable(),
-    balance: z.number(),
-    usdBalance: z.number().nullable(),
-    lcyBalance: z.number().nullable(),
-    lcyCcy: z.string().nullable(),
-    logo: z.string(),
-    status: z.string().nullable(),
-  }).optional(),
+  }),
   recipientNetwork: z.string().min(1, "Network is required"),
   recipientAddress: z.string().min(1, "Address is required"),
   purposeOfPayment: z.string().optional(),
@@ -90,19 +71,20 @@ export type TransferFormData = z.infer<typeof transferSchema>;
 
 export const TransferForm = () => {
   const [currentStep, setCurrentStep] = useState<"form" | "confirm" | "verify" | "success" | "pending">("form");
-  const [exchangeRate, setExchangeRate] = useState(1);
   const [selectedFromCoin, setSelectedFromCoin] = useState<Coin | null>(null);
-  const [selectedToCoin, setSelectedToCoin] = useState<Coin | null>(null);
   const {customer} = useCustomer()
   const [payloadInfo,setPayloadInfo] = useState<any>(null)
 
   console.log(customer);
+
+ useEffect(()=>{
+    setValue('recipientNetwork', selectedFromCoin?.chain || '')
+ },[selectedFromCoin])
   
   const form = useForm<TransferFormData>({
     resolver: zodResolver(transferSchema),
     defaultValues: {
       fromAmount: '',
-      toAmount: "1,000,000",
       recipientNetwork: "",
       recipientAddress: "",
       purposeOfPayment: "",
@@ -116,24 +98,30 @@ export const TransferForm = () => {
   console.log(location);
   
 
-  const { handleSubmit, watch, setValue, getValues, reset } = form;
+  const { handleSubmit, watch, setValue, getValues, reset, formState:{errors} } = form;
 
   console.log(getValues());
+
+  console.log(errors);
   
 
-  const fromAmount = watch("fromAmount");
 
   const onSubmit = (data: TransferFormData) => {
     // Add the selected coin objects to the form data
+    console.log(`Transfer form data:`, data);
+    
     const finalData = {
       ...data,
       fromCurrency: selectedFromCoin,
-      toCurrency: selectedToCoin,
+      // toCurrency: selectedToCoin,
     };
     console.log("Form submitted with full coin data:", finalData);
     setCurrentStep("confirm");
   };
 
+
+  console.log(selectedFromCoin);
+  
 
   const {mutate,isPending} = useMutation({
     mutationFn: (data:any) => axiosCustomer.request({
@@ -211,7 +199,7 @@ export const TransferForm = () => {
         data={{
           ...form.getValues(),
           fromCurrency: selectedFromCoin,
-          toCurrency: selectedToCoin,
+          // toCurrency: selectedToCoin,
         }}
         onConfirm={handleConfirm}
         onCancel={() => {
@@ -238,7 +226,7 @@ export const TransferForm = () => {
         data={{
           ...form.getValues(),
           fromCurrency: selectedFromCoin,
-          toCurrency: selectedToCoin,
+          // toCurrency: selectedToCoin,
           payloadInfo: payloadInfo
         }}
         onLogin={() => setCurrentStep("form")}
@@ -309,7 +297,6 @@ export const TransferForm = () => {
                 <Input
                   id="recipientNetwork"
                   placeholder="Select Recipient Network"
-                  value={getValues('fromCurrency.chain')}
                   {...form.register("recipientNetwork")}
                   readOnly
                 />
@@ -342,7 +329,7 @@ export const TransferForm = () => {
                 Cancel
               </Button>
             )}
-            <Button type="submit" className="flex-1 bg-accent" disabled={!selectedFromCoin}>
+            <Button type="submit" className="flex-1 bg-accent">
               Next
             </Button>
           </div>
