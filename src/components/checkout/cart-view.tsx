@@ -6,7 +6,7 @@ import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useCart } from '@/store/cart';
 import { CurrencyCode, formatPrice } from '@/utils/helperfns';
-import { CheckoutStep, FormData, PaymentMethod } from '@/app/checkout/checkoutContent';
+import { CheckoutStep, FormData, PaymentMethod } from '@/app/(app_layout)/checkout/checkoutContent';
 import { useRouter } from 'next/navigation';
 import { useForm, UseFormReturn } from 'react-hook-form';
 import { fa } from 'zod/v4/locales';
@@ -22,6 +22,7 @@ type CartViewProps = {
     form: UseFormReturn<FormData>;
     paymentMethod?: PaymentMethod;
     setSelectedPayment?: (method: PaymentMethod) => void;
+    setWallets?: any
 }
 
 // Map payment type codes to icon components
@@ -48,13 +49,16 @@ const getIconColor = (code: string) => {
   return colorMap[code] || 'text-gray-600';
 };
 
-const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, setSelectedPayment }: CartViewProps) => {
+const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, setSelectedPayment, setWallets }: CartViewProps) => {
     const {cart,getCartTotal,mainCcy} = useCart()
     const ccy = mainCcy()
     const [checkoutData,setCheckoutData] = useState<any>(null)
     const [modalOpen,setModalOpen] = useState(false)
     const router = useRouter()
     const {customer} = useCustomer()
+
+    console.log(customer);
+    
 
     const {data, isLoading} = useQuery({
       queryKey: ['payment-methods'],
@@ -94,6 +98,7 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
         setSelectedPayment && setSelectedPayment(method.paymentType.toLowerCase());
       } else {
         handlePaymentSelect(method.paymentType.toLowerCase());
+        setWallets(data?.data?.wallets)
       }
     };
 

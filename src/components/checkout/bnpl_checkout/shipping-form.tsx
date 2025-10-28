@@ -221,7 +221,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Truck, MapPin, ArrowLeft, Clock, Plus, Store, Package, Rocket, Ship, Edit } from "lucide-react";
 import { toast } from "sonner";
-import { CheckoutStep, FormData } from "@/app/checkout/checkoutContent";
+import { CheckoutStep, FormData } from "@/app/(app_layout)/checkout/checkoutContent";
 import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import useCustomer from "@/store/customerStore";

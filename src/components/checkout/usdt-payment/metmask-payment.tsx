@@ -1,7 +1,7 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import React, { useState, useEffect } from 'react'
-import { useAccount, useDisconnect, useSendTransaction, useWaitForTransactionReceipt, useWriteContract, useReadContract } from 'wagmi'
+import { useAccount, useDisconnect, useSendTransaction, useWaitForTransactionReceipt, useWriteContract, useReadContract, useConnect } from 'wagmi'
 import { parseEther, parseUnits, encodeFunctionData, formatUnits } from 'viem'
 import Link from 'next/link'
 import { stepProps } from '../usdt-payment'
@@ -45,6 +45,7 @@ const TOKENS = {
 const MetamaskPayment = ({checkoutData,setStep}:MetamaskPaymentProps) => {
   const [selectedToken, setSelectedToken] = useState<'USDT'|'USDC'>('USDC')
   const [recipient, setRecipient] = useState('0x19fa03190443C8bAc83Df11a771b3431c31FaA7b')
+  const {connect} = useConnect()
   const {disconnect} = useDisconnect()
   const [mounted, setMounted] = useState(false)
   

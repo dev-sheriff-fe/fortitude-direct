@@ -9,7 +9,7 @@ import { useCart } from '@/store/cart';
 import { CurrencyCode, formatPrice, timestampToDays } from '@/utils/helperfns';
 import { useToast } from '@/app/hooks/use-toast';
 import LivenessTrigger from './bnpl/LivenessTrigger';
-import { BNPLStep, CheckoutStep, PaymentMethod } from '@/app/checkout/checkoutContent';
+import { BNPLStep, CheckoutStep, PaymentMethod } from '@/app/(app_layout)/checkout/checkoutContent';
 import PaymentSchedulePreview from './bnpl/PaymentSchedulePreview';
 
 type Props = {
