@@ -315,14 +315,12 @@ const CheckoutContent = () => {
   const storeCode = searchParams.get('storeCode') || ''
   const { toast } = useToast();
 
-  // Handle RexPay callback on component mount
   useEffect(() => {
     const stored = sessionStorage.getItem('checkout');
     if (stored) {
         setCheckoutData(JSON.parse(stored));
     }
 
-    // Check if this is a RexPay callback
     const status = searchParams.get('status');
     if (status === 'rexpay_callback') {
         console.log('RexPay callback detected in parent component');
@@ -331,7 +329,6 @@ const CheckoutContent = () => {
         setSelectedPayment('rexpay');
         setCurrentStep('payment');
         
-        // Only remove the status parameter, keep storeCode and orderNo
         const url = new URL(window.location.href);
         url.searchParams.delete('status');
         window.history.replaceState({}, '', url.toString());
@@ -339,7 +336,6 @@ const CheckoutContent = () => {
 }, [searchParams]);
 
 useEffect(() => {
-  // Load form data from sessionStorage on mount
   const savedFormData = sessionStorage.getItem('checkoutFormData');
   if (savedFormData) {
     try {
@@ -350,7 +346,6 @@ useEffect(() => {
     }
   }
 
-  // Save form data whenever it changes
   const subscription = form.watch((value) => {
     sessionStorage.setItem('checkoutFormData', JSON.stringify(value));
   });
