@@ -26,14 +26,13 @@ interface ConfirmationData {
   fromAmount: string;
   toAmount: string;
   fromCurrency?: Coin | any;
-  toCurrency?: Coin | any;
   recipientNetwork: string;
   recipientAddress: string;
   purposeOfPayment?: string;
 }
 
 interface ConfirmationModalProps {
-  data: ConfirmationData;
+  data: ConfirmationData | any;
   onConfirm: any;
   onCancel: () => void;
   isPending?: boolean
@@ -54,7 +53,6 @@ export const ConfirmationModal = ({ data, onConfirm, onCancel, isPending }: Conf
   };
 
   const fromCurrency = getCurrencyIcon(data.fromCurrency?.symbol || "");
-  const toCurrency = getCurrencyIcon(data.toCurrency?.symbol || "");
 
   // Format date
   const currentDate = new Date().toLocaleDateString('en-GB', {
@@ -63,8 +61,6 @@ export const ConfirmationModal = ({ data, onConfirm, onCancel, isPending }: Conf
     year: 'numeric'
   });
 
-  // Generate a simple transaction ID
-  const transactionId = Math.floor(Math.random() * 1000000000).toString();
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

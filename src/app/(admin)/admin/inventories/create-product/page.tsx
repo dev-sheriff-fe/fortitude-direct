@@ -142,7 +142,7 @@ useEffect(() => {
 const onSubmitForm = async (values: ProductFormData) => {
   try {
     const payload = {
-        productId: isEditMode ? (editingProductId || product?.id || product?.productId) : '',
+        productId: isEditMode ? (editingProductId || product?.id || product?.productId) : null,
         productName: values?.productName,
         productDescription: values?.productDescription,
         productCategory: values?.productCategory,
@@ -153,7 +153,7 @@ const onSubmitForm = async (values: ProductFormData) => {
         base64Image: "",
         imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values?.imageURL) || ""),
         costPrice: values?.costPrice,
-        storeId: user?.storeCode || 'STO445',
+        storeId: user?.storeCode || process.env.NEXT_PUBLIC_DEFAULT_STORE_CODE,
         barCode: values?.barCode,
         brand: values?.brand,
         ccy: values?.ccy || 'NGN',

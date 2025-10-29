@@ -1,34 +1,3 @@
-// import React from 'react'
-// import { ShippingForm } from './shipping-form'
-// import { CartReview } from './cart-review'
-// import { CheckoutStep, FormData } from '@/app/checkout/checkoutContent'
-// import { UseFormReturn } from 'react-hook-form'
-
-// const BnplManager = ({setCurrentStep,form}: {setCurrentStep:(currentStep:CheckoutStep)=>void, form:UseFormReturn<FormData>}) => {
-//   return (
-//     <div className="min-h-screen bg-[#f7f7f7]">
-//       <div className="container mx-auto px-4">
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
-//           {/* Left Column - Shipping Form */}
-//           <div className="lg:pr-8">
-//             <ShippingForm 
-//                 setCurrentStep = {setCurrentStep}
-//                 form = {form}
-//             />
-//           </div>
-          
-//           {/* Right Column - Cart Review */}
-//           <div className="lg:pl-8 lg:border-l border-border">
-//             <CartReview />
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default BnplManager
-
 import React, { useState, useEffect } from 'react'
 import { ShippingForm } from './shipping-form'
 import { CartReview } from './cart-review'
@@ -46,7 +15,7 @@ interface ShippingData {
   };
 }
 
-const BnplManager = ({setCurrentStep,form}: {setCurrentStep:(currentStep:CheckoutStep)=>void, form:UseFormReturn<FormData>}) => {
+const BnplManager = ({ setCurrentStep, form }: { setCurrentStep: (currentStep: CheckoutStep) => void, form: UseFormReturn<FormData> }) => {
   const [shippingData, setShippingData] = useState<ShippingData>({
     method: "delivery",
     option: {
@@ -58,8 +27,11 @@ const BnplManager = ({setCurrentStep,form}: {setCurrentStep:(currentStep:Checkou
     }
   });
 
+  const [selectedStore, setSelectedStore] = useState<string>("");
+
   const watchShippingMethod = form.watch("shippingMethod");
   const watchShippingOption = form.watch("shippingOption");
+  const watchPickupStore = form.watch("pickupStore");
 
   useEffect(() => {
     if (watchShippingMethod) {
@@ -113,21 +85,30 @@ const BnplManager = ({setCurrentStep,form}: {setCurrentStep:(currentStep:Checkou
     }
   }, [watchShippingOption]);
 
+  useEffect(() => {
+    if (watchPickupStore) {
+      setSelectedStore(watchPickupStore);
+    }
+  }, [watchPickupStore]);
+
   return (
     <div className="min-h-screen w-full bg-[#f7f7f7] py-1">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
           <div className="lg:pr-8">
-            <ShippingForm 
-                setCurrentStep = {setCurrentStep}
-                form = {form}
+            <ShippingForm
+              setCurrentStep={setCurrentStep}
+              form={form}
             />
           </div>
-          
+
           <div className="lg:pl-8 lg:border-l border-border">
-            <CartReview 
+            <CartReview
               selectedShippingOption={shippingData.option}
               shippingMethod={shippingData.method}
+              setCurrentStep={setCurrentStep}
+              form={form}
+              selectedStore={selectedStore}
             />
           </div>
         </div>

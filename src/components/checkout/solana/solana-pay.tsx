@@ -17,10 +17,10 @@ interface VerifyResponse {
 }
 
 interface SolanaPayProps {
-  setCurrentStep: (currentStep:CheckoutStep)=>void
+  setCurrentStep: (currentStep: CheckoutStep) => void
 }
 
-const SolanaPay = ({setCurrentStep}:SolanaPayProps) => {
+const SolanaPay = ({ setCurrentStep }: SolanaPayProps) => {
   const [qrCode, setQrCode] = useState<string>();
   const [reference, setReference] = useState<string>();
 
@@ -34,7 +34,7 @@ const SolanaPay = ({setCurrentStep}:SolanaPayProps) => {
       try {
         const qr = createQR(data.url);
         const qrBlob = await qr.getRawData('png');
-        
+
         if (!qrBlob) {
           throw new Error('Failed to generate QR code');
         }
@@ -106,9 +106,9 @@ const SolanaPay = ({setCurrentStep}:SolanaPayProps) => {
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-[120px] animate-pulse delay-1000" />
       </div> */}
-      <Button onClick={()=>setCurrentStep('cart')} className='absolute top-3 left-3'>
-          <ArrowLeft className='w-5 h-5'/>
-        </Button>
+      <Button onClick={() => setCurrentStep('cart')} className='absolute top-3 left-3'>
+        <ArrowLeft className='w-5 h-5' />
+      </Button>
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">

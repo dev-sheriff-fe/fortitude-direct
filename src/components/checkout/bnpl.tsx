@@ -1,7 +1,7 @@
 'use client'
 import React, { Suspense, useEffect, useState } from 'react'
 import { Button } from '../ui/button'
-import { ArrowLeft, Calendar,  Loader2, TrendingUp, User } from 'lucide-react'
+import { ArrowLeft, Calendar, Loader2, TrendingUp, User } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
@@ -25,7 +25,7 @@ import useCustomer from '@/store/customerStore'
 
 export interface RegistrationData {
   firstname: string;
-  lastname:string;
+  lastname: string;
   email: string;
   phone: string;
   address: string;
@@ -51,89 +51,89 @@ export interface RegistrationData {
 }
 
 const BNPL = () => {
-     const form = useForm<RegistrationData>()
-     const router = useRouter()
-     const {handleFileChange,fileUrl,isUploadingFile} = useFileUpload()
-     const [score,setScore] = useState(null)
-    const  searchParams = useSearchParams()
-    const storeCode = searchParams.get('storeCode') || ''
-    const [bnplStep,setBnplStep] = useState<"registration" | "scoring" | "approved" | "rejected">('registration')
-    // const [checkoutData,setCheckoutData] = useState<any>(null)
-    const {customer} = useCustomer()
-    useEffect(()=>{
-          router?.push(`?storeCode=${process.env.NEXT_PUBLIC_STORE_CODE}`)
-        },[router])
-    console.log(customer);
-      const totalAmount = form.watch('totalAmount')
-    console.log(totalAmount);
-    
-    // useEffect(() => {
-    // const stored = sessionStorage.getItem('checkout');
-    // if (stored) {
-    //   setCheckoutData(JSON.parse(stored));
-    // }
-    //   }, []);
-     const {mutate,isPending} = useMutation({
-      mutationFn: (data:any)=>axiosCustomer.request({
-        url: '/ecomm-wallet/apply-bnpl',
-        method: 'POST',
-        params: {
-          currency: customer?.ccy || 'GBP'
-        },
-        data
-      }),
-      onSuccess: (data)=>{
-        if (data?.data?.responseCode !== '000') {
-          toast.error(data?.data?.responseMessage || 'An error occurred')
-          return
-        }
-        toast.success('Registration successful! Please complete the liveness check.')
-        setScore(data?.data)
-        setBnplStep('approved')
+  const form = useForm<RegistrationData>()
+  const router = useRouter()
+  const { handleFileChange, fileUrl, isUploadingFile } = useFileUpload()
+  const [score, setScore] = useState(null)
+  const searchParams = useSearchParams()
+  const storeCode = searchParams.get('storeCode') || ''
+  const [bnplStep, setBnplStep] = useState<"registration" | "scoring" | "approved" | "rejected">('registration')
+  // const [checkoutData,setCheckoutData] = useState<any>(null)
+  const { customer } = useCustomer()
+  useEffect(() => {
+    router?.push(`?storeCode=${process.env.NEXT_PUBLIC_STORE_CODE}`)
+  }, [router])
+  console.log(customer);
+  const totalAmount = form.watch('totalAmount')
+  console.log(totalAmount);
+
+  // useEffect(() => {
+  // const stored = sessionStorage.getItem('checkout');
+  // if (stored) {
+  //   setCheckoutData(JSON.parse(stored));
+  // }
+  //   }, []);
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: any) => axiosCustomer.request({
+      url: '/ecomm-wallet/apply-bnpl',
+      method: 'POST',
+      params: {
+        currency: customer?.ccy || 'GBP'
       },
-      onError: (error) =>{
-        toast.error( 'Something went wrong')
+      data
+    }),
+    onSuccess: (data) => {
+      if (data?.data?.responseCode !== '000') {
+        toast.error(data?.data?.responseMessage || 'An error occurred')
+        return
       }
-     })
+      toast.success('Registration successful! Please complete the liveness check.')
+      setScore(data?.data)
+      setBnplStep('approved')
+    },
+    onError: (error) => {
+      toast.error('Something went wrong')
+    }
+  })
 
-     const handleSubmit = () =>{
-      const dets = form.getValues();
-      const onboardDocs = []
-      if (dets?.payslip){
-        onboardDocs.push({
-          link: fileUrlFormatted(dets?.payslip as any),
-          documentType: 'PAY_SLIP',
-          comment: '',
-          name: 'PAY_SLIP'
-        })
-      }
-      if (dets?.bankStatement){
-        onboardDocs.push({
-          link: fileUrlFormatted(dets?.bankStatement as any),
-          documentType: 'BANK_STATEMENT',
-          comment: '',
-          name: 'BANK_STATEMENT'
-        })
-      }
-      if (dets?.utilityBill){
-        onboardDocs.push({
-          link: fileUrlFormatted(dets?.utilityBill as any),
-          documentType: 'UTILITY_BILL',
-          comment: '',
-          name: 'UTILITY_BILL'
-        })
-      }
+  const handleSubmit = () => {
+    const dets = form.getValues();
+    const onboardDocs = []
+    if (dets?.payslip) {
+      onboardDocs.push({
+        link: fileUrlFormatted(dets?.payslip as any),
+        documentType: 'PAY_SLIP',
+        comment: '',
+        name: 'PAY_SLIP'
+      })
+    }
+    if (dets?.bankStatement) {
+      onboardDocs.push({
+        link: fileUrlFormatted(dets?.bankStatement as any),
+        documentType: 'BANK_STATEMENT',
+        comment: '',
+        name: 'BANK_STATEMENT'
+      })
+    }
+    if (dets?.utilityBill) {
+      onboardDocs.push({
+        link: fileUrlFormatted(dets?.utilityBill as any),
+        documentType: 'UTILITY_BILL',
+        comment: '',
+        name: 'UTILITY_BILL'
+      })
+    }
 
-      if (dets?.idDocument){
-        onboardDocs.push({
-          link: fileUrlFormatted(dets?.idDocument as any),
-          documentType: 'IDENTITY_CARD',
-          comment: '',
-          name: 'IDENTITY_CARD'
-        })
-      }
+    if (dets?.idDocument) {
+      onboardDocs.push({
+        link: fileUrlFormatted(dets?.idDocument as any),
+        documentType: 'IDENTITY_CARD',
+        comment: '',
+        name: 'IDENTITY_CARD'
+      })
+    }
 
-      const payload = {
+    const payload = {
       // personalData: {
       //   firstname: dets?.firstname,
       //   customerType: '',
@@ -222,74 +222,74 @@ const BNPL = () => {
       totalAmount: Number(dets?.totalAmount) || 0
     }
 
-      mutate(payload)
-     }
-     
-  
+    mutate(payload)
+  }
+
+
   return (
     <>
       <Suspense>
         {
           bnplStep === 'approved'
-          ?
-          <BNPLApproved
-          score={score}
-          
-          />
-          :
-          <div className="max-w-6xl mx-auto space-y-6 py-6">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost" 
-                size="sm"
-                onClick={() =>router?.back() }
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-              <h2 className="text-2xl font-bold">Buy Now Pay Later - Registration</h2>
-            </div>
+            ?
+            <BNPLApproved
+              score={score}
 
-            <div className="grid lg:grid-cols-2 gap-8 relative">
-              {/* Registration Form */}
-              <Card>
-               <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="w-5 h-5 text-blue-600" />
-                    KYC & Registration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Form {...form}>
-                    <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
-                      
-                      {/* <Personal
+            />
+            :
+            <div className="max-w-6xl mx-auto space-y-6 py-6">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router?.back()}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+                <h2 className="text-2xl font-bold">Buy Now Pay Later - Registration</h2>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-8 relative">
+                {/* Registration Form */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="w-5 h-5 text-blue-600" />
+                      KYC & Registration
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Form {...form}>
+                      <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
+
+                        {/* <Personal
                       form={form}
                       /> */}
-                      <Work
-                      form={form}
-                      />
-                      {/* Document uploads */}
-                      <Documents
-                        form={form}
-                      />
+                        <Work
+                          form={form}
+                        />
+                        {/* Document uploads */}
+                        <Documents
+                          form={form}
+                        />
 
-                      <Button disabled={isPending} type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                        {isPending? 'Please wait...':<>
-                          <TrendingUp className="w-4 h-4 mr-2" />
-                          Submit for Credit Assessment
-                        </>}
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
+                        <Button disabled={isPending} type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                          {isPending ? 'Please wait...' : <>
+                            <TrendingUp className="w-4 h-4 mr-2" />
+                            Submit for Credit Assessment
+                          </>}
+                        </Button>
+                      </form>
+                    </Form>
+                  </CardContent>
+                </Card>
 
-              {/* Payment Schedule Preview */}
-              <PaymentSchedulePreview
-               totalAmount = {totalAmount}
-              />
+                {/* Payment Schedule Preview */}
+                <PaymentSchedulePreview
+                  totalAmount={totalAmount}
+                />
+              </div>
             </div>
-          </div>
         }
       </Suspense>
     </>

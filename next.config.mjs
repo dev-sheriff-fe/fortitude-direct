@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+import { webpackFallback } from '@txnlab/use-wallet-react'
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -10,9 +11,16 @@ const nextConfig = {
     unoptimized: true,
   },
    webpack: (config, { isServer }) => {
+      if (!isServer) {
+        config.resolve.fallback = {
+          ...config.resolve.fallback,
+          ...webpackFallback
+        }
+      }
     // Prevent errors from React Native imports in MetaMask SDK
     config.resolve.fallback = {
       ...config.resolve.fallback,
+
       '@react-native-async-storage/async-storage': false,
       fs: false,
       net: false,

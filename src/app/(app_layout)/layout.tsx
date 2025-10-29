@@ -9,16 +9,18 @@ const AppLayout = ({children}: {children: ReactNode}) => {
 
   if (process.env?.NEXT_PUBLIC_STORE_FRONT === 'fortitude'){
     return (
-      <Providers>
         <AppLayoutFortitude>{children}</AppLayoutFortitude>
-      </Providers>
     );
   }
   if (process.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p'){
     return (
-      <Providers>
         <AppLayoutH2P>{children}</AppLayoutH2P>
-      </Providers>
+    );
+  }
+
+  if (process.env?.NEXT_PUBLIC_STORE_FRONT === 'theme1'){
+    return (
+        <AppLayoutH2P>{children}</AppLayoutH2P>
     );
   }
 }
