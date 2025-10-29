@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import FileUpload from '@/components/Admin/inventories/file-input';
 import { useFileUpload } from '@/app/hooks/useUpload';
 import { fileUrlFormatted } from '@/utils/helperfns';
+import { format } from 'path';
 
 interface StoreFormData {
   id: number;
@@ -125,11 +126,12 @@ export default function CreateStorePage() {
     e.preventDefault();
     
     const finalLogoUrl = fileUrl ? fileUrlFormatted(fileUrl) : formData.logo;
+    const editingLogoUrl = formData.logo ? fileUrlFormatted(formData.logo) : formData.logo;
     
     // For edit mode, preserve original code and merchantCode
     const payload = {
       ...formData,
-      logo: finalLogoUrl,
+      logo: editingLogoUrl || finalLogoUrl,
       // Preserve original values for edit mode, ensuring strings
       code: isEditMode ? (editingStoreCode ?? '') : formData.code,
       merchantCode: isEditMode ? (user?.merchantCode ?? '') : formData.merchantCode,

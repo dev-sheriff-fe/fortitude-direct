@@ -221,7 +221,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Truck, MapPin, ArrowLeft, Clock, Plus, Store, Package, Rocket, Ship, Edit } from "lucide-react";
 import { toast } from "sonner";
-import { CheckoutStep, FormData } from "@/app/(app_layout)/checkout/checkoutContent";
+import { CheckoutStep, FormData } from "@/app/checkout/checkoutContent";
 import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "@/utils/fetch-function";
 import useCustomer from "@/store/customerStore";
@@ -240,7 +240,7 @@ import { Badge } from "@/components/ui/badge";
 
 export const ShippingForm = ({ setCurrentStep, form }: { setCurrentStep: (currentStep: CheckoutStep) => void, form: UseFormReturn<FormData> }) => {
 
-  const [shippingMethod, setShippingMethod] = useState<"delivery" | "pickup">("delivery");
+  const [shippingMethod, setShippingMethod] = useState<"delivery" | "pickup">("pickup");
   const { customer } = useCustomer()
   const { cart, getCartTotal, mainCcy } = useCart()
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -681,7 +681,7 @@ export const ShippingForm = ({ setCurrentStep, form }: { setCurrentStep: (curren
               </CardContent>
             </Card> */}
 
-            <Button
+            {/* <Button
               type="button"
               className="w-full bg-accent md:w-full"
               onClick={() => setCurrentStep('cart')}
@@ -692,7 +692,7 @@ export const ShippingForm = ({ setCurrentStep, form }: { setCurrentStep: (curren
               }
             >
               Continue to Payment
-            </Button>
+            </Button> */}
           </div>
         </form>
       </div>
