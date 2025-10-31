@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MoreHorizontal, Download, Package, ShoppingCart, Truck, CheckCircle, Eye } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { MoreHorizontal, Download, Package, ShoppingCart, Truck, CheckCircle, Eye, Repeat } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   Dialog,
@@ -18,7 +18,14 @@ import Image from 'next/image';
 import placeholder from "@/components/images/placeholder-product.webp"
 import useCustomer from '@/store/customerStore';
 import axiosCustomer from '@/utils/fetch-function-customer';
+import { toast } from 'sonner';
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialogAction } from '@radix-ui/react-alert-dialog';
 
+
+// TODO: Remove customer name and payment columns on the table and add a pay button to process pending payment,
+// additionally, add a repay button to make payments of overhead payments.
+// Add a pop up/modal to show and select chain and wallet for payment processing.
 
 // Type definitions based on the new API response
 interface CartItem {
@@ -132,7 +139,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const queryClient = useQueryClient()
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -143,6 +150,29 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     setIsModalOpen(true);
     onViewDetails(order);
   };
+
+  const {mutate,isPending} = useMutation({
+    mutationFn: (orderNo:string)=>axiosCustomer.request({
+      url: '/ecomm-wallet/process-pay',
+      method: 'GET',
+      params: {
+        orderNo 
+      }
+    }),
+    onSuccess: (data)=>{
+      if (data?.data?.code!=='000') {
+        toast?.error(data?.data?.desc)
+        return
+      }
+      toast?.success(data?.data?.desc)
+      queryClient.invalidateQueries({
+        queryKey: ['customer-recent-orders']
+      })
+    },
+    onError: (error) => {
+      toast.error('Something went wrong!')
+    }
+  })
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -156,7 +186,8 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       return {
         ...col,
         render: (text: string, record: Order) => (
-          <Button
+          <div className='flex items-center gap-x-1'>
+             <Button
             variant="ghost"
             size="sm"
             className="p-1"
@@ -164,6 +195,40 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
           >
             <Eye className="w-4 h-4" />
           </Button>
+            {
+              record?.paymentMethod === 'BNPL' && record?.orderSatus =='Payment Pending' && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="p-1"
+                    >
+                      <Repeat className="w-4 h-4 mr-1" />
+                </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                   <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Proceed with payment?
+                      </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <Button
+                      className='bg-accent text-white p-2 text-sm rounded-md'
+                      onClick={()=>mutate(record?.cartId!)}
+                      disabled = {isPending}
+                      >
+                          {isPending ? `Please wait..` : 'Make Payment'}
+                      </Button>
+                  </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )
+            }  
+          </div> 
         )
       };
     }
@@ -465,24 +530,24 @@ export default function OrderHistory(): React.ReactElement {
         </div>
       ),
     },
-    {
-      title: 'Customer',
-      dataIndex: 'customerName',
-      key: 'customer',
-      width: 150,
-      render: (text: string) => (
-        <div className="flex items-center gap-3 whitespace-nowrap">
-          <Avatar className="w-8 h-8">
-            <AvatarFallback className="bg-blue-500 text-white text-xs">
-              {text.split(' ').map(n => n[0]).join('')}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-sm font-medium text-gray-900">{text}</p>
-          </div>
-        </div>
-      ),
-    },
+    // {
+    //   title: 'Customer',
+    //   dataIndex: 'customerName',
+    //   key: 'customer',
+    //   width: 150,
+    //   render: (text: string) => (
+    //     <div className="flex items-center gap-3 whitespace-nowrap">
+    //       <Avatar className="w-8 h-8">
+    //         <AvatarFallback className="bg-blue-500 text-white text-xs">
+    //           {text.split(' ').map(n => n[0]).join('')}
+    //         </AvatarFallback>
+    //       </Avatar>
+    //       <div>
+    //         <p className="text-sm font-medium text-gray-900">{text}</p>
+    //       </div>
+    //     </div>
+    //   ),
+    // },
     {
       title: 'Amount',
       dataIndex: 'totalAmount',
@@ -506,33 +571,50 @@ export default function OrderHistory(): React.ReactElement {
         </Badge>
       ),
     },
-    {
-      title: 'Payment',
-      dataIndex: 'paymentStatus',
-      key: 'payment',
-      width: 120,
-      render: (text: string) => (
-        <Badge className={`${getStatusColor(text)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
-          {getStatusIcon(text)}
-          {text}
-        </Badge>
-      ),
-    },
+    // {
+    //   title: 'Payment',
+    //   dataIndex: 'paymentStatus',
+    //   key: 'payment',
+    //   width: 120,
+    //   render: (text: string) => (
+    //     <Badge className={`${getStatusColor(text)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
+    //       {getStatusIcon(text)}
+    //       {text}
+    //     </Badge>
+    //   ),
+    // },
     {
       title: 'Actions',
       dataIndex: 'actions',
       key: 'actions',
       width: 80,
-      render: (text: string, record: Order) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="p-1"
-          onClick={() => handleViewDetails(record)}
-        >
-          <Eye className="w-4 h-4" />
-        </Button>
-      ),
+      render: (text: string, record: Order) => {
+        console.log('record', record);
+        return (
+          <div className='flex items-center gap-x-1'>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-1"
+              onClick={() => handleViewDetails(record)}
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+            {
+              record?.paymentMethod === 'BNPL' && record?.orderSatus =='Payment Pending' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-1"
+                >
+                  <Repeat className="w-4 h-4 mr-1" />
+                </Button>
+              )
+            }       
+            
+          </div>
+        )
+      }
     },
   ];
 
