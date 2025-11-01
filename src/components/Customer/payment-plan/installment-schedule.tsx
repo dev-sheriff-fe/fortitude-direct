@@ -61,6 +61,9 @@ export function InstallmentSchedule({ installments, orderId }: InstallmentSchedu
     return normalizedStatus === 'pending' || normalizedStatus === 'overdue';
   };
 
+  console.log('installment rendered:', installments);
+  
+
   return (
     <Card className="shadow-card">
       <CardHeader className="pb-4">

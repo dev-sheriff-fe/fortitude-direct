@@ -1,22 +1,42 @@
-import { Suspense } from 'react'
-import HomePageH2P from '../../../h2p-app/page'
-import HomePageFortitiude from '../../../fortitude-app/homepage'
+import { Suspense, lazy } from 'react'
 import { Metadata } from 'next'
+import Loader from '@/components/ui/loader'
 
-export const metadata:Metadata = {
-  title: process?.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p' ? 'Help2pay | home' : 'Fortitude | home'
+
+const entityObject = {
+  h2p: {
+    name: 'Help2Pay | home'
+  },
+  fortitude: {
+    name: 'Fortitude | home'
+  },
+  theme1: {
+    name: 'Help2Pay | home'
+  }
 }
+
+export const metadata: Metadata = {
+  title: entityObject[process?.env?.NEXT_PUBLIC_STORE_FRONT as keyof typeof entityObject]?.name || 'Shop | home',
+}
+
+// Lazy loading components
+const ThemeOneLandingPage = lazy(() => import('@/themes/theme1/landing-page'))
+const HomePageH2P = lazy(() => import('../../../h2p-app/page'))
+const HomePageFortitiude = lazy(() => import('../../../fortitude-app/homepage'))
 
 const HomePage = () => {
   
   if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p') {
-    return <Suspense><HomePageH2P /></Suspense>
+    return <Suspense fallback={<Loader text='Loading...'/>}><HomePageH2P /></Suspense>
   }
 
   if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'fortitude') {
-    return <Suspense><HomePageFortitiude /></Suspense>
+    return <Suspense fallback={<Loader text='Loading...'/>}><HomePageFortitiude /></Suspense>
   }
 
+  if (process?.env?.NEXT_PUBLIC_STORE_FRONT === 'theme1') {
+    return <Suspense fallback={<Loader text='Loading...'/>}><ThemeOneLandingPage /></Suspense>
+  }
 }
 
 export default HomePage
