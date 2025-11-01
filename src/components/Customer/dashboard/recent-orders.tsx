@@ -101,6 +101,8 @@ const getStatusColor = (status: string): string => {
     case 'processing':
     case 'pending':
       return 'bg-blue-500 text-white';
+    case 'payment pending':
+      return 'bg-blue-500 text-white';
     case 'shipped':
       return 'bg-orange-500 text-white';
     case 'cancelled':
@@ -565,7 +567,7 @@ export default function OrderHistory(): React.ReactElement {
       key: 'status',
       width: 120,
       render: (text: string) => (
-        <Badge className={`${getStatusColor(text)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
+        <Badge className={`${getStatusColor(text)} text-xs px-2 py-1 flex items-center text-center gap-1 w-fit`}>
           {getStatusIcon(text)}
           {text}
         </Badge>
@@ -619,7 +621,7 @@ export default function OrderHistory(): React.ReactElement {
   ];
 
   return (
-    <Card className="border-gray-200 shadow-sm h-fit">
+    <Card className="border-gray-200 shadow-sm h-fit mx-auto">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base lg:text-lg font-semibold text-gray-900">

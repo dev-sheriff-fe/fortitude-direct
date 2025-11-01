@@ -135,15 +135,14 @@ const CardAlert = ({
       }
     }
 
-    // Keep hardcoded values for crypto_token (if you still need them)
-    if (paymentMethod === 'crypto_token') {
-      return {
-        ...payload,
-        networkChain: 'TRON',
-        publicAddress: 'TZGTKTChA62a1wWNa3DrZ4U8wSUaYVv3y9',
-        tokenSymbol: 'USDT'
-      }
-    }
+    // if (paymentMethod === 'crypto_token') {
+    //   return {
+    //     ...payload,
+    //     networkChain: 'TRON',
+    //     publicAddress: 'TZGTKTChA62a1wWNa3DrZ4U8wSUaYVv3y9',
+    //     tokenSymbol: 'USDT'
+    //   }
+    // }
 
     return payload
   }
