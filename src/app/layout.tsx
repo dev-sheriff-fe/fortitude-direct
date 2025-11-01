@@ -119,15 +119,15 @@
 // }: Readonly<{
 //   children: React.ReactNode;
 // }>) {
-    
+
 //   const accentColor = process.env.NEXT_PUBLIC_ACCENT_COLOR || '0652e9';
 //   const accentForegroundColor = process.env.NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR || '76a2fc';
-  
+
 //   const selectedFont = process.env.NEXT_PUBLIC_FONT_FAMILY || 'roboto';
 //   const fontVariable = selectedFont === 'albert-sans' 
 //     ? albertSans.variable 
 //     : roboto.variable;
-  
+
 //   const fontClassName = selectedFont === 'albert-sans' 
 //     ? 'font-albert-sans' 
 //     : 'font-roboto';
@@ -147,7 +147,7 @@
 //             rel="stylesheet"
 //           />
 //         )}
-        
+
 //         <style>{`
 //           :root {
 //             --accent-env: #${accentColor};
@@ -160,7 +160,7 @@
 //         className={`${geistSans.variable} ${geistMono.variable} ${fontVariable} antialiased ${fontClassName} bg-[#f3f4f6]`}
 //       >
 //         <Providers initialState={initialState}>
-              
+
 //           <AlgorandWalletProvider>
 //             <LocationProvider autoDetect={true}>
 //             {children}
@@ -173,13 +173,101 @@
 //   )
 // }
 
+// import type { Metadata } from "next";
+// import { Geist, Geist_Mono, Roboto } from "next/font/google";
+// import "./globals.css";
+// import { Toaster } from "@/components/ui/sonner";
+// import { LocationProvider } from "@/components/Providers/location-provider";
+// import { headers } from "next/headers";
+// import AlgorandWalletProvider from "./AlgorandWalletProvider";
+// import WagmiProvider from "../components/WagmiProvider";
+
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
+
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
+
+// const roboto = Roboto({
+//   variable: '--font-roboto',
+//   subsets: ['latin'],
+//   weight: ['300', '400', '500', '700'],
+// });
+
+// const albertSans = {
+//   variable: '--font-albert-sans',
+//   className: 'font-albert-sans',
+//   style: 'normal',
+// };
+
+// export const metadata: Metadata = {
+//   title: process.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p' ? "Help2Pay" : 'Fortitude',
+//   description: "Revolutionising the e-commerce world",
+// };
+
+// export default async function RootLayout({
+//   children,
+// }: Readonly<{
+//   children: React.ReactNode;
+// }>) {
+//   const accentColor = process.env.NEXT_PUBLIC_ACCENT_COLOR || '0652e9';
+//   const accentForegroundColor = process.env.NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR || '76a2fc';
+
+//   const selectedFont = process.env.NEXT_PUBLIC_FONT_FAMILY || 'roboto';
+//   const fontVariable = selectedFont === 'albert-sans'
+//     ? albertSans.variable
+//     : roboto.variable;
+
+//   const fontClassName = selectedFont === 'albert-sans'
+//     ? 'font-albert-sans'
+//     : 'font-roboto';
+
+//   const headersList = await headers();
+//   const cookieHeader = headersList.get("cookie") ?? "";
+
+//   return (
+//     <html lang="en">
+//       <head>
+//         {selectedFont === 'albert-sans' && (
+//           <link
+//             href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700&display=swap"
+//             rel="stylesheet"
+//           />
+//         )}
+
+//         <style>{`
+//           :root {
+//             --accent-env: #${accentColor};
+//             --accent-foreground-env: #${accentForegroundColor};
+//             --selected-font: ${selectedFont};
+//           }
+//         `}</style>
+//       </head>
+//       <body
+//         className={`${geistSans.variable} ${geistMono.variable} ${fontVariable} antialiased ${fontClassName} bg-[#f3f4f6]`}
+//       >
+//         <WagmiProvider cookieHeader={cookieHeader}>
+//           <AlgorandWalletProvider>
+//             <LocationProvider autoDetect={true}>
+//               {children}
+//             </LocationProvider>
+//           </AlgorandWalletProvider>
+//         </WagmiProvider>
+//         <Toaster />
+//       </body>
+//     </html>
+//   )
+// }
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { LocationProvider } from "@/components/Providers/location-provider";
-import { headers } from "next/headers";
-import { WalletProvider } from "@txnlab/use-wallet-react";
 import AlgorandWalletProvider from "./AlgorandWalletProvider";
 import WagmiProvider from "../components/WagmiProvider";
 
@@ -210,25 +298,22 @@ export const metadata: Metadata = {
   description: "Revolutionising the e-commerce world",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const accentColor = process.env.NEXT_PUBLIC_ACCENT_COLOR || '0652e9';
   const accentForegroundColor = process.env.NEXT_PUBLIC_ACCENT_FOREGROUND_COLOR || '76a2fc';
-  
-  const selectedFont = process.env.NEXT_PUBLIC_FONT_FAMILY || 'roboto';
-  const fontVariable = selectedFont === 'albert-sans' 
-    ? albertSans.variable 
-    : roboto.variable;
-  
-  const fontClassName = selectedFont === 'albert-sans' 
-    ? 'font-albert-sans' 
-    : 'font-roboto';
 
-  const headersList = await headers();
-  const cookie = headersList.get("cookie") ?? "";
+  const selectedFont = process.env.NEXT_PUBLIC_FONT_FAMILY || 'roboto';
+  const fontVariable = selectedFont === 'albert-sans'
+    ? albertSans.variable
+    : roboto.variable;
+
+  const fontClassName = selectedFont === 'albert-sans'
+    ? 'font-albert-sans'
+    : 'font-roboto';
 
   return (
     <html lang="en">
@@ -239,7 +324,7 @@ export default async function RootLayout({
             rel="stylesheet"
           />
         )}
-        
+
         <style>{`
           :root {
             --accent-env: #${accentColor};
@@ -251,15 +336,16 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${fontVariable} antialiased ${fontClassName} bg-[#f3f4f6]`}
       >
-        <WagmiProvider initialState={cookie}>
+        <WagmiProvider>
           <AlgorandWalletProvider>
             <LocationProvider autoDetect={true}>
               {children}
             </LocationProvider>
           </AlgorandWalletProvider>
         </WagmiProvider>
-        <Toaster/>
+        <Toaster />
       </body>
     </html>
   )
 }
+
