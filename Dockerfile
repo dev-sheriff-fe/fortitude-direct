@@ -65,7 +65,7 @@ WORKDIR /app
 
 # Copy package files
 # COPY package.json yarn.lock ./
-COPY package.json package-lock.json
+COPY package.json package-lock.json ./
 
 # Install all dependencies (including devDependencies)
 RUN yarn install --frozen-lockfile
