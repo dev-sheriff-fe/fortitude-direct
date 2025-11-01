@@ -1,9 +1,11 @@
-import { Header } from '@/components/ui/header'
-import { MobileNavigation } from '@/components/ui/mobile-navigation'
-import React, { ReactNode, Suspense } from 'react'
-import AppLayoutFortitude from '../../../fortitude-app/layout'
-import AppLayoutH2P from '../../../h2p-app/layout'
-import Providers from '@/app/Provider'
+
+import React, { lazy, ReactNode, Suspense } from 'react'
+
+
+
+const AppLayoutH2P = lazy(()=>import('../../../h2p-app/layout'))
+const AppLayoutFortitude = lazy(()=>import('../../../fortitude-app/layout'))
+const AppLayoutThemeOne = lazy(()=>import('@/themes/theme1/layout'))
 
 const AppLayout = ({children}: {children: ReactNode}) => {
 
@@ -20,7 +22,7 @@ const AppLayout = ({children}: {children: ReactNode}) => {
 
   if (process.env?.NEXT_PUBLIC_STORE_FRONT === 'theme1'){
     return (
-        <AppLayoutH2P>{children}</AppLayoutH2P>
+        <AppLayoutThemeOne>{children}</AppLayoutThemeOne>
     );
   }
 }

@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { Button } from '../ui/button';
-import { ArrowLeft, Bot, Building2, Calendar, CoinsIcon, CreditCard, DollarSign, Shield, Wallet, Zap } from 'lucide-react';
+import { ArrowLeft, Bot } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useCart } from '@/store/cart';
@@ -9,7 +9,6 @@ import { CurrencyCode, formatPrice } from '@/utils/helperfns';
 import { CheckoutStep, FormData, PaymentMethod } from '@/app/checkout/checkoutContent';
 import { useRouter } from 'next/navigation';
 import { useForm, UseFormReturn } from 'react-hook-form';
-import { fa } from 'zod/v4/locales';
 import CardAlert from './card-alert';
 import { useQuery } from '@tanstack/react-query';
 import axiosCustomer from '@/utils/fetch-function-customer';
@@ -22,45 +21,27 @@ type CartViewProps = {
   form: UseFormReturn<FormData>;
   paymentMethod?: PaymentMethod;
   setSelectedPayment?: (method: PaymentMethod) => void;
-  setWallets?: any
+  setWallets?: any;
 }
 
-// Map payment type codes to icon components
-const getPaymentIcon = (code: string) => {
-  const iconMap: Record<string, any> = {
-    'USDT_TRC20': Wallet,
-    'CARD_PAYMENT': CreditCard,
-    'CARD_PAYMENT2': CreditCard,
-    'BNPL_3_INSTALLMENTS': Calendar,
-    'BANK_TRANSFER': Building2,
-    'REXPAY': Wallet,
-  };
-  return iconMap[code] || Wallet;
-};
-
-// Map payment type codes to colors
-const getIconColor = (code: string) => {
-  const colorMap: Record<string, string> = {
-    'USDT_TRC20': 'text-accent',
-    'CARD_PAYMENT': 'text-gray-600',
-    'CARD_PAYMENT2': 'text-gray-600',
-    'BNPL_3_INSTALLMENTS': 'text-blue-600',
-    'BANK_TRANSFER': 'text-purple-600',
-    'REXPAY': 'text-green-600',
-  };
-  return colorMap[code] || 'text-gray-600';
-};
-
-const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, setSelectedPayment, setWallets }: CartViewProps) => {
+const CartView = ({ 
+  handlePaymentSelect, 
+  setCurrentStep, 
+  form, 
+  paymentMethod, 
+  setSelectedPayment,
+  setWallets 
+}: CartViewProps) => {
   const { cart, getCartTotal, mainCcy } = useCart()
   const ccy = mainCcy()
   const [checkoutData, setCheckoutData] = useState<any>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const router = useRouter()
   const { customer } = useCustomer()
+  const [networks, setNetworks] = useState<any[]>([])
+  const [wallets, setLocalWallets] = useState<any[]>([])
 
   console.log(customer);
-
 
   const { data, isLoading } = useQuery({
     queryKey: ['payment-methods'],
@@ -68,15 +49,24 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
       method: 'GET',
       url: '/payment-methods/fetch',
       params: {
-        // country: customer?.country || 'NG',
-        // storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
-        storeCode: process.env.NEXT_PUBLIC_STORE_CODE || '',
+        country: customer?.country || 'NG',
+        storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
       }
     })
   })
 
   const paymentMethods = data?.data?.list || [];
-
+  
+  useEffect(() => {
+    if (data?.data) {
+      setNetworks(data.data.networks || []);
+      const walletData = data.data.wallets || [];
+      setLocalWallets(walletData);
+      if (setWallets) {
+        setWallets(walletData);
+      }
+    }
+  }, [data, setWallets]);
 
   const { getValues } = form
 
@@ -90,7 +80,7 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
   }, []);
 
   // Check if payment method requires modal (CARD or BNPL)
-  const requiresModal: any = (code: string) => {
+  const requiresModal = (code: string) => {
     return code === 'CARD_PAYMENT' || code === 'BNPL_3_INSTALLMENTS';
   };
 
@@ -100,7 +90,10 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
       setSelectedPayment && setSelectedPayment(method.paymentType.toLowerCase());
     } else {
       handlePaymentSelect(method.paymentType.toLowerCase());
-      setWallets(data?.data?.wallets)
+      // Update wallets in parent component if setWallets prop is provided
+      if (setWallets) {
+        setWallets(wallets);
+      }
     }
   };
 
@@ -117,7 +110,6 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
         <h2 className="text-2xl font-bold">Checkout</h2>
       </div>
 
-      {/* Payment Method Selection */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Choose Payment Method</h3>
 
@@ -127,18 +119,18 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
           <div className="grid md:grid-cols-2 gap-4">
             {paymentMethods.map((method: any, index: number) => {
               const isLastOdd =
-                index === paymentMethods.length - 1 && index % 2 == 0;
+                index === paymentMethods.length - 1 && index % 2 === 0;
 
               return (
                 <Card
                   key={method.code}
                   className={`
-                      cursor-pointer transition-all
-                      ${method.isRecommended
+                    cursor-pointer transition-all
+                    ${method.isRecommended
                       ? 'border-accent bg-accent/5 shadow-md'
                       : 'hover:shadow-md'}
-                      ${isLastOdd ? 'md:col-span-2' : ''}
-                    `}
+                    ${isLastOdd ? 'md:col-span-2' : ''}
+                  `}
                   onClick={() => handlePaymentClick(method)}
                 >
                   <CardContent className="p-6">
@@ -188,7 +180,6 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
               );
             })}
           </div>
-
         )}
       </div>
     </div>
@@ -202,6 +193,8 @@ const CartView = ({ handlePaymentSelect, setCurrentStep, form, paymentMethod, se
         setModalOpen={setModalOpen}
         form={form}
         paymentMethod={paymentMethod!}
+        networks={networks}
+        wallets={wallets}
       />
     </>
   );

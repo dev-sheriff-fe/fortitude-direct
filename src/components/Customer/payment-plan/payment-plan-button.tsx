@@ -5,6 +5,8 @@ import { CreditCard, DollarSign, Calendar, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { PaymentRequest } from "@/types/";
 import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axiosCustomer from "@/utils/fetch-function-customer";
 
 
 interface PaymentButtonProps {
@@ -29,34 +31,36 @@ export function PaymentButton({
   variant = "default"
 }: PaymentButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
+  const queryClient = useQueryClient()
+  const {isPending,mutate} = useMutation({
+    mutationFn: (data:any)=>axiosCustomer.request({
+      method: 'POST',
+      url: '/ecomm-wallet/repay-loan',
+      data
+    }),
+    onSuccess: (data)=>{
+      if(data?.data?.code!== '000'){
+        toast.error(data?.data?.desc)
+        return
+      }
 
-  const handlePayment = async () => {
-    setIsProcessing(true);
-
-    const paymentData: PaymentRequest = {
-      orderId,
-      paymentRef,
-      amount
-    };
-
-    try {
-      // Simulate API call - replace with your actual payment endpoint
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate successful payment
-      console.log('Payment payload:', paymentData);
-      
-      toast.success(`Payment of ${amountDisplay} has been processed successfully.`);
-
-      setIsOpen(false);
-    } catch (error) {
-      toast.error("There was an error processing your payment. Please try again.");
-    } finally {
-      setIsProcessing(false);
+      toast.success(data?.data?.desc)
+      queryClient.invalidateQueries({queryKey: ['payment-plan']})
+      setIsOpen(false)
+    },
+    onError: (error)=>{
+      toast.error('An error occurred while processing your payment.')
     }
-  };
+  })
+
+  const onSubmitPayment = ()=>{
+    const payload = {
+      orderNo: orderId,
+      amount : amount
+    }
+
+    mutate(payload)
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -100,19 +104,23 @@ export function PaymentButton({
               <span className="text-sm text-muted-foreground">Order ID</span>
               <span className="font-mono text-sm">{orderId}</span>
             </div>
-            <div className="flex items-center justify-between">
+            {
+              paymentRef && (
+                <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Payment Ref</span>
               <span className="font-mono text-sm">{paymentRef}</span>
             </div>
+              )
+            }
           </CardContent>
         </Card>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isProcessing}>
+          <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isPending}>
             Cancel
           </Button>
-          <Button onClick={handlePayment} disabled={isProcessing} className="min-w-[120px] bg-accent">
-            {isProcessing ? (
+          <Button onClick={onSubmitPayment} disabled={isPending} className="min-w-[120px] bg-accent">
+            {isPending ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 Processing...
