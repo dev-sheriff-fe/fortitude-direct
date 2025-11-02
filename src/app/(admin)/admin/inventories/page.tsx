@@ -6,8 +6,56 @@ import { Plus, Package, Tag } from "lucide-react";
 import ProductsManager from "@/components/Admin/inventories/products-manager";
 import CategoriesManager from "@/components/Admin/inventories/categories-manager";
 
+interface InventoriesPageProps {
+  productsCount?: number;
+  categoriesCount?: number;
+}
+
 const InventoriesPage = () => {
   const [activeTab, setActiveTab] = useState("products");
+  const [productsCount, setProductsCount] = useState(0);
+  const [categoriesCount, setCategoriesCount] = useState(0);
+
+  const handleProductsCountChange = (count: number) => {
+    setProductsCount(count);
+  };
+
+  const handleCategoriesCountChange = (count: number) => {
+    setCategoriesCount(count);
+  };
+
+  const getHeaderTitle = () => {
+    switch (activeTab) {
+      case "products":
+        return "Product Management";
+      case "categories":
+        return "Category Management";
+      default:
+        return "Inventory Management";
+    }
+  };
+
+  const getHeaderDescription = () => {
+    switch (activeTab) {
+      case "products":
+        return "Manage your products, inventory, and pricing";
+      case "categories":
+        return "Organize your product categories and sectors";
+      default:
+        return "Manage your inventory, products, and categories";
+    }
+  };
+
+  const getTotalCount = () => {
+    switch (activeTab) {
+      case "products":
+        return productsCount;
+      case "categories":
+        return categoriesCount;
+      default:
+        return 0;
+    }
+  };
 
   return (
     <div className="w-full">
@@ -15,10 +63,16 @@ const InventoriesPage = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Product Management
+            {getHeaderTitle()}
           </h1>
           <p className="text-muted-foreground">
-            Manage your inventory, products, and categories
+            {getHeaderDescription()}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-bold text-foreground">{getTotalCount()}</p>
+          <p className="text-sm text-muted-foreground">
+            Total {activeTab === "products" ? "Products" : "Categories"}
           </p>
         </div>
       </div>
@@ -37,11 +91,11 @@ const InventoriesPage = () => {
         </TabsList>
 
         <TabsContent value="products">
-          <ProductsManager />
+          <ProductsManager onCountChange={handleProductsCountChange} />
         </TabsContent>
 
         <TabsContent value="categories">
-          <CategoriesManager />
+          <CategoriesManager onCountChange={handleCategoriesCountChange} />
         </TabsContent>
       </Tabs>
     </div>

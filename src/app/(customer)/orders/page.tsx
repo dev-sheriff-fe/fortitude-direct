@@ -10,9 +10,8 @@ import { OrderTracking } from '@/components/Admin/orders/order-tracking';
 import MobileOrderCard from '@/components/Customer/orders/mobile-order-card';
 import useCustomer from '@/store/customerStore';
 import axiosCustomer from '@/utils/fetch-function-customer';
+import { CustomerOrderTracking } from '@/components/Customer/orders/order-tracking';
 
-
-// Type definitions (keep only what's needed for the main component)
 interface CartItem {
   itemCode: string;
   itemName: string;
@@ -59,7 +58,7 @@ interface Order {
 }
 
 export default function OrderHistory(): React.ReactElement {
-  const {customer} = useCustomer()
+  const { customer } = useCustomer()
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['customer-recent-orders'],
     queryFn: () => axiosCustomer.request({
@@ -74,8 +73,8 @@ export default function OrderHistory(): React.ReactElement {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
-  const [isUpdateTrackingModalOpen, setIsUpdateTrackingModalOpen] = useState(false);
 
   const orders: Order[] = data?.data?.data || [];
   const filteredOrders = orders.filter(order =>
@@ -86,14 +85,14 @@ export default function OrderHistory(): React.ReactElement {
   );
 
   const handleTrackOrder = (order: Order) => {
-    setSelectedOrder(order);
+    setTrackingOrder(order);
     setIsTrackingModalOpen(true);
   };
 
-//   const handleUpdateTracking = (order: Order) => {
-//     setSelectedOrder(order);
-//     setIsUpdateTrackingModalOpen(true);
-//   };
+  //   const handleUpdateTracking = (order: Order) => {
+  //     setSelectedOrder(order);
+  //     setIsUpdateTrackingModalOpen(true);
+  //   };
 
   const handleUpdateSuccess = () => {
     refetch();
@@ -170,24 +169,19 @@ export default function OrderHistory(): React.ReactElement {
                 </div>
               ) : (
                 <>
-                  {/* Mobile view - Stack layout */}
                   <div className="block lg:hidden space-y-4">
                     {filteredOrders.map((order) => (
                       <MobileOrderCard
                         key={order.cartId}
                         order={order}
                         onTrackOrder={handleTrackOrder}
-                        // onUpdateTracking={handleUpdateTracking}
                       />
                     ))}
                   </div>
 
-                  {/* Desktop view - Dynamic Table */}
                   <div className="hidden lg:block">
                     <DynamicTable
                       data={filteredOrders}
-                      onTrackOrder={handleTrackOrder}
-                    //   onUpdateTracking={handleUpdateTracking}
                     />
                   </div>
                 </>
@@ -197,23 +191,16 @@ export default function OrderHistory(): React.ReactElement {
         </div>
       </div>
 
-
-      {/* {selectedOrder && (
-        <OrderTracking
-          order={selectedOrder}
+      {trackingOrder && (
+        <CustomerOrderTracking
+          order={trackingOrder}
           isOpen={isTrackingModalOpen}
-          onClose={() => setIsTrackingModalOpen(false)}
+          onClose={() => {
+            setIsTrackingModalOpen(false);
+            setTrackingOrder(null);
+          }}
         />
       )}
-
-      {selectedOrder && (
-        <UpdateOrderTracking
-          order={selectedOrder}
-          isOpen={isUpdateTrackingModalOpen}
-          onClose={() => setIsUpdateTrackingModalOpen(false)}
-          onSuccess={handleUpdateSuccess}
-        />
-      )} */}
     </div>
   );
 }

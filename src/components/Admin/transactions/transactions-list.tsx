@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+// Type definitions
 interface Transaction {
   date: string;
   amount: number;
@@ -28,6 +29,7 @@ interface TransactionsListProps {
   itemsPerPage?: number;
 }
 
+// Helper functions
 const getStatusColor = (status: string): string => {
   if (!status) return 'bg-gray-500 text-white';
 
@@ -55,7 +57,7 @@ const getDisplayValue = (value: any): string => {
 };
 
 const formatCurrency = (amount: number, currency: string | null = null): string => {
-  const currencySymbol = currency || '₦';
+  const currencySymbol = currency || '₦'; // Default to Naira if no currency provided
   return `${currencySymbol} ${amount.toFixed(2)}`;
 };
 
@@ -213,6 +215,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
         </table>
       </div>
 
+      {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4">
         <p className="text-sm text-gray-500">
           Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Transactions
@@ -252,6 +255,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
         </div>
       </div>
 
+      {/* Transaction Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader className='flex flex-col'>
@@ -263,6 +267,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
 
           {selectedTransaction && (
             <div className="py-4 space-y-6">
+              {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Transaction Date:</p>
@@ -294,6 +299,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                 </div>
               </div>
 
+              {/* Address Information */}
               <div className="border-t pt-4">
                 <h4 className="font-medium mb-2">From Address</h4>
                 <p className="text-sm bg-gray-50 p-3 rounded-md">
@@ -305,6 +311,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                 </p>
               </div>
 
+              {/* Transaction Summary */}
               <div className="border-t-2 border-gray-300 pt-4">
                 <div className="flex justify-end">
                   <div className="w-64">

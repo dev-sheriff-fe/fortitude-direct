@@ -22,7 +22,6 @@ import { toast } from 'sonner';
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { AlertDialogAction } from '@radix-ui/react-alert-dialog';
 
-
 // TODO: Remove customer name and payment columns on the table and add a pay button to process pending payment,
 // additionally, add a repay button to make payments of overhead payments.
 // Add a pop up/modal to show and select chain and wallet for payment processing.
@@ -131,7 +130,6 @@ const getStatusIcon = (status: string): React.ReactNode => {
   }
 };
 
-// DynamicTable Component
 const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   data,
@@ -182,7 +180,6 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }
   };
 
-  // Update columns to include the click handler
   const columnsWithHandler = columns.map(col => {
     if (col.key === 'actions') {
       return {
@@ -274,7 +271,6 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4">
         <p className="text-sm text-gray-500">
           Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Orders
@@ -314,10 +310,9 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
         </div>
       </div>
 
-      {/* Order Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
+          <DialogHeader className='flex flex-col'>
             <DialogTitle>Order Details - {selectedOrder?.cartId}</DialogTitle>
             <DialogDescription>
               Detailed information about the selected order
@@ -407,7 +402,6 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   );
 };
 
-// Mobile Order Card Component
 const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails }) => {
   const firstItem = order.cartItems[0];
 
@@ -483,7 +477,6 @@ export default function OrderHistory(): React.ReactElement {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Format API data for the table
   const orders: Order[] = data?.data?.data || [];
 
   const handleViewDetails = (order: Order) => {
@@ -648,7 +641,6 @@ export default function OrderHistory(): React.ReactElement {
           </div>
         ) : (
           <>
-            {/* Mobile view - Stack layout */}
             <div className="block lg:hidden space-y-4">
               {orders.map((order) => (
                 <MobileOrderCard
@@ -659,7 +651,6 @@ export default function OrderHistory(): React.ReactElement {
               ))}
             </div>
 
-            {/* Desktop view - Dynamic Table */}
             <div className="hidden lg:block">
               <DynamicTable
                 columns={columns}

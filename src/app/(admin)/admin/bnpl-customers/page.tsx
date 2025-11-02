@@ -1,6 +1,5 @@
 'use client'
 import React, { useState } from 'react';
-import Table from 'rc-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,22 +25,6 @@ interface CreditRecord {
   entityCode: string;
 }
 
-
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case 'Active':
-      return 'default';
-    case 'Approved':
-      return 'secondary';
-    case 'Pending':
-      return 'outline';
-    case 'Suspended':
-      return 'destructive';
-    default:
-      return 'outline';
-  }
-};
-
 const getGradingColor = (grading: string) => {
   switch (grading) {
     case 'EXCELLENT':
@@ -51,6 +34,8 @@ const getGradingColor = (grading: string) => {
     case 'GOOD':
       return 'text-yellow-600';
     case 'FAIR':
+      return 'text-orange-600';
+    case 'POOR':
       return 'text-red-600';
     default:
       return 'text-muted-foreground';
@@ -58,9 +43,11 @@ const getGradingColor = (grading: string) => {
 };
 
 const CreditAssessment = () => {
-  const [searchTerm, setSearchTerm] = React.useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   // const [filteredData, setFilteredData] = React.useState(mockData);
-  const [page,setPage] = useState(1)
   // React.useEffect(() => {
   //   const filtered = mockData.filter(record =>
   //     record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -70,40 +57,56 @@ const CreditAssessment = () => {
   //   setFilteredData(filtered);
   // }, [searchTerm]);
 
-
-  const {data,isLoading,error} = useQuery({
-    queryKey: ['bnpl-customers'],
-    queryFn: ()=>axiosInstance.request({
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['bnpl-customers', currentPage],
+    queryFn: () => axiosInstance.request({
       url: '/credit-assessments/fetchAll',
       method: 'GET',
       params: {
-        pageNumber: page,
-        pageSize: 100
+        pageNumber: currentPage,
+        pageSize: itemsPerPage
       }
     })
-  })
+  });
 
-  console.log(data);
-  
+  const creditData = data?.data?.creditAssessmentList || [];
+  const totalRecords = data?.data?.totalCount || 0;
+  const totalPages = Math.ceil(totalRecords / itemsPerPage);
+
+  const filteredData = creditData.filter((record: CreditRecord) =>
+    record.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.customerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.customerPhone?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   const columns = [
     {
       title: 'No',
       dataIndex: 'id',
       key: 'no',
-      width: 50,
+      width: 60,
       render: (_: any, __: any, index: number) => (
-        <span className="text-muted-foreground font-medium">{index + 1}</span>
+        <span className="text-sm font-medium text-gray-900">
+          {(currentPage - 1) * itemsPerPage + index + 1}
+        </span>
       ),
     },
     {
       title: 'User Info',
       key: 'userInfo',
-      width: 180,
+      width: 200,
       render: (record: CreditRecord) => (
         <div className="space-y-1">
-          <div className="font-medium text-foreground">{record?.customerName}</div>
-          <div className="text-xs text-muted-foreground">@{record.username}</div>
-          <div className="text-xs text-muted-foreground">{record.customerPhone}</div>
+          <div className="font-medium text-gray-900">{record?.customerName || 'N/A'}</div>
+          <div className="text-xs text-gray-500">@{record.username || 'N/A'}</div>
+          <div className="text-xs text-gray-500">{record.customerPhone || 'N/A'}</div>
         </div>
       ),
     },
@@ -111,23 +114,27 @@ const CreditAssessment = () => {
       title: 'Email',
       dataIndex: 'customerEmail',
       key: 'customerEmail',
-      width: 200,
+      width: 220,
       render: (email: string) => (
-        <span className="text-sm text-muted-foreground text-nowrap">{email}</span>
+        <span className="text-sm text-gray-900 truncate block" title={email}>
+          {email || 'N/A'}
+        </span>
       ),
     },
     {
       title: 'Credit Info',
       key: 'creditInfo',
-      width: 130,
+      width: 180,
       render: (record: CreditRecord) => (
         <div className="space-y-1">
-          <div className="font-semibold text-foreground">Score: {record.creditScore?.toFixed(2)}</div>
-          <div className="font-semibold text-foreground">
-            Limit: {record.creditLimit.toLocaleString()}
+          <div className="text-sm font-semibold text-gray-900">
+            Score: {record.creditScore?.toFixed(2) || '0.00'}
           </div>
-          <div className={`font-bold text-sm ${getGradingColor(record.grading)}`}>
-            Grade: {record.grading}
+          <div className="text-sm font-semibold text-gray-900">
+            Limit: ₦{(record.creditLimit || 0).toLocaleString()}
+          </div>
+          <div className={`text-sm font-bold ${getGradingColor(record.grading)}`}>
+            Grade: {record.grading || 'N/A'}
           </div>
         </div>
       ),
@@ -136,28 +143,25 @@ const CreditAssessment = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      width: 100,
-      render: (status: string) => {
-
-        console.log(getStatusBadge(status));
-        
-        return <Badge className={`${getStatusBadge(status)} !important`}>
-          {status.toLowerCase()}
+      width: 120,
+      render: (status: string) => (
+        <Badge className={`${getStatusBadge(status)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
+          {status ? status.toLowerCase() : 'N/A'}
         </Badge>
-      },
+      ),
     },
     {
       title: 'App Date',
       dataIndex: 'applicationDate',
       key: 'applicationDate',
-      width: 100,
+      width: 120,
       render: (date: string) => (
-        <span className="text-sm text-muted-foreground">
-          {new Date(date).toLocaleDateString('en-US', { 
-            month: 'short', 
+        <span className="text-sm text-gray-500">
+          {date ? new Date(date).toLocaleDateString('en-US', {
+            month: 'short',
             day: 'numeric',
             year: '2-digit'
-          })}
+          }) : 'N/A'}
         </span>
       ),
     },
@@ -166,26 +170,25 @@ const CreditAssessment = () => {
       key: 'actions',
       width: 100,
       render: (record: CreditRecord) => (
-        <div className="flex gap-1">
+        <div className="flex items-center gap-1">
           <Link href={`/admin/bnpl-customers/edit/${record.id}`}>
             <Button
-            size="sm"
-            variant="outline"
-            onClick={() => console.log('Edit score for:', record.id)}
-            className="h-8 w-8 p-0"
-            title="Edit"
-          >
-            <Edit className="h-3 w-3" />
-          </Button>
+              variant="ghost"
+              size="sm"
+              className="p-1"
+              title="Edit"
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
           </Link>
           <Link href={`/admin/bnpl-customers/${record.username}?entityCode=${record.entityCode}`}>
             <Button
-              size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0"
+              size="sm"
+              className="p-1"
               title="View Details"
             >
-              <Eye className="h-3 w-3" />
+              <Eye className="w-4 h-4" />
             </Button>
           </Link>
         </div>
@@ -194,18 +197,24 @@ const CreditAssessment = () => {
   ];
 
   if (isLoading) {
-    return <Loader text='Loading list..'/>
+    return <Loader text='Loading credit assessments...' />;
   }
 
   return (
     <div className="min-h-screen bg-background p-4 lg:p-6">
       <div className="max-w-full mx-auto space-y-6">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Credit Assessment Record</h1>
-          <p className="text-muted-foreground">
-            Manage customer credit facilities and assessment records
-          </p>
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Credit Assessment Record</h1>
+            <p className="text-muted-foreground">
+              Manage customer credit facilities and assessment records
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-2xl font-bold text-foreground">{totalRecords}</p>
+            <p className="text-sm text-muted-foreground">Total Records</p>
+          </div>
         </div>
 
         {/* Search */}
@@ -222,26 +231,126 @@ const CreditAssessment = () => {
         </div>
 
         {/* Table Card */}
-        <Card className="w-full">
+        <Card className="w-full border-gray-200 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-xl">Customer Records</CardTitle>
+            <CardTitle className="text-xl">Customer Credit Records</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="w-full overflow-x-auto">
-              <Table
-                columns={columns}
-                data={data?.data?.creditAssessmentList}
-                rowKey="id"
-                className="min-w-full rc-table"
-                scroll={{ x: 860 }}
-                emptyText={
-                  <div className="text-center py-8 text-muted-foreground">
-                    No records found
-                  </div>
-                }
-                
-              />
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b-2 border-gray-200">
+                    {columns.map((column) => (
+                      <th
+                        key={column.key}
+                        className="text-left p-3 font-bold text-sm text-gray-700"
+                        style={{ width: column.width ? `${column.width}px` : 'auto' }}
+                      >
+                        {column.title}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredData.map((item: CreditRecord, index: number) => (
+                    <tr
+                      key={item.id}
+                      className={`border-b border-gray-200 ${index === filteredData.length - 1 ? 'border-b-0' : ''}`}
+                    >
+                      {columns.map((column) => (
+                        <td key={column.key} className="p-3 text-sm">
+                          {column.render
+                            ? column.render(item, item, index)
+                            : (item[column.dataIndex as keyof CreditRecord] as any) || 'N/A'
+                          }
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+
+            {/* Pagination */}
+            {filteredData.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4 px-6 pb-6">
+                <p className="text-sm text-gray-500">
+                  Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalRecords)} of {totalRecords} Records
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="text-xs"
+                  >
+                    Previous
+                  </Button>
+
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(pageNum)}
+                        className="w-8 h-8 p-0 text-xs"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="text-xs"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {filteredData.length === 0 && !isLoading && (
+              <div className="text-center py-12">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <Search className="h-12 w-12 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-medium mb-2">
+                  {searchTerm ? 'No records found' : 'No credit records yet'}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchTerm
+                    ? `No records match your search term "${searchTerm}"`
+                    : 'Get started by processing credit assessments'
+                  }
+                </p>
+                {searchTerm && (
+                  <Button
+                    onClick={() => setSearchTerm('')}
+                    variant="secondary"
+                  >
+                    Clear Search
+                  </Button>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -48,8 +48,11 @@ export const DashboardHeader = () => {
             </SheetContent>
           </Sheet>
           <div>
-            <h1 className="text-lg lg:text-2xl font-semibold text-accent">{user?.fullname}</h1>
+            <h1 className="text-lg lg:text-xl font-semibold text-accent">{user?.fullname} | Business</h1>
             <p className='text-xs text-muted-foreground'>{currentDate}</p>
+          </div>
+          <div>
+            
           </div>
         </div>
 

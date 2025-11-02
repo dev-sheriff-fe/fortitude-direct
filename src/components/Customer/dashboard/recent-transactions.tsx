@@ -74,7 +74,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   const handleViewDetails = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
     setIsModalOpen(true);
-    onViewDetails(transaction); // Call the parent's handler
+    onViewDetails(transaction);
   };
 
   const handlePageChange = (page: number) => {
@@ -83,7 +83,6 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }
   };
 
-  // Update columns to include the click handler
   const columnsWithHandler = columns.map(col => {
     if (col.key === 'actions') {
       return {
@@ -182,7 +181,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       {/* Transaction Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+          <DialogHeader className='flex flex-col'>
             <DialogTitle>Transaction Details</DialogTitle>
             <DialogDescription>
               Detailed information about the selected transaction
@@ -203,20 +202,20 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
                 <p className="text-sm font-medium">Amount:</p>
                 <p className="text-sm">{selectedTransaction.amount}</p>
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <p className="text-sm font-medium">Currency:</p>
                 <p className="text-sm">{selectedTransaction.currency || 'N/A'}</p>
-              </div>
+              </div> */}
               <div className="space-y-2">
                 <p className="text-sm font-medium">Status:</p>
                 <Badge className={getStatusColor(selectedTransaction.status)}>
                   {selectedTransaction.status}
                 </Badge>
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <p className="text-sm font-medium">From Address:</p>
                 <p className="text-sm break-all">{selectedTransaction.fromAddress || 'N/A'}</p>
-              </div>
+              </div> */}
               <div className="space-y-2 col-span-2">
                 <p className="text-sm font-medium">Name:</p>
                 <p className="text-sm">{selectedTransaction.name || 'N/A'}</p>
@@ -243,12 +242,10 @@ export default function TransactionHistory(): React.ReactElement {
     })
   });
 
-  // Format API data for the table
   const transactions: Transaction[] = data?.data?.transactions || [];
 
   const handleViewDetails = (transaction: Transaction) => {
     console.log('Transaction details:', transaction);
-    // You can add additional logic here if needed
   };
 
   const columns: Column[] = [
@@ -293,16 +290,16 @@ export default function TransactionHistory(): React.ReactElement {
         <span className="text-sm font-semibold text-green-600">{text}</span>
       ),
     },
-    {
-      title: 'Address',
-      dataIndex: 'fromAddress',
-      key: 'fromAddress',
-      render: (text: string) => (
-        <p className="text-sm text-gray-900 max-w-[120px] truncate" title={text}>
-          {text || 'N/A'}
-        </p>
-      ),
-    },
+    // {
+    //   title: 'Address',
+    //   dataIndex: 'fromAddress',
+    //   key: 'fromAddress',
+    //   render: (text: string) => (
+    //     <p className="text-sm text-gray-900 max-w-[120px] truncate" title={text}>
+    //       {text || 'N/A'}
+    //     </p>
+    //   ),
+    // },
     {
       title: 'Status',
       dataIndex: 'status',

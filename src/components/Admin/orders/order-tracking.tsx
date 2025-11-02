@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from "@/components/ui/label";
@@ -17,15 +17,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Order } from './dynamic-table'
+import useUser from '@/store/userStore';
 
-// Tracking related interfaces
 interface TrackingStep {
   id: number;
   orderNo: string;
   entityCode: string;
   status: string;
   activityDate: string;
-  activityType: 'PENDING' | 'PACKING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  activityType: 'PENDING' | 'PACKING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'PAYMENT_RECEIVED' | 'ORDER_REVIEW' | 'SHIPPING' | 'IN_TRANSIT';
   comment?: string;
   docLink?: string;
 }
@@ -43,24 +43,32 @@ interface UpdateOrderTrackingProps {
   onSuccess?: () => void;
 }
 
-const statusIcons = {
-  PENDING: <Clock className="w-6 h-6" />,
-  PACKING: <Package className="w-6 h-6" />,
-  SHIPPED: <Truck className="w-6 h-6" />,
-  DELIVERED: <CheckCircle className="w-6 h-6" />,
-  CANCELLED: <XCircle className="w-6 h-6" />,
+const STATUS_MAPPING = {
+  PENDING: { label: 'Pending', icon: <Clock className="w-6 h-6" /> },
+  PAYMENT_RECEIVED: { label: 'Payment Received', icon: <CheckCircle className="w-6 h-6" /> },
+  ORDER_REVIEW: { label: 'Order Review', icon: <Clock className="w-6 h-6" /> },
+  PACKING: { label: 'Packing', icon: <Package className="w-6 h-6" /> },
+  SHIPPING: { label: 'Shipping', icon: <Truck className="w-6 h-6" /> },
+  IN_TRANSIT: { label: 'In Transit', icon: <Truck className="w-6 h-6" /> },
+  SHIPPED: { label: 'Shipped', icon: <Truck className="w-6 h-6" /> },
+  DELIVERED: { label: 'Delivered', icon: <CheckCircle className="w-6 h-6" /> },
+  CANCELLED: { label: 'Cancelled', icon: <XCircle className="w-6 h-6" /> },
+  COMPLETED: { label: 'Completed', icon: <CheckCircle className="w-6 h-6" /> }
 };
 
 const statusColors = {
   PENDING: 'bg-yellow-100 text-yellow-800',
+  PAYMENT_RECEIVED: 'bg-green-100 text-green-800',
+  ORDER_REVIEW: 'bg-blue-100 text-blue-800',
   PACKING: 'bg-blue-100 text-blue-800',
+  SHIPPING: 'bg-purple-100 text-purple-800',
+  IN_TRANSIT: 'bg-purple-100 text-purple-800',
   SHIPPED: 'bg-purple-100 text-purple-800',
   DELIVERED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-red-100 text-red-800',
   COMPLETED: 'bg-green-100 text-green-800',
 };
 
-// Order Tracking Component
 export const OrderTracking: React.FC<OrderTrackingProps> = ({
   order,
   isOpen,
@@ -97,7 +105,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
     }
   };
 
-  const { data: trackingData, isFetching, isError } = useQuery({
+  const { data: trackingData, isFetching, isError, refetch } = useQuery({
     queryKey: ['order-tracking', order.cartId],
     queryFn: () => axiosInstance.request({
       method: 'GET',
@@ -110,7 +118,12 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
     select: (response: any) => response.data,
   });
 
-  // Calculate order totals
+  useEffect(() => {
+    if (isOpen) {
+      refetch();
+    }
+  }, [isOpen, refetch]);
+
   const calculateSubtotal = () => {
     return order.cartItems?.reduce((sum: number, item: { amount: number }) => sum + item.amount, 0) || 0;
   };
@@ -129,8 +142,18 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
   const isCancelled = currentActivityType === 'CANCELLED';
   const isCompleted = currentStatus === 'COMPLETED';
 
+  const getStatusProgression = () => {
+    const allStatuses = ['PENDING', 'PAYMENT_RECEIVED', 'ORDER_REVIEW', 'PACKING', 'SHIPPING', 'IN_TRANSIT', 'DELIVERED'];
+    
+    if (isCancelled) {
+      return ['CANCELLED'];
+    }
+    
+    return allStatuses;
+  };
+
   const getStatusIndex = (status: string) => {
-    const statusOrder = ['PENDING', 'PACKING', 'SHIPPED', 'DELIVERED'];
+    const statusOrder = getStatusProgression();
     return statusOrder.indexOf(status);
   };
 
@@ -160,9 +183,13 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
       );
     }
 
-    return ['PENDING', 'PACKING', 'SHIPPED', 'DELIVERED'].map((status, index) => {
-      const isCompletedStep = getStatusIndex(currentActivityType) >= index;
+    const statusProgression = getStatusProgression();
+    
+    return statusProgression.map((status, index) => {
+      const currentIndex = getStatusIndex(currentActivityType || 'PENDING');
+      const isCompletedStep = currentIndex >= index;
       const isCurrent = status === currentActivityType;
+      const statusConfig = STATUS_MAPPING[status as keyof typeof STATUS_MAPPING] || { label: status, icon: <Package className="w-5 h-5" /> };
 
       return (
         <div key={status} className="flex items-start gap-4">
@@ -171,15 +198,15 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
             {isCompletedStep ? (
               <CheckCircle className="w-5 h-5" />
             ) : (
-              statusIcons[status as keyof typeof statusIcons] || <Package className="w-5 h-5" />
+              statusConfig.icon
             )}
           </div>
 
-          <div className={`flex-1 pt-1 ${index === 3 ? '' : 'pb-6'}`}>
+          <div className={`flex-1 pt-1 ${index === statusProgression.length - 1 ? '' : 'pb-6'}`}>
             <div className="flex justify-between items-start">
               <div>
                 <h4 className={`font-medium ${isCompletedStep ? 'text-gray-800' : 'text-gray-500'}`}>
-                  {status.charAt(0) + status.slice(1).toLowerCase()}
+                  {statusConfig.label}
                 </h4>
                 {isCurrent && trackingInfo && (
                   <p className="text-sm text-gray-500 mt-1">
@@ -203,11 +230,11 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
+        <DialogHeader className='flex flex-col'>
+          <DialogTitle className='text-center'>
             {isCancelled ? 'Order Cancelled' : isCompleted ? 'Order Completed' : 'Order Tracking'} - {order.cartId}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className='text-center'>
             Detailed tracking information for this order
           </DialogDescription>
         </DialogHeader>
@@ -223,7 +250,6 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
           </div>
         ) : (
           <div className="py-4">
-            {/* Order Summary */}
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <div className="grid grid-cols-2 gap-4 md:gap-5">
                 <div>
@@ -247,7 +273,6 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
               </div>
             </div>
 
-            {/* Tracking Progress */}
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-700 mb-4">
                 {isCancelled ? 'Cancellation Details' : isCompleted ? 'Completion Details' : 'Order Status'}
@@ -263,7 +288,6 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
               </div>
             </div>
 
-            {/* Detailed Tracking Info */}
             {trackingInfo && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-700 mb-4">Tracking Details</h3>
@@ -272,11 +296,11 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
                     <div className="flex items-start gap-3">
                       <div className={`mt-1 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center 
                         ${statusColors[currentActivityType as keyof typeof statusColors] || 'bg-gray-100'}`}>
-                        {statusIcons[currentActivityType as keyof typeof statusIcons] || <Package className="w-5 h-5" />}
+                        {STATUS_MAPPING[currentActivityType as keyof typeof STATUS_MAPPING]?.icon || <Package className="w-5 h-5" />}
                       </div>
                       <div>
                         <h4 className="font-medium text-gray-800">
-                          {currentActivityType?.charAt(0) + currentActivityType?.slice(1).toLowerCase()}
+                          {STATUS_MAPPING[currentActivityType as keyof typeof STATUS_MAPPING]?.label || currentActivityType}
                         </h4>
                         <p className="text-sm text-gray-600 mt-1">
                           {formatTrackingDate(trackingInfo.activityDate)}
@@ -307,7 +331,6 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({
   );
 };
 
-// Update Order Tracking Component
 export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({ 
   order, 
   isOpen, 
@@ -317,6 +340,20 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const { user } = useUser();
+
+  const { data: existingTrackingData, refetch } = useQuery({
+    queryKey: ['order-tracking-existing', order.cartId],
+    queryFn: () => axiosInstance.request({
+      method: 'GET',
+      url: 'ecommerce/track-sale-order',
+      params: {
+        orderNo: order.cartId
+      }
+    }),
+    enabled: isOpen && !!order.cartId,
+    select: (response: any) => response.data,
+  });
 
   const {
     register,
@@ -334,25 +371,40 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
     }
   });
 
-  // Activity type options
+  useEffect(() => {
+    if (isOpen && existingTrackingData?.orderTrackInfo) {
+      const trackingInfo = existingTrackingData.orderTrackInfo;
+      setValue('status', trackingInfo.status || '');
+      setValue('activityType', trackingInfo.activityType || '');
+      setValue('comment', trackingInfo.comment || '');
+      setValue('docLink', trackingInfo.docLink || '');
+    }
+  }, [isOpen, existingTrackingData, setValue]);
+
   const activityTypeOptions = [
+    { id: 'PENDING', name: 'Pending' },
+    { id: 'PAYMENT_RECEIVED', name: 'Payment Received'},
+    { id: 'ORDER_REVIEW', name: 'Order In Review'},
     { id: 'PACKING', name: 'Packed' },
-    { id: 'SHIPPED', name: 'Shipped' },
+    { id: 'SHIPPING', name: 'Shipping' },
+    { id: 'IN_TRANSIT', name: 'Order In Transit'},
     { id: 'DELIVERED', name: 'Delivered' },
     { id: 'CANCELLED', name: 'Cancelled' },
   ];
 
-  // Status options
   const statusOptions = [
     { id: 'IN_PROGRESS', name: 'In Progress' },
     { id: 'COMPLETED', name: 'Completed' },
-    { id: 'PENDING', name: 'Pending' },
-    { id: 'CANCELLED', name: 'Cancelled' },
+    { id: 'CANCELLED', name: 'Cancelled' }
   ];
 
   const activityIcons = {
+    PENDING: <Clock className="w-5 h-5" />,
+    PAYMENT_RECEIVED: <CheckCircle className="w-5 h-5" />,
+    ORDER_REVIEW: <Clock className="w-5 h-5" />,
     PACKING: <Package className="w-5 h-5" />,
-    SHIPPED: <Truck className="w-5 h-5" />,
+    SHIPPING: <Truck className="w-5 h-5" />,
+    IN_TRANSIT: <Truck className="w-5 h-5" />,
     DELIVERED: <CheckCircle className="w-5 h-5" />,
     CANCELLED: <XCircle className="w-5 h-5" />,
   };
@@ -366,7 +418,10 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
         return 'bg-green-500 text-white';
       case 'processing':
       case 'pending':
+      case 'in_progress':
         return 'bg-blue-500 text-white';
+      case 'shipping':
+      case 'in_transit':
       case 'shipped':
         return 'bg-orange-500 text-white';
       case 'cancelled':
@@ -377,17 +432,14 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
     }
   };
 
-  // Handle file upload
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('File size must be less than 5MB');
         return;
       }
 
-      // Check file type
       const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
       if (!allowedTypes.includes(file.type)) {
         toast.error('Please select a JPEG, PNG, or PDF file');
@@ -397,7 +449,6 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
       setSelectedFile(file);
       setValue('docLink', file.name);
 
-      // Create preview for images
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -410,24 +461,20 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
     }
   };
 
-  // Upload file to server
   const uploadFile = async (file: File): Promise<string> => {
-    // Simulate file upload - replace with your actual upload logic
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(`https://example.com/uploads/${file.name}`);
+        resolve(`https://mmcpdocs.s3.eu-west-2.amazonaws.com/${file.name}`);
       }, 1000);
     });
   };
 
-  // Submit form
   const onSubmit = async (data: any) => {
     try {
       setIsUploading(true);
 
       let docLink = data.docLink;
 
-      // Upload file if selected
       if (selectedFile) {
         try {
           docLink = await uploadFile(selectedFile);
@@ -437,17 +484,15 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
         }
       }
 
-      // Prepare payload
       const payload = {
         orderNo: order.cartId,
         status: data.status,
         activityType: data.activityType,
         comment: data.comment,
         docLink: docLink,
-        entityCode: order.storeCode
+        entityCode: user?.entityCode
       };
 
-      // Call API to update tracking
       const response = await axiosInstance.request({
         method: 'POST',
         url: 'ecommerce/save-order-track',
@@ -459,6 +504,7 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
         reset();
         setSelectedFile(null);
         setPreviewUrl(null);
+        refetch();
         onSuccess?.();
         onClose();
       } else {
@@ -473,11 +519,12 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
   };
 
   const selectedActivityType = watch('activityType');
+  const existingTrackingInfo = existingTrackingData?.orderTrackInfo;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className='flex flex-col'>
           <DialogTitle className="text-center">
             Update Tracking for Order #{order.cartId}
           </DialogTitle>
@@ -487,7 +534,6 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Order Summary */}
           <div className="bg-gray-50 rounded-lg p-4">
             <h4 className="font-medium mb-3">Order Summary</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -510,11 +556,31 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
                 <p className="font-medium">{order.cartItems.length} items</p>
               </div>
             </div>
+            
+            {existingTrackingInfo && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <h5 className="font-medium text-blue-800 mb-2">Current Tracking Status</h5>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-blue-600">Activity:</span>
+                    <p className="font-medium">{existingTrackingInfo.activityType}</p>
+                  </div>
+                  <div>
+                    <span className="text-blue-600">Status:</span>
+                    <p className="font-medium">{existingTrackingInfo.status}</p>
+                  </div>
+                  {existingTrackingInfo.comment && (
+                    <div className="col-span-2">
+                      <span className="text-blue-600">Comment:</span>
+                      <p className="font-medium">{existingTrackingInfo.comment}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Status Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Status */}
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
               <select
@@ -534,7 +600,6 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
               )}
             </div>
 
-            {/* Activity Type */}
             <div className="space-y-2">
               <Label htmlFor="activityType">Activity Type *</Label>
               <select
@@ -555,7 +620,6 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
             </div>
           </div>
 
-          {/* Activity Icon Preview */}
           {selectedActivityType && (
             <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
               <div className="flex-shrink-0">
@@ -573,7 +637,6 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
             </div>
           )}
 
-          {/* Comments */}
           <div className="space-y-2">
             <Label htmlFor="comment">Comments</Label>
             <Textarea
@@ -584,7 +647,6 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
             />
           </div>
 
-          {/* File Upload */}
           <div className="space-y-2">
             <Label htmlFor="document">Upload Document</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
@@ -613,7 +675,6 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
               </Label>
             </div>
 
-            {/* File Preview */}
             {previewUrl && (
               <div className="mt-3">
                 <Label>Preview:</Label>
@@ -637,7 +698,6 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
               </div>
             )}
 
-            {/* Selected File Info */}
             {selectedFile && !previewUrl && (
               <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg mt-2">
                 <p><strong>Selected:</strong> {selectedFile.name}</p>
@@ -647,7 +707,6 @@ export const UpdateOrderTracking: React.FC<UpdateOrderTrackingProps> = ({
             )}
           </div>
 
-          {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <Button
               type="button"

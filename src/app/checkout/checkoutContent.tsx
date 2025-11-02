@@ -295,8 +295,11 @@ const CheckoutContent = () => {
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('info');
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>(null);
   const [wallets, setWallets] = useState<any | null>(null)
-  const [checkoutData, setCheckoutData] = useState(null)
+  const [checkoutData, setCheckoutData] = useState<any>(null)
   const [isRexpayCallback, setIsRexpayCallback] = useState(false);
+  const [orderTotal, setOrderTotal] = useState(0);
+  const [shippingFee, setShippingFee] = useState(0);
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -314,46 +317,75 @@ const CheckoutContent = () => {
   const router = useRouter();
   const storeCode = searchParams.get('storeCode') || ''
   const { toast } = useToast();
+  const { getCartTotal } = useCart();
 
   useEffect(() => {
     const stored = sessionStorage.getItem('checkout');
     if (stored) {
-        setCheckoutData(JSON.parse(stored));
-    }
+      const parsedData = JSON.parse(stored);
+      setCheckoutData(parsedData);
 
+      const subtotal = parsedData.subtotal || getCartTotal();
+      const shipping = parsedData.shippingFee || 0;
+      setShippingFee(shipping);
+      setOrderTotal(subtotal + shipping);
+    }
+  }, []);
+
+  useEffect(() => {
     const status = searchParams.get('status');
     if (status === 'rexpay_callback') {
-        console.log('RexPay callback detected in parent component');
-        console.log('StoreCode:', storeCode, 'OrderNo:', searchParams.get('orderNo'));
-        setIsRexpayCallback(true);
-        setSelectedPayment('rexpay');
-        setCurrentStep('payment');
-        
-        const url = new URL(window.location.href);
-        url.searchParams.delete('status');
-        window.history.replaceState({}, '', url.toString());
+      console.log('RexPay callback detected in parent component');
+      console.log('StoreCode:', storeCode, 'OrderNo:', searchParams.get('orderNo'));
+      setIsRexpayCallback(true);
+      setSelectedPayment('rexpay');
+      setCurrentStep('payment');
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete('status');
+      window.history.replaceState({}, '', url.toString());
     }
-}, [searchParams]);
+  }, [searchParams]);
 
-useEffect(() => {
-  const savedFormData = sessionStorage.getItem('checkoutFormData');
-  if (savedFormData) {
-    try {
-      const formData = JSON.parse(savedFormData);
-      form.reset(formData);
-    } catch (error) {
-      console.error('Error loading saved form data:', error);
+  useEffect(() => {
+    const savedFormData = sessionStorage.getItem('checkoutFormData');
+    if (savedFormData) {
+      try {
+        const formData = JSON.parse(savedFormData);
+        form.reset(formData);
+      } catch (error) {
+        console.error('Error loading saved form data:', error);
+      }
     }
-  }
 
-  const subscription = form.watch((value) => {
-    sessionStorage.setItem('checkoutFormData', JSON.stringify(value));
-  });
+    const subscription = form.watch((value) => {
+      sessionStorage.setItem('checkoutFormData', JSON.stringify(value));
+    });
 
-  return () => subscription.unsubscribe();
-}, [form]);
+    return () => subscription.unsubscribe();
+  }, [form]);
 
-  console.log(checkoutData);
+  const updateCheckoutData = (shippingCost: number) => {
+    const subtotal = checkoutData?.subtotal || getCartTotal();
+    const newTotal = subtotal + shippingCost;
+
+    setShippingFee(shippingCost);
+    setOrderTotal(newTotal);
+
+    if (checkoutData) {
+      const updatedData = {
+        ...checkoutData,
+        shippingFee: shippingCost,
+        totalAmount: newTotal
+      };
+      setCheckoutData(updatedData);
+      sessionStorage.setItem('checkout', JSON.stringify(updatedData));
+    }
+  };
+
+  console.log('Updated checkoutData:', checkoutData);
+  console.log('Order Total:', orderTotal);
+  console.log('Shipping Fee:', shippingFee);
 
   const handlePaymentSelect = (method: PaymentMethod) => {
     setSelectedPayment(method);
@@ -383,6 +415,7 @@ useEffect(() => {
             currentStep={currentStep}
             wallets={wallets}
             form={form}
+            orderTotal={orderTotal}
           />
         </Suspense>
       );
@@ -396,6 +429,7 @@ useEffect(() => {
           isCallback={isRexpayCallback}
           onSuccess={handleRexpaySuccess}
           form={form}
+          orderTotal={orderTotal}
         />
       );
     }
@@ -405,6 +439,8 @@ useEffect(() => {
         <WalletPayment
           setCurrentStep={setCurrentStep}
           setSelectedPayment={setSelectedPayment}
+          orderTotal={orderTotal}
+          form={form}
         />
       );
     }
@@ -417,6 +453,7 @@ useEffect(() => {
           isCallback={isRexpayCallback}
           onSuccess={handleRexpaySuccess}
           form={form}
+          orderTotal={orderTotal}
         />
       );
     }
@@ -425,6 +462,7 @@ useEffect(() => {
       return (
         <SolanaPay
           setCurrentStep={setCurrentStep}
+          orderTotal={orderTotal}
         />
       );
     }
@@ -436,6 +474,7 @@ useEffect(() => {
         <BankPayment
           setCurrentStep={setCurrentStep}
           copyToClipboard={copyToClipboard}
+          orderTotal={orderTotal}
         />
       );
     }
@@ -474,15 +513,25 @@ useEffect(() => {
   return (
     <div className="min-h-screen p-2">
       <div className="max-w-6xl mx-auto py-8">
-        {currentStep === 'info' && <BnplManager setCurrentStep={setCurrentStep} form={form} />}
-        {currentStep === 'cart' && <CartView
-          handlePaymentSelect={handlePaymentSelect}
-          setCurrentStep={setCurrentStep}
-          paymentMethod={selectedPayment}
-          setSelectedPayment={setSelectedPayment}
-          setWallets={setWallets}
-          form={form}
-        />}
+        {currentStep === 'info' && (
+          <BnplManager
+            setCurrentStep={setCurrentStep}
+            form={form}
+            onShippingUpdate={updateCheckoutData}
+          />
+        )}
+        {currentStep === 'cart' && (
+          <CartView
+            handlePaymentSelect={handlePaymentSelect}
+            setCurrentStep={setCurrentStep}
+            paymentMethod={selectedPayment}
+            setSelectedPayment={setSelectedPayment}
+            setWallets={setWallets}
+            form={form}
+            orderTotal={orderTotal}
+            shippingFee={shippingFee}
+          />
+        )}
 
         {currentStep === 'payment' && <PaymentView />}
         {currentStep === 'processing' && <ProcessingView />}
