@@ -27,6 +27,9 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
+            # Clean up any workspace configuration files that might cause issues
+            rm -f pnpm-workspace.yaml
+
             # Stop existing container
             docker stop nextjs-app || true
             docker rm nextjs-app || true
@@ -53,7 +56,7 @@ jobs:
               --build-arg NEXT_PUBLIC_REXPAY_PROD_SECRET_KEY=${{ secrets.NEXT_PUBLIC_REXPAY_PROD_SECRET_KEY }} \
               --no-cache -t nextjs-app:latest .
 
-            # Run container (runtime vars optional, already baked in)
+            # Run container
             docker run -d \
               --name nextjs-app \
               --restart unless-stopped \
