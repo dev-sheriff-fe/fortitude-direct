@@ -221,7 +221,7 @@ import CardAlert from './card-alert';
 import { useQuery } from '@tanstack/react-query';
 import axiosCustomer from '@/utils/fetch-function-customer';
 import useCustomer from '@/store/customerStore';
-import Loader from '../ui/loader/loader';
+import Loader from '@/components/ui/loader'
 
 type CartViewProps = {
   handlePaymentSelect: (method: PaymentMethod) => void;
@@ -257,7 +257,7 @@ const CartView = ({
       method: 'GET',
       url: '/payment-methods/fetch',
       params: {
-        country: customer?.country || 'NG',
+        // country: customer?.country || 'NG',
         storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
       }
     })

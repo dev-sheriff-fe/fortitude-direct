@@ -355,7 +355,7 @@
 
 // export default RexpayPayment;
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Button } from '../ui/button';
 import { ArrowLeft, Building2, CheckCircle, Loader2, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -381,6 +381,9 @@ type RexpayPaymentProps = {
     form: UseFormReturn<FormData>;
 }
 
+// Global flag to prevent multiple verifications across component instances
+let globalVerificationInProgress = false;
+
 const RexpayPayment = ({
     setCurrentStep,
     setSelectedPayment,
@@ -401,66 +404,39 @@ const RexpayPayment = ({
     const searchParams = useSearchParams();
     const currentDate = getCurrentDate();
 
+    // Refs to track state without causing re-renders
+    const hasSubmittedOrder = useRef(false);
+    const isVerifying = useRef(false);
+    const verificationAttempts = useRef(0);
+    const maxVerificationAttempts = 1; // Only verify once
+
     const storeCode = searchParams.get('storeCode') || '';
     const orderNo = searchParams.get('orderNo') || '';
 
-    useEffect(() => {
-        const stored = sessionStorage.getItem('checkout');
-        if (stored) {
-            setCheckoutData(JSON.parse(stored));
+    // Memoized callbacks to prevent recreation on every render
+    const clearRexpaySession = useCallback(() => {
+        try {
+            sessionStorage.removeItem('rexpay_tranId');
+            sessionStorage.removeItem('rexpay_reference');
+            sessionStorage.removeItem('rexpay_clientId');
+            console.log('RexPay session cleared');
+        } catch (e) {
+            console.warn('Failed to clear RexPay session:', e);
+        }
+    }, []);
+
+    const handleSubmitOrder = useCallback(() => {
+        // Prevent multiple submissions
+        if (hasSubmittedOrder.current) {
+            console.log('Order submission already completed, skipping');
+            return;
         }
 
-        const savedFormData = sessionStorage.getItem('checkoutFormData');
-        if (savedFormData) {
-            try {
-                const parsedFormData = JSON.parse(savedFormData);
-                setFormData(parsedFormData);
-                console.log('Loaded form data from sessionStorage:', parsedFormData);
-            } catch (error) {
-                console.error('Error loading form data:', error);
-            }
+        if (isSubmitting) {
+            console.log('Order submission already in progress, skipping');
+            return;
         }
 
-        if (isCallback) {
-            console.log('RexPay callback detected in component, starting verification...');
-            console.log('Current URL params - storeCode:', storeCode, 'orderNo:', orderNo);
-            handleRexpayCallback();
-        }
-    }, [isCallback, storeCode, orderNo]);
-
-    const { mutate: submitOrder, isPending: isSubmitting } = useMutation({
-        mutationFn: (data: any) => axiosCustomer({
-            url: '/ecommerce/submit-order',
-            method: 'POST',
-            data
-        }),
-        onSuccess: (data) => {
-            console.log('Submit order response:', data);
-            if (data?.data?.responseCode !== '000') {
-                toast.error(data?.data?.responseMessage || 'Failed to save order');
-                setVerificationStatus('failed');
-                return;
-            }
-            toast.success('Order submitted successfully!');
-            clearRexpaySession();
-
-            sessionStorage.removeItem('checkoutFormData');
-
-            if (onSuccess) {
-                onSuccess();
-            } else {
-                const successOrderNo = data?.data?.orderNo || checkoutData?.orderNo || orderNo;
-                router.push(`/rexpay-success?storeCode=${storeCode}&orderNo=${successOrderNo}&status=success`);
-            }
-        },
-        onError: (error) => {
-            console.error('Submit order error:', error);
-            toast.error('Failed to save order!');
-            setVerificationStatus('failed');
-        }
-    });
-
-    const handleSubmitOrder = () => {
         if (!checkoutData && !orderNo) {
             console.error('Missing checkout data and order number');
             toast.error('Missing order information. Please try again.');
@@ -519,19 +495,70 @@ const RexpayPayment = ({
             cartItems: orderItems
         };
 
-        console.log('Submitting order payload:', payload);
+        console.log('Submitting order payload - Attempt prevented:', hasSubmittedOrder.current);
+        hasSubmittedOrder.current = true;
         submitOrder(payload);
-    };
+    }, [
+        checkoutData, orderNo, customer, cart, formData, form, 
+        currentDate, total, currency, location, storeCode
+    ]);
 
-    const handleRexpayCallback = async () => {
-        console.log('Starting RexPay verification...');
-        console.log('Available data - storeCode:', storeCode, 'orderNo:', orderNo, 'checkoutData:', checkoutData);
-        console.log('Form data available:', formData);
-        setVerificationStatus('verifying');
-        await verifyRexpayPayment();
-    };
+    const { mutate: submitOrder, isPending: isSubmitting } = useMutation({
+        mutationFn: (data: any) => axiosCustomer({
+            url: '/ecommerce/submit-order',
+            method: 'POST',
+            data
+        }),
+        onSuccess: (data) => {
+            console.log('Submit order response:', data);
+            if (data?.data?.responseCode !== '000') {
+                toast.error(data?.data?.responseMessage || 'Failed to save order');
+                setVerificationStatus('failed');
+                hasSubmittedOrder.current = false; // Reset on failure
+                return;
+            }
+            toast.success('Order submitted successfully!');
+            clearRexpaySession();
 
-    const verifyRexpayPayment = async () => {
+            sessionStorage.removeItem('checkoutFormData');
+            hasSubmittedOrder.current = true;
+
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                const successOrderNo = data?.data?.orderNo || checkoutData?.orderNo || orderNo;
+                router.push(`/rexpay-success?storeCode=${storeCode}&orderNo=${successOrderNo}&status=success`);
+            }
+        },
+        onError: (error) => {
+            console.error('Submit order error:', error);
+            toast.error('Failed to save order!');
+            setVerificationStatus('failed');
+            hasSubmittedOrder.current = false; // Reset on error
+        }
+    });
+
+    const verifyRexpayPayment = useCallback(async () => {
+        // Prevent multiple verifications
+        if (isVerifying.current) {
+            console.log('Verification already in progress, skipping');
+            return;
+        }
+
+        if (verificationAttempts.current >= maxVerificationAttempts) {
+            console.log('Maximum verification attempts reached, skipping');
+            return;
+        }
+
+        if (globalVerificationInProgress) {
+            console.log('Global verification in progress, skipping');
+            return;
+        }
+
+        verificationAttempts.current++;
+        isVerifying.current = true;
+        globalVerificationInProgress = true;
+
         try {
             const tranId = sessionStorage.getItem('rexpay_tranId');
             console.log('Verifying payment with transaction ID:', tranId);
@@ -554,6 +581,7 @@ const RexpayPayment = ({
                 setVerificationStatus('success');
                 toast.success('Payment verified successfully!');
 
+                // Call handleSubmitOrder directly
                 handleSubmitOrder();
             } else {
                 console.error('Payment verification failed:', verificationResponse);
@@ -564,18 +592,25 @@ const RexpayPayment = ({
             console.error('Payment verification error:', error);
             setVerificationStatus('failed');
             toast.error('Payment verification failed. Please contact support.');
+        } finally {
+            isVerifying.current = false;
+            globalVerificationInProgress = false;
         }
-    };
+    }, [handleSubmitOrder]);
 
-    const clearRexpaySession = () => {
-        try {
-            sessionStorage.removeItem('rexpay_tranId');
-            sessionStorage.removeItem('rexpay_reference');
-            sessionStorage.removeItem('rexpay_clientId');
-        } catch (e) {
-            console.warn('Failed to clear RexPay session:', e);
-        }
-    };
+    const handleRexpayCallback = useCallback(async () => {
+        console.log('Starting RexPay verification...');
+        console.log('Available data - storeCode:', storeCode, 'orderNo:', orderNo, 'checkoutData:', checkoutData);
+        console.log('Form data available:', formData);
+        
+        // Reset states for callback
+        hasSubmittedOrder.current = false;
+        isVerifying.current = false;
+        verificationAttempts.current = 0;
+        
+        setVerificationStatus('verifying');
+        await verifyRexpayPayment();
+    }, [storeCode, orderNo, checkoutData, formData, verifyRexpayPayment]);
 
     const initializeRexpayPayment = async () => {
         if (!checkoutData && !orderNo) {
@@ -648,10 +683,46 @@ const RexpayPayment = ({
         }
     };
 
+    // Single useEffect for initialization with proper cleanup
     useEffect(() => {
-        console.log('Form data state updated:', formData);
-    }, [formData]);
+        console.log('RexpayPayment component mounted, isCallback:', isCallback);
+        
+        const stored = sessionStorage.getItem('checkout');
+        if (stored) {
+            setCheckoutData(JSON.parse(stored));
+        }
 
+        const savedFormData = sessionStorage.getItem('checkoutFormData');
+        if (savedFormData) {
+            try {
+                const parsedFormData = JSON.parse(savedFormData);
+                setFormData(parsedFormData);
+                console.log('Loaded form data from sessionStorage:', parsedFormData);
+            } catch (error) {
+                console.error('Error loading form data:', error);
+            }
+        }
+
+        // Only trigger callback if isCallback is true and we're not already verifying
+        if (isCallback && !isVerifying.current && !globalVerificationInProgress) {
+            console.log('RexPay callback detected, starting verification...');
+            handleRexpayCallback();
+        }
+
+        // Cleanup function
+        return () => {
+            console.log('RexpayPayment component unmounting');
+            // Don't reset global flag here as verification might still be in progress
+        };
+    }, [isCallback, handleRexpayCallback]);
+
+    // Debug effect to log state changes
+    useEffect(() => {
+        console.log('Verification status changed:', verificationStatus);
+        console.log('Submission state - hasSubmitted:', hasSubmittedOrder.current, 'isSubmitting:', isSubmitting);
+    }, [verificationStatus, isSubmitting]);
+
+    // Render methods remain the same...
     if (isCallback && verificationStatus === 'verifying') {
         return (
             <div className="max-w-md mx-auto space-y-6 text-center">
@@ -662,6 +733,7 @@ const RexpayPayment = ({
                     <p>Store: {storeCode}</p>
                     <p>Order: {orderNo}</p>
                     <p>Form Data: {formData ? 'Loaded' : 'Not loaded'}</p>
+                    <p>Attempts: {verificationAttempts.current}</p>
                 </div>
             </div>
         );
@@ -711,7 +783,7 @@ const RexpayPayment = ({
                     <p>Store: {storeCode || 'Not found'}</p>
                     <p>Order: {orderNo || 'Not found'}</p>
                     <p>Customer: {customer ? 'Available' : 'Not available'}</p>
-                    <p>Form Data: {formData ? JSON.stringify(formData) : 'Not available'}</p>
+                    <p>Verification Attempts: {verificationAttempts.current}</p>
                 </div>
                 <Button onClick={() => setSelectedPayment(null)} variant="outline">
                     Try Another Payment Method
@@ -730,7 +802,6 @@ const RexpayPayment = ({
                 >
                     <ArrowLeft className="w-4 h-4" />
                 </Button>
-                {/* <h2 className="text-2xl font-bold">RexPay Payment</h2> */}
             </div>
 
             <Card>
@@ -765,14 +836,6 @@ const RexpayPayment = ({
                             <li>You'll be redirected back automatically</li>
                         </ol>
                     </div>
-
-                    {/* <div className="text-xs text-muted-foreground p-2 bg-blue-50 rounded">
-                        <p><strong>Current Parameters:</strong></p>
-                        <p>Store Code: {storeCode || 'Not set'}</p>
-                        <p>Order No: {orderNo || 'Not set'}</p>
-                        <p>Is Callback: {isCallback ? 'Yes' : 'No'}</p>
-                        <p>Form Data: {formData ? 'Loaded' : 'Not loaded'}</p>
-                    </div> */}
 
                     <Button
                         onClick={initializeRexpayPayment}
