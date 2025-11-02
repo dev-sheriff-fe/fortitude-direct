@@ -159,16 +159,18 @@ ENV NEXT_PUBLIC_REXPAY_PROD_USERNAME=$NEXT_PUBLIC_REXPAY_PROD_USERNAME
 ENV NEXT_PUBLIC_REXPAY_PROD_CLIENT_ID=$NEXT_PUBLIC_REXPAY_PROD_CLIENT_ID
 ENV NEXT_PUBLIC_REXPAY_PROD_SECRET_KEY=$NEXT_PUBLIC_REXPAY_PROD_SECRET_KEY
 
-# Install libc6-compat for Alpine compatibility
-RUN apk add --no-cache libc6-compat
+# Install build dependencies including Python 3 and build tools
+RUN apk add --no-cache libc6-compat python3 make g++
+
+# Set Python 3 as the default python
+RUN ln -sf python3 /usr/bin/python
 
 WORKDIR /app
 
 # Copy package files first to leverage docker layer cache
-# Use pnpm lockfile instead of npm's package-lock.json
 COPY package.json pnpm-lock.yaml ./
 
-# Enable corepack and install dependencies via pnpm (deterministic)
+# Enable corepack and install dependencies via pnpm
 RUN corepack enable \
  && corepack prepare pnpm@9.15.1 --activate \
  && pnpm install --frozen-lockfile
@@ -216,5 +218,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Start the application
-# Use pnpm start (pnpm is available via corepack activation)
 CMD ["pnpm", "start"]
