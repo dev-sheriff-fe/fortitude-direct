@@ -192,9 +192,9 @@ RUN addgroup --system --gid 1001 nodejs \
 # Copy only manifest files used for production install
 COPY package.json pnpm-lock.yaml ./
 
-# Enable corepack and install only production dependencies
+# Disable corepack signature verification and install production deps
 RUN corepack enable \
- && corepack prepare pnpm@9.15.1 --activate \
+ && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack prepare pnpm@9.15.1 --activate \
  && pnpm install --prod --frozen-lockfile
 
 # Copy built application and static assets from builder stage
@@ -213,5 +213,5 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Start the application
-CMD ["pnpm", "start"]
+# Start the application directly with node to avoid corepack issues
+CMD ["node", "node_modules/.bin/next", "start"]
