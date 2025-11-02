@@ -167,17 +167,19 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files first to leverage docker layer cache
-COPY package.json package-lock.json ./
+# Use pnpm lockfile instead of npm's package-lock.json
+COPY package.json pnpm-lock.yaml ./
 
-# Install all dependencies (including devDependencies) for build
-# npm ci uses package-lock.json and is deterministic
-RUN npm ci
+# Enable corepack and install dependencies via pnpm (deterministic)
+RUN corepack enable \
+ && corepack prepare pnpm@latest --activate \
+ && pnpm install --frozen-lockfile
 
 # Copy the rest of the source
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm build
 
 # Production stage
 FROM node:20.18.0-alpine AS runner
@@ -191,15 +193,18 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs \
  && adduser --system --uid 1001 nextjs
 
-# Copy built application and manifest files from builder stage
+# Copy only manifest files used for production install
+COPY package.json pnpm-lock.yaml ./
+
+# Enable corepack and install only production dependencies
+RUN corepack enable \
+ && corepack prepare pnpm@latest --activate \
+ && pnpm install --prod --frozen-lockfile
+
+# Copy built application and static assets from builder stage
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/package-lock.json ./package-lock.json
-
-# Install only production dependencies
-# --omit=dev is supported by modern npm; fallback note below
-RUN npm ci --omit=dev
 
 # Switch to non-root user
 USER nextjs
@@ -213,4 +218,5 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Start the application
-CMD ["npm", "start"]
+# Use pnpm start (pnpm is available via corepack activation)
+CMD ["pnpm", "start"]
