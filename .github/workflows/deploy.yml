@@ -8,6 +8,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -17,24 +20,17 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             set -e
-            if [ ! -d "/opt/nextjs-app" ]; then
-              git clone https://github.com/${{ github.repository }}.git /opt/nextjs-app
-            fi
-
             cd /opt/nextjs-app
-
+            
             # Pull latest code
             git fetch origin
             git reset --hard origin/main
-
-            # Clean up any workspace configuration files that might cause issues
-            rm -f pnpm-workspace.yaml
-
-            # Stop existing container
+            
+            # Stop and remove existing container
             docker stop nextjs-app || true
             docker rm nextjs-app || true
-
-            # Build new Docker image with build args from secrets
+            
+            # Build new Docker image
             docker build \
               --build-arg NEXT_PUBLIC_STORE_FRONT=fortitude \
               --build-arg NEXT_PUBLIC_DOMAIN=${{ secrets.NEXT_PUBLIC_DOMAIN }} \
@@ -54,11 +50,11 @@ jobs:
               --build-arg NEXT_PUBLIC_REXPAY_PROD_USERNAME=${{ secrets.NEXT_PUBLIC_REXPAY_PROD_USERNAME }} \
               --build-arg NEXT_PUBLIC_REXPAY_PROD_CLIENT_ID=${{ secrets.NEXT_PUBLIC_REXPAY_PROD_CLIENT_ID }} \
               --build-arg NEXT_PUBLIC_REXPAY_PROD_SECRET_KEY=${{ secrets.NEXT_PUBLIC_REXPAY_PROD_SECRET_KEY }} \
-              --no-cache -t nextjs-app:latest .
-
-            # Run container
+              -t nextjs-app:latest .
+            
+            # Run container with network mode
             docker run -d \
               --name nextjs-app \
               --restart unless-stopped \
-              -p 3000:3000 \
+              --network host \
               nextjs-app:latest
