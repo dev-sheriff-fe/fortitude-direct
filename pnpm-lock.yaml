@@ -213,6 +213,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.16
+      '@types/classnames':
+        specifier: ^2.3.4
+        version: 2.3.4
       '@types/node':
         specifier: ^20
         version: 20.19.24
@@ -2684,6 +2687,10 @@ packages:
 
   '@types/aws-lambda@8.10.157':
     resolution: {integrity: sha512-ofjcRCO1N7tMZDSO11u5bFHPDfUFD3Q9YK9g4S4w8UDKuG3CNlw2lNK1sd3Itdo7JORygZmG4h9ZykS8dlXvMA==}
+
+  '@types/classnames@2.3.4':
+    resolution: {integrity: sha512-dwmfrMMQb9ujX1uYGvB5ERDlOzBNywnZAZBtOe107/hORWP05ESgU4QyaanZMWYYfd2BzrG78y13/Bju8IQcMQ==}
+    deprecated: This is a stub types definition. classnames provides its own type definitions, so you do not need this installed.
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
@@ -9859,6 +9866,10 @@ snapshots:
     optional: true
 
   '@types/aws-lambda@8.10.157': {}
+
+  '@types/classnames@2.3.4':
+    dependencies:
+      classnames: 2.5.1
 
   '@types/connect@3.4.38':
     dependencies:
