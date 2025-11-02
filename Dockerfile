@@ -115,7 +115,7 @@
 # Build stage
 FROM node:20.18.0-alpine AS builder
 
-# Build-time args - match exactly what you pass in GitHub Actions
+# Build-time args
 ARG NEXT_PUBLIC_STORE_FRONT
 ARG NEXT_PUBLIC_DOMAIN
 ARG NEXT_PUBLIC_ACCENT_COLOR
@@ -135,7 +135,7 @@ ARG NEXT_PUBLIC_REXPAY_PROD_USERNAME
 ARG NEXT_PUBLIC_REXPAY_PROD_CLIENT_ID
 ARG NEXT_PUBLIC_REXPAY_PROD_SECRET_KEY
 
-# Environment variables - use the exact same names
+# Environment variables
 ENV NEXT_PUBLIC_STORE_FRONT=$NEXT_PUBLIC_STORE_FRONT
 ENV NEXT_PUBLIC_DOMAIN=$NEXT_PUBLIC_DOMAIN
 ENV NEXT_PUBLIC_ACCENT_COLOR=$NEXT_PUBLIC_ACCENT_COLOR
@@ -192,7 +192,7 @@ RUN addgroup --system --gid 1001 nodejs \
 # Copy only manifest files used for production install
 COPY package.json pnpm-lock.yaml ./
 
-# Disable corepack signature verification and install production deps
+# Enable corepack and install only production dependencies
 RUN corepack enable \
  && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack prepare pnpm@9.15.1 --activate \
  && pnpm install --prod --frozen-lockfile
@@ -213,5 +213,5 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Start the application directly with node to avoid corepack issues
-CMD ["node", "node_modules/.bin/next", "start"]
+# Start the application using npx (recommended approach)
+CMD ["npx", "next", "start"]
