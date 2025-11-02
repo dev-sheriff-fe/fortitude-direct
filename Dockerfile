@@ -172,7 +172,7 @@ COPY package.json pnpm-lock.yaml ./
 
 # Enable corepack and install dependencies via pnpm (deterministic)
 RUN corepack enable \
- && corepack prepare pnpm@latest --activate \
+ && corepack prepare pnpm@9.15.1 --activate \
  && pnpm install --frozen-lockfile
 
 # Copy the rest of the source
@@ -198,7 +198,7 @@ COPY package.json pnpm-lock.yaml ./
 
 # Enable corepack and install only production dependencies
 RUN corepack enable \
- && corepack prepare pnpm@latest --activate \
+ && corepack prepare pnpm@9.15.1 --activate \
  && pnpm install --prod --frozen-lockfile
 
 # Copy built application and static assets from builder stage
