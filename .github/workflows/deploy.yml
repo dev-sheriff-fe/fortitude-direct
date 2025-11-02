@@ -58,3 +58,13 @@ jobs:
               --restart unless-stopped \
               --network host \
               nextjs-app:latest
+
+              sleep 10
+echo "=== Checking container status ==="
+docker ps -a
+echo "=== Checking container logs ==="
+docker logs nextjs-app || echo "No logs available"
+echo "=== Checking if app is responding ==="
+curl -f http://localhost:3000 || echo "Container not responding on port 3000"
+echo "=== Checking running processes in container ==="
+docker exec nextjs-app ps aux || echo "Cannot exec into container"
