@@ -133,7 +133,7 @@ const getStatusIcon = (status: string): React.ReactNode => {
 const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   data,
-  itemsPerPage = 4,
+  itemsPerPage = 5,
   onViewDetails
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -468,8 +468,8 @@ export default function OrderHistory(): React.ReactElement {
       url: '/customer-dashboard/fetch-recent-orders',
       method: 'GET',
       params: {
-        storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
-        entityCode: customer?.entityCode
+        pageNumber: 1,
+        pageSize: 10,
       }
     })
   });

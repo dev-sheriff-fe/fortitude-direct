@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import SidebarMobile from './sidebar-mobile';
 import router from 'next/router';
 import Link from 'next/link';
+import SetPinButton from '../pin/set-pin-trigger';
 
 
 const formatCurrentDate = () => {

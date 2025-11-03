@@ -248,160 +248,194 @@ useEffect(() => {
 
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className=" pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-                <Tag className="h-5 w-5" />
-                Basic Information
-              </CardTitle>
-              <CardDescription>Category identity and details</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="flex items-center gap-1 text-sm font-medium">
-                  <span>Category Name</span>
-                  <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <BookOpen className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    className="pl-10"
-                    {...register("name", { required: "Category name is required" })}
-                  />
-                </div>
-                {errors.name && (
-                  <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="code" className="flex items-center gap-1 text-sm font-medium">
-                  <span>Category Code</span>
-                  <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Hash className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="code"
-                    className="pl-10"
-                    {...register("code", { required: "Category code is required" })}
-                  />
-                </div>
-                {errors.code && (
-                  <p className="text-sm text-destructive mt-1">{errors.code.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-medium">Description</Label>
-                <div className="relative">
-                  <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Textarea
-                    id="description"
-                    className="pl-10 min-h-[100px]"
-                    {...register("description")}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className=" pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-                <Layers className="h-5 w-5" />
-                Classification
-              </CardTitle>
-              <CardDescription>Category organization and metadata</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="sector" className="text-sm font-medium">Sector</Label>
-                <Controller
-                  name="sector"
-                  control={control}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a sector" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {sectorOptions?.map((sector, index: number) => (
-                          <SelectItem key={index} value={sector.value}>
-                            {sector.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+          {/* Left Column - Basic Information */}
+          <div className="space-y-8">
+            <Card className="border-accent/20 border-2 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
+                  <Tag className="h-5 w-5" />
+                  Basic Information
+                </CardTitle>
+                <CardDescription>Category identity and details</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="flex items-center gap-1 text-sm font-medium">
+                    <span>Category Name</span>
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <BookOpen className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="name"
+                      className="pl-10"
+                      {...register("name", { required: "Category name is required" })}
+                    />
+                  </div>
+                  {errors.name && (
+                    <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
                   )}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="topCategory" className="text-sm font-medium">Top Category</Label>
-                <Controller
-                  name="topCategory"
-                  control={control}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a category level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {topCategoryOptions?.map((category, index: number) => (
-                          <SelectItem key={index} value={category.value}>
-                            {category.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-
-              {/* <div className="space-y-2">
-                <Label htmlFor="qty" className="text-sm font-medium">Quantity/Unit</Label>
-                <Input
-                  id="qty"
-                  {...register("qty")}
-                />
-              </div> */}
-
-              <div className="space-y-2">
-                <Label htmlFor="tags" className="text-sm font-medium">Tags</Label>
-                <div className="relative">
-                  <Tag className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="tags"
-                    className="pl-10"
-                    {...register("tags")}
-                    placeholder="Separate tags with commas"
-                  />
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+
+                <div className="space-y-2">
+                  <Label htmlFor="code" className="flex items-center gap-1 text-sm font-medium">
+                    <span>Category Code</span>
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Hash className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="code"
+                      className="pl-10"
+                      {...register("code", { required: "Category code is required" })}
+                    />
+                  </div>
+                  {errors.code && (
+                    <p className="text-sm text-destructive mt-1">{errors.code.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+                  <div className="relative">
+                    <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Textarea
+                      id="description"
+                      className="pl-10 min-h-[100px]"
+                      {...register("description")}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-accent/20 border-2 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
+                  <Layers className="h-5 w-5" />
+                  Classification
+                </CardTitle>
+                <CardDescription>Category organization and metadata</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="sector" className="text-sm font-medium">Sector</Label>
+                    <Controller
+                      name="sector"
+                      control={control}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select sector" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {sectorOptions?.map((sector, index: number) => (
+                              <SelectItem key={index} value={sector.value}>
+                                {sector.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="topCategory" className="text-sm font-medium">Category Level</Label>
+                    <Controller
+                      name="topCategory"
+                      control={control}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {topCategoryOptions?.map((category, index: number) => (
+                              <SelectItem key={index} value={category.value}>
+                                {category.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* <div className="space-y-2">
+                  <Label htmlFor="qty" className="text-sm font-medium">Quantity/Unit</Label>
+                  <Input
+                    id="qty"
+                    {...register("qty")}
+                  />
+                </div> */}
+
+                <div className="space-y-2">
+                  <Label htmlFor="tags" className="text-sm font-medium">Tags</Label>
+                  <div className="relative">
+                    <Tag className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="tags"
+                      className="pl-10"
+                      {...register("tags")}
+                      placeholder="Separate tags with commas"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - Classification & Logo */}
+          <div className="space-y-8">
+            {/* Category Logo Card */}
+            <Card className="border-accent/20 border-2 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
+                  <ImageIcon className="h-5 w-5" />
+                  Category Logo
+                </CardTitle>
+                <CardDescription>Upload a category logo image</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {/* Image Preview */}
+                  {(fileUrl || watchedImageURL) && (
+                    <div className="flex flex-col items-center space-y-3">
+                      <Label className="text-sm font-medium">Logo Preview</Label>
+                      <div className="border-2 border-dashed border-accent/30 rounded-lg p-4 w-full max-w-xs">
+                        <img 
+                          src={fileUrl || watchedImageURL} 
+                          alt="Category logo preview" 
+                          className="w-full h-48 object-contain rounded-md"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Preview of your category logo
+                      </p>
+                    </div>
+                  )}
+                  
+                  <FileUpload
+                    onFileSelect={handleFileChange}
+                    currentFileUrl={watchedImageURL}
+                    accept="image/*"
+                    label="Upload Category Logo"
+                  />
+                  
+                  <div className="text-xs text-muted-foreground">
+                    <p>• Supported formats: JPG, PNG, WebP</p>
+                    <p>• Maximum file size: 5MB</p>
+                    <p>• Recommended aspect ratio: 1:1 (square)</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        <Card className="mt-8 border-accent/20 border-2 shadow-md">
-          <CardHeader className=" pb-4">
-            <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-              <ImageIcon className="h-5 w-5" />
-              Category Logo
-            </CardTitle>
-            <CardDescription>Upload a category logo image</CardDescription>
-          </CardHeader>
-          <CardContent className="p-6">
-            <FileUpload
-              onFileSelect={handleFileChange}
-              currentFileUrl={watchedImageURL}
-              accept="image/*"
-              label="Category Logo"
-            />
-          </CardContent>
-        </Card>
-
+        {/* Action Buttons */}
         <div className="flex justify-end gap-4 pt-8 mt-8 border-t border-accent/20">
           <Button 
             type="button" 

@@ -414,8 +414,10 @@ export default function OrderHistory(): React.ReactElement {
       url: '/store-dashboard/fetch-recent-orders',
       method: 'GET',
       params: {
+        pageNumber: 1,
+        pageSize: 10,
         storeCode: user?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
-        entityCode: user?.entityCode
+        entityCode: user?.entityCode || process.env.NEXT_PUBLIC_ENTITY_CODE
       }
     })
   });

@@ -71,7 +71,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   const handleViewDetails = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
     setIsModalOpen(true);
-    onViewDetails(transaction); // Call the parent's handler
+    onViewDetails(transaction);
   };
 
   const handlePageChange = (page: number) => {
@@ -80,7 +80,6 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }
   };
 
-  // Update columns to include the click handler
   const columnsWithHandler = columns.map(col => {
     if (col.key === 'actions') {
       return {
@@ -235,7 +234,9 @@ export default function TransactionHistory(): React.ReactElement {
       method: 'GET',
       params: {
         storeCode: user?.storeCode ||  process.env.NEXT_PUBLIC_STORE_CODE,
-        entityCode: user?.entityCode
+        entityCode: user?.entityCode || process.env.NEXT_PUBLIC_ENTITY_CODE,
+        pageNumber: 1,
+        pageSize: 10
       }
     })
   });
@@ -290,16 +291,16 @@ export default function TransactionHistory(): React.ReactElement {
         <span className="text-sm font-semibold text-green-600">{text}</span>
       ),
     },
-    {
-      title: 'Address',
-      dataIndex: 'fromAddress',
-      key: 'fromAddress',
-      render: (text: string) => (
-        <p className="text-sm text-gray-900 max-w-[120px] truncate" title={text}>
-          {text || 'N/A'}
-        </p>
-      ),
-    },
+    // {
+    //   title: 'Address',
+    //   dataIndex: 'fromAddress',
+    //   key: 'fromAddress',
+    //   render: (text: string) => (
+    //     <p className="text-sm text-gray-900 max-w-[120px] truncate" title={text}>
+    //       {text || 'N/A'}
+    //     </p>
+    //   ),
+    // },
     {
       title: 'Status',
       dataIndex: 'status',

@@ -119,7 +119,7 @@ const ProductsTable = ({
       width: 100,
       render: (stock: number, record: Product) => (
         <span className="text-sm font-medium">
-          {stock || 0} {record.unit || ''}
+          {`${stock || 0}qty`} {`${record.unit || ''}unit`}
         </span>
       ),
     },

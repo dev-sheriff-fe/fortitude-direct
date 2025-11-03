@@ -12,6 +12,10 @@ const TransactionsManager = () => {
     queryFn: () => axiosCustomer.request({
       url: '/customer-dashboard/fetchRecentTrans',
       method: 'GET',
+      // params: {
+      //   pageNumber: 1,
+      //   pageSize: 100
+      // }
     })
   });
 
