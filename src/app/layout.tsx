@@ -109,8 +109,21 @@ const albertSans = {
   style: 'normal',
 };
 
+const entityObject = {
+  h2p: {
+    name: 'Help2Pay | home'
+  },
+  fortitude: {
+    name: 'Fortitude | home'
+  },
+  theme1: {
+    name: 'Help2Pay | home'
+  }
+}
+
+
 export const metadata: Metadata = {
-  title: process.env?.NEXT_PUBLIC_STORE_FRONT === 'h2p' ? "Help2Pay" : 'Fortitude',
+  title: entityObject[process.env?.NEXT_PUBLIC_STORE_FRONT as keyof typeof entityObject]?.name || 'Fortitude',
   description: "Revolutionising the e-commerce world",
 };
 
