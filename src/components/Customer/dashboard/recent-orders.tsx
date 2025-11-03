@@ -22,7 +22,6 @@ import { toast } from 'sonner';
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { AlertDialogAction } from '@radix-ui/react-alert-dialog';
 
-
 // TODO: Remove customer name and payment columns on the table and add a pay button to process pending payment,
 // additionally, add a repay button to make payments of overhead payments.
 // Add a pop up/modal to show and select chain and wallet for payment processing.
@@ -131,29 +130,10 @@ const getStatusIcon = (status: string): React.ReactNode => {
   }
 };
 
-// DynamicTable Component
-const DynamicTable: React.FC<DynamicTableProps> = ({
-  columns,
-  data,
-  itemsPerPage = 4,
-  onViewDetails
-}) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const queryClient = useQueryClient()
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = data.slice(startIndex, endIndex);
-
-  const handleViewDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setIsModalOpen(true);
-    onViewDetails(order);
-  };
-
-  const {mutate,isPending} = useMutation({
+// process payment mutation
+const useProcessPayment = (setIsAlertOpen: (open: boolean) => void) => {
+   const queryClient = useQueryClient()
+    const {mutate,isPending} = useMutation({
     mutationFn: (orderNo:string)=>axiosCustomer.request({
       url: '/ecomm-wallet/process-pay',
       method: 'GET',
@@ -167,6 +147,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
         return
       }
       toast?.success(data?.data?.desc)
+      setIsAlertOpen(false)
       queryClient.invalidateQueries({
         queryKey: ['customer-recent-orders']
       })
@@ -176,148 +157,22 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }
   })
 
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
+  return {mutate,isPending}
+}
 
-  // Update columns to include the click handler
-  const columnsWithHandler = columns.map(col => {
-    if (col.key === 'actions') {
-      return {
-        ...col,
-        render: (text: string, record: Order) => (
-          <div className='flex items-center gap-x-1'>
-             <Button
-            variant="ghost"
-            size="sm"
-            className="p-1"
-            onClick={() => handleViewDetails(record)}
-          >
-            <Eye className="w-4 h-4" />
-          </Button>
-            {
-              record?.paymentMethod === 'BNPL' && record?.orderSatus =='Payment Pending' && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="p-1"
-                    >
-                      <Repeat className="w-4 h-4 mr-1" />
-                </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                   <AlertDialogHeader>
-                  <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Proceed with payment?
-                      </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <Button
-                      className='bg-accent text-white p-2 text-sm rounded-md'
-                      onClick={()=>mutate(record?.cartId!)}
-                      disabled = {isPending}
-                      >
-                          {isPending ? `Please wait..` : 'Make Payment'}
-                      </Button>
-                  </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )
-            }  
-          </div> 
-        )
-      };
-    }
-    return col;
-  });
+// Order item modal component
+interface orderItemProps {
+  selectedOrder: Order | null;
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+}
+
+const OrderItem = ({selectedOrder, isModalOpen,setIsModalOpen}:orderItemProps)=>{
 
   return (
-    <>
-      <div className="w-full overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b-2 border-gray-200">
-              {columnsWithHandler.map((column) => (
-                <th
-                  key={column.key}
-                  className="text-left p-3 font-bold text-sm text-gray-700"
-                  style={{ width: column.width ? `${column.width}px` : 'auto' }}
-                >
-                  {column.title}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.map((item, index) => (
-              <tr
-                key={item.cartId}
-                className={`border-b border-gray-200 ${index === currentData.length - 1 ? 'border-b-0' : ''}`}
-              >
-                {columnsWithHandler.map((column:any) => (
-                  <td key={column.key} className="p-3 text-sm">
-                    {column?.render
-                      ? column.render(item[column.dataIndex as keyof Order], item, index)
-                      : item[column.dataIndex as keyof Order]
-                    }
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4">
-        <p className="text-sm text-gray-500">
-          Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Orders
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="text-xs"
-          >
-            Previous
-          </Button>
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant={currentPage === page ? "default" : "outline"}
-              size="sm"
-              onClick={() => handlePageChange(page)}
-              className="w-8 h-8 p-0 text-xs"
-            >
-              {page}
-            </Button>
-          ))}
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="text-xs"
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-
-      {/* Order Details Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
+          <DialogHeader className='flex flex-col'>
             <DialogTitle>Order Details - {selectedOrder?.cartId}</DialogTitle>
             <DialogDescription>
               Detailed information about the selected order
@@ -403,14 +258,183 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
           )}
         </DialogContent>
       </Dialog>
+  )
+}
+
+const DynamicTable: React.FC<DynamicTableProps> = ({
+  columns,
+  data,
+  itemsPerPage = 4,
+  onViewDetails
+}) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const queryClient = useQueryClient()
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = data.slice(startIndex, endIndex);
+  const {mutate,isPending} = useProcessPayment(setIsAlertOpen)
+  const handleViewDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+    onViewDetails(order);
+  };
+
+
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const columnsWithHandler = columns.map(col => {
+    if (col.key === 'actions') {
+      return {
+        ...col,
+        render: (text: string, record: Order) => (
+          <div className='flex items-center gap-x-1'>
+             <Button
+            variant="ghost"
+            size="sm"
+            className="p-1"
+            onClick={() => handleViewDetails(record)}
+          >
+            <Eye className="w-4 h-4" />
+          </Button>
+            {
+              record?.paymentMethod === 'BNPL' && record?.orderSatus =='Payment Pending' && (
+                <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="p-1"
+                    >
+                      <Repeat className="w-4 h-4 mr-1" />
+                </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                   <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Proceed with payment?
+                      </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <Button
+                      className='bg-accent text-white p-2 text-sm rounded-md'
+                      onClick={()=>mutate(record?.cartId!)}
+                      disabled = {isPending}
+                      >
+                          {isPending ? `Please wait..` : 'Make Payment'}
+                      </Button>
+                  </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )
+            }  
+          </div> 
+        )
+      };
+    }
+    return col;
+  });
+
+  return (
+    <>
+      <div className="w-full overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b-2 border-gray-200">
+              {columnsWithHandler.map((column) => (
+                <th
+                  key={column.key}
+                  className="text-left p-3 font-bold text-sm text-gray-700"
+                  style={{ width: column.width ? `${column.width}px` : 'auto' }}
+                >
+                  {column.title}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {currentData.map((item, index) => (
+              <tr
+                key={item.cartId}
+                className={`border-b border-gray-200 ${index === currentData.length - 1 ? 'border-b-0' : ''}`}
+              >
+                {columnsWithHandler.map((column:any) => (
+                  <td key={column.key} className="p-3 text-sm">
+                    {column?.render
+                      ? column.render(item[column.dataIndex as keyof Order], item, index)
+                      : item[column.dataIndex as keyof Order]
+                    }
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4">
+        <p className="text-sm text-gray-500">
+          Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Orders
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="text-xs"
+          >
+            Previous
+          </Button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <Button
+              key={page}
+              variant={currentPage === page ? "default" : "outline"}
+              size="sm"
+              onClick={() => handlePageChange(page)}
+              className="w-8 h-8 p-0 text-xs"
+            >
+              {page}
+            </Button>
+          ))}
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="text-xs"
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+
+      <OrderItem
+        selectedOrder={selectedOrder}
+        isModalOpen= {isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
     </>
   );
 };
 
-// Mobile Order Card Component
 const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails }) => {
   const firstItem = order.cartItems[0];
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const {isPending,mutate} = useProcessPayment(setIsAlertOpen)
   return (
     <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
       <div className="flex items-center justify-between">
@@ -457,11 +481,53 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
           variant="ghost"
           size="sm"
           className="p-1"
-          onClick={() => onViewDetails(order)}
+          onClick={() => {
+            onViewDetails(order);
+            setIsModalOpen(true);
+          }}
         >
           <Eye className="w-4 h-4" />
         </Button>
+
+        {
+          order?.paymentMethod === 'BNPL' && order?.orderSatus =='Payment Pending' && (
+            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-1"
+                >
+                  <Repeat className="w-4 h-4 mr-1" />
+            </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Proceed with payment?
+                  </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <Button
+                  className='bg-accent text-white p-2 text-sm rounded-md'
+                  onClick={()=>mutate(order?.cartId!)}
+                  disabled = {isPending}
+                  >
+                      {isPending ? `Please wait..` : 'Make Payment'}
+                  </Button>
+              </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )
+      }  
       </div>
+      <OrderItem
+        selectedOrder={order}
+        isModalOpen= {isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
     </div>
   );
 };
@@ -474,8 +540,8 @@ export default function OrderHistory(): React.ReactElement {
       url: '/customer-dashboard/fetch-recent-orders',
       method: 'GET',
       params: {
-        storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
-        entityCode: customer?.entityCode
+        pageNumber: 1,
+        pageSize: 10,
       }
     })
   });
@@ -483,7 +549,6 @@ export default function OrderHistory(): React.ReactElement {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Format API data for the table
   const orders: Order[] = data?.data?.data || [];
 
   const handleViewDetails = (order: Order) => {
@@ -648,7 +713,6 @@ export default function OrderHistory(): React.ReactElement {
           </div>
         ) : (
           <>
-            {/* Mobile view - Stack layout */}
             <div className="block lg:hidden space-y-4">
               {orders.map((order) => (
                 <MobileOrderCard
@@ -659,7 +723,6 @@ export default function OrderHistory(): React.ReactElement {
               ))}
             </div>
 
-            {/* Desktop view - Dynamic Table */}
             <div className="hidden lg:block">
               <DynamicTable
                 columns={columns}

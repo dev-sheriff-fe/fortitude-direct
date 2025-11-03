@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import SidebarMobile from './sidebar-mobile';
 import router from 'next/router';
 import Link from 'next/link';
+import SetPinButton from '../pin/set-pin-trigger';
 
 
 const formatCurrentDate = () => {
@@ -47,7 +48,7 @@ export const DashboardHeader = () => {
             </SheetContent>
           </Sheet>
           <div>
-            <h1 className="text-lg lg:text-2xl font-semibold text-accent">{customer?.firstname}</h1>
+            <h1 className="text-lg lg:text-xl font-semibold text-accent">{customer?.firstname} | Customer</h1>
             <p className='text-xs text-muted-foreground'>{currentDate}</p>
           </div>
         </div>

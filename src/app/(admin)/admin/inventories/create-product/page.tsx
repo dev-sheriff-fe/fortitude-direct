@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -8,19 +7,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Save, 
-  X, 
-  Package, 
-  Barcode, 
-  BadgeDollarSign, 
-  Warehouse, 
+import {
+  Save,
+  X,
+  Package,
+  Barcode,
+  BadgeDollarSign,
+  Warehouse,
   ImageIcon,
   Tag,
   BookOpen,
   Box,
   Hash,
-  ArrowLeft
+  ArrowLeft,
+  // NigerianNaira
 } from "lucide-react";
 import FileUpload from "@/components/Admin/inventories/file-input";
 import { useForm, Controller } from "react-hook-form";
@@ -61,7 +61,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
   const [isEditMode, setIsEditMode] = useState(mode === 'edit');
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<ProductFormData>();
-  
+
   const { mutate: saveProduct, isPending } = useProductMutation();
   const { data: categories } = useCategories();
   const { user } = useUser();
@@ -72,7 +72,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
   useEffect(() => {
     const editParam = searchParams.get('edit');
     const idParam = searchParams.get('id');
-    
+
     if (editParam === 'true' && idParam) {
       setIsEditMode(true);
       setEditingProductId(idParam);
@@ -83,65 +83,61 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
     queryKey: ['product-detail', editingProductId],
     queryFn: () => axiosInstance.request({
       url: '/products/getById',
-      // ?name=&storeCode=STO445&entityCode=H2P&tag=&pageNumber=1&pageSize=200
       method: 'GET',
       params: {
-        // code: editingProductId,
         id: editingProductId
       }
     }),
     enabled: !!editingProductId && isEditMode,
   });
 
-useEffect(() => {
-  if (productData?.data && isEditMode) {
-    const product = productData.data.productDto; // Access the nested productDto
-    console.log('Product data received:', product); // Debug log
-    
-    const productObj = {
-      productId: product?.id?.toString() || "",
-      productName: product?.name || "",
-      productDescription: product?.description || "",
-      productCategory: product?.category || "",
-      productCode: product?.code || "",
-      productPrice: product?.salePrice?.toString() || "",
-      stockQuantity: product?.qtyInStore || 0,
-      unitQuantity: product?.unit || "",
-      imageURL: product?.picture || "",
-      costPrice: product?.costPrice?.toString() || "",
-      storeId: user?.storeCode || "",
-      barCode: product?.barCode || "",
-      brand: product?.brand || "",
-      ccy: product?.ccy || 'NGN'
-    };
-    
-    console.log('Form data to be set:', productObj);
-    reset(productObj);
-  } else if (!isEditMode) {
-    reset({
-      productId: "",
-      productName: "",
-      productDescription: "",
-      productCategory: "",
-      productCode: "",
-      productPrice: "",
-      stockQuantity: 0,
-      unitQuantity: "",
-      imageURL: "",
-      costPrice: "",
-      storeId: user?.storeCode || "",
-      barCode: "",
-      brand: "",
-      ccy: "NGN"
-    });
-  }
-}, [productData, isEditMode, user, reset]);
+  useEffect(() => {
+    if (productData?.data && isEditMode) {
+      const product = productData.data.productDto;
+      console.log('Product data received:', product);
 
+      const productObj = {
+        productId: product?.id?.toString() || "",
+        productName: product?.name || "",
+        productDescription: product?.description || "",
+        productCategory: product?.category || "",
+        productCode: product?.code || "",
+        productPrice: product?.salePrice?.toString() || "",
+        stockQuantity: product?.qtyInStore || 0,
+        unitQuantity: product?.unit || "",
+        imageURL: product?.picture || "",
+        costPrice: product?.costPrice?.toString() || "",
+        storeId: user?.storeCode || "",
+        barCode: product?.barCode || "",
+        brand: product?.brand || "",
+        ccy: product?.ccy || 'NGN'
+      };
 
+      console.log('Form data to be set:', productObj);
+      reset(productObj);
+    } else if (!isEditMode) {
+      reset({
+        productId: "",
+        productName: "",
+        productDescription: "",
+        productCategory: "",
+        productCode: "",
+        productPrice: "",
+        stockQuantity: 0,
+        unitQuantity: "",
+        imageURL: "",
+        costPrice: "",
+        storeId: user?.storeCode || "",
+        barCode: "",
+        brand: "",
+        ccy: "NGN"
+      });
+    }
+  }, [productData, isEditMode, user, reset]);
 
-const onSubmitForm = async (values: ProductFormData) => {
-  try {
-    const payload = {
+  const onSubmitForm = async (values: ProductFormData) => {
+    try {
+      const payload = {
         productId: isEditMode ? (editingProductId || product?.id || product?.productId) : null,
         productName: values?.productName,
         productDescription: values?.productDescription,
@@ -159,15 +155,15 @@ const onSubmitForm = async (values: ProductFormData) => {
         ccy: values?.ccy || 'NGN',
       };
 
-
-    console.log('Submitting payload:', payload);
-    await saveProduct(payload);
-    toast.success(isEditMode ? 'Product updated successfully' : 'Product created successfully');
-  } catch (error) {
-    console.error('Error submitting form:', error);
-    toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product`);
-  }
-};
+      console.log('Submitting payload:', payload);
+      await saveProduct(payload);
+      toast.success(isEditMode ? 'Product updated successfully' : 'Product created successfully');
+      router.back();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product`);
+    }
+  };
 
   if (isLoadingProduct) {
     return (
@@ -182,8 +178,8 @@ const onSubmitForm = async (values: ProductFormData) => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex items-center mb-6">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => router.back()}
           className="flex items-center gap-2 text-muted-foreground hover:text-accent-foreground"
         >
@@ -207,269 +203,299 @@ const onSubmitForm = async (values: ProductFormData) => {
         </div>
       </div>
 
-
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className=" pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-                <Tag className="h-5 w-5" />
-                Basic Information
-              </CardTitle>
-              <CardDescription>Product identity and classification</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="productName" className="flex items-center gap-1 text-sm font-medium">
-                  <span>Product Name</span>
-                  <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <BookOpen className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="productName"
-                    className="pl-10"
-                    {...register("productName", { required: "Product name is required" })}
-                  />
-                </div>
-                {errors.productName && (
-                  <p className="text-sm text-destructive mt-1">{errors.productName.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="productDescription" className="text-sm font-medium">Description</Label>
-                <Textarea
-                  id="productDescription"
-                  {...register("productDescription")}
-                  className="min-h-[100px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="productCategory" className="text-sm font-medium">Category</Label>
-                <Controller
-                  name="productCategory"
-                  control={control}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories?.categories?.map((category: any, index: number) => (
-                          <SelectItem key={index} value={category.code}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="brand" className="text-sm font-medium">Brand</Label>
-                <Input
-                  id="brand"
-                  {...register("brand")}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className=" pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-                <Barcode className="h-5 w-5" />
-                Codes & IDs
-              </CardTitle>
-              <CardDescription>Product identification codes</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="productCode" className="flex items-center gap-1 text-sm font-medium">
-                  <span>Product Code</span>
-                  <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Hash className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="productCode"
-                    className="pl-10"
-                    {...register("productCode", { required: "Product code is required" })}
-                  />
-                </div>
-                {errors.productCode && (
-                  <p className="text-sm text-destructive mt-1">{errors.productCode.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="barCode" className="text-sm font-medium">Bar Code</Label>
-                <div className="relative">
-                  <Barcode className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="barCode"
-                    className="pl-10"
-                    {...register("barCode")}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-                <BadgeDollarSign className="h-5 w-5" />
-                Pricing
-              </CardTitle>
-              <CardDescription>Product pricing information</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+          {/* Left Column - Product Information */}
+          <div className="space-y-8">
+            {/* Basic Information Card */}
+            <Card className="border-accent/20 border-2 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
+                  <Tag className="h-5 w-5" />
+                  Basic Information
+                </CardTitle>
+                <CardDescription>Product identity and classification</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="productPrice" className="flex items-center gap-1 text-sm font-medium">
-                    <span>Selling Price</span>
+                  <Label htmlFor="productName" className="flex items-center gap-1 text-sm font-medium">
+                    <span>Product Name</span>
                     <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
-                    <BadgeDollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <BookOpen className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="productPrice"
-                      type="number"
-                      step="0.01"
+                      id="productName"
                       className="pl-10"
-                      {...register("productPrice", { 
-                        required: "Selling price is required",
-                        min: { value: 0, message: "Price must be positive" }
-                      })}
+                      {...register("productName", { required: "Product name is required" })}
                     />
                   </div>
-                  {errors.productPrice && (
-                    <p className="text-sm text-destructive mt-1">{errors.productPrice.message}</p>
+                  {errors.productName && (
+                    <p className="text-sm text-destructive mt-1">{errors.productName.message}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="costPrice" className="text-sm font-medium">Cost Price</Label>
-                  <div className="relative">
-                    <BadgeDollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="costPrice"
-                      type="number"
-                      step="0.01"
-                      className="pl-10"
-                      {...register("costPrice", {
-                        min: { value: 0, message: "Cost price must be positive" }
-                      })}
-                    />
-                  </div>
-                  {errors.costPrice && (
-                    <p className="text-sm text-destructive mt-1">{errors.costPrice.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ccy" className="text-sm font-medium">Currency</Label>
-                <Controller
-                  name="ccy"
-                  control={control}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="NGN">NGN</SelectItem>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                        <SelectItem value="GBP">GBP</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-accent/20 border-2 shadow-md">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-                <Warehouse className="h-5 w-5" />
-                Inventory
-              </CardTitle>
-              <CardDescription>Stock and quantity information</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="stockQuantity" className="flex items-center gap-1 text-sm font-medium">
-                  <span>Stock Quantity</span>
-                  <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Box className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="stockQuantity"
-                    type="number"
-                    className="pl-10"
-                    {...register("stockQuantity", { 
-                      required: "Stock quantity is required",
-                      min: { value: 0, message: "Stock quantity must be non-negative" },
-                      valueAsNumber: true
-                    })}
+                  <Label htmlFor="productDescription" className="text-sm font-medium">Description</Label>
+                  <Textarea
+                    id="productDescription"
+                    {...register("productDescription")}
+                    className="min-h-[100px]"
                   />
                 </div>
-                {errors.stockQuantity && (
-                  <p className="text-sm text-destructive mt-1">{errors.stockQuantity.message}</p>
-                )}
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="unitQuantity" className="text-sm font-medium">Unit</Label>
-                <Input
-                  id="unitQuantity"
-                  {...register("unitQuantity")}
-                  placeholder="e.g., pieces, kg, liters"
-                />
-              </div>
-            </CardContent>
-          </Card>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="productCategory" className="text-sm font-medium">Category</Label>
+                    <Controller
+                      name="productCategory"
+                      control={control}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories?.categories?.map((category: any, index: number) => (
+                              <SelectItem key={index} value={category.code}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="brand" className="text-sm font-medium">Brand</Label>
+                    <Input
+                      id="brand"
+                      {...register("brand")}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pricing Card */}
+            <Card className="border-accent/20 border-2 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
+                  <span className="absolute left-2 top-2 h-4 w-4 text-muted-foreground">₦</span>
+                  Pricing
+                </CardTitle>
+                <CardDescription>Product pricing information</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="productPrice" className="flex items-center gap-1 text-sm font-medium">
+                      <span>Selling Price</span>
+                      <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-2 top-2 h-4 w-4 text-muted-foreground">₦</span>
+                      <Input
+                        id="productPrice"
+                        type="number"
+                        step="0.01"
+                        className="pl-10"
+                        {...register("productPrice", {
+                          required: "Selling price is required",
+                          min: { value: 0, message: "Price must be positive" }
+                        })}
+                      />
+                    </div>
+                    {errors.productPrice && (
+                      <p className="text-sm text-destructive mt-1">{errors.productPrice.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="costPrice" className="text-sm font-medium">Cost Price</Label>
+                    <div className="relative">
+                      <span className="absolute left-2 top-2 h-4 w-4 text-muted-foreground">₦</span>
+                      <Input
+                        id="costPrice"
+                        type="number"
+                        step="0.01"
+                        className="pl-10"
+                        {...register("costPrice", {
+                          min: { value: 0, message: "Cost price must be positive" }
+                        })}
+                      />
+                    </div>
+                    {errors.costPrice && (
+                      <p className="text-sm text-destructive mt-1">{errors.costPrice.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ccy" className="text-sm font-medium">Currency</Label>
+                  <Controller
+                    name="ccy"
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="NGN">NGN - Nigerian Naira</SelectItem>
+                          <SelectItem value="USD">USD - US Dollar</SelectItem>
+                          <SelectItem value="EUR">EUR - Euro</SelectItem>
+                          <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - Inventory & Image */}
+          <div className="space-y-8">
+            {/* Codes & Inventory Card */}
+            <Card className="border-accent/20 border-2 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
+                  <Barcode className="h-5 w-5" />
+                  Codes & Inventory
+                </CardTitle>
+                <CardDescription>Product identification and stock information</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="productCode" className="flex items-center gap-1 text-sm font-medium">
+                      <span>Product Code</span>
+                      <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Hash className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="productCode"
+                        className="pl-10"
+                        {...register("productCode", { required: "Product code is required" })}
+                      />
+                    </div>
+                    {errors.productCode && (
+                      <p className="text-sm text-destructive mt-1">{errors.productCode.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="barCode" className="text-sm font-medium">Bar Code</Label>
+                    <div className="relative">
+                      <Barcode className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="barCode"
+                        className="pl-10"
+                        {...register("barCode")}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="stockQuantity" className="flex items-center gap-1 text-sm font-medium">
+                      <span>Stock Quantity</span>
+                      <span className="text-destructive">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Box className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="stockQuantity"
+                        type="number"
+                        className="pl-10"
+                        {...register("stockQuantity", {
+                          required: "Stock quantity is required",
+                          min: { value: 0, message: "Stock quantity must be non-negative" },
+                          valueAsNumber: true
+                        })}
+                      />
+                    </div>
+                    {errors.stockQuantity && (
+                      <p className="text-sm text-destructive mt-1">{errors.stockQuantity.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="unitQuantity" className="text-sm font-medium">Unit</Label>
+                    <Input
+                      id="unitQuantity"
+                      {...register("unitQuantity")}
+                      placeholder="e.g., pieces, kg, liters"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Product Image Card */}
+            <Card className="border-accent/20 border-2 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
+                  <ImageIcon className="h-5 w-5" />
+                  Product Image
+                </CardTitle>
+                <CardDescription>Upload a product image</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {/* Image Preview */}
+                  {(fileUrl || watchedImageURL) && (
+                    <div className="flex flex-col items-center space-y-3">
+                      <Label className="text-sm font-medium">Image Preview</Label>
+                      <div className="border-2 border-dashed border-accent/30 rounded-lg p-4 w-full max-w-xs">
+                        <img
+                          src={fileUrl || watchedImageURL}
+                          alt="Product preview"
+                          className="w-full h-48 object-contain rounded-md"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center">
+                        Preview of your product image
+                      </p>
+                    </div>
+                  )}
+
+                  <FileUpload
+                    onFileSelect={handleFileChange}
+                    currentFileUrl={watchedImageURL}
+                    accept="image/*"
+                    label="Upload Product Image"
+                  />
+
+                  <div className="text-xs text-muted-foreground">
+                    <p>• Supported formats: JPG, PNG, WebP</p>
+                    <p>• Maximum file size: 5MB</p>
+                    <p>• Recommended aspect ratio: 1:1 (square)</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        <Card className="mt-8 border-accent/20 border-2 shadow-md">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-              <ImageIcon className="h-5 w-5" />
-              Product Image
-            </CardTitle>
-            <CardDescription>Upload a product image</CardDescription>
-          </CardHeader>
-          <CardContent className="p-6">
-            <FileUpload
-              onFileSelect={handleFileChange}
-              currentFileUrl={watchedImageURL}
-              accept="image/*"
-              label="Product Image"
-            />
-          </CardContent>
-        </Card>
-
+        {/* Action Buttons */}
         <div className="flex justify-end gap-4 pt-8 mt-8 border-t border-accent/20">
-          <Button 
-            type="button" 
-            variant="outline" 
+          <Button
+            type="button"
+            variant="outline"
             onClick={() => router.back()}
             className="flex items-center gap-2"
           >
             <X className="h-4 w-4" />
             Cancel
           </Button>
-          <Button 
-            type="submit" 
-            className="bg-accent hover:bg-accent/90 text-white flex items-center gap-2 px-6 py-2" 
+          <Button
+            type="submit"
+            className="bg-accent hover:bg-accent/90 text-white flex items-center gap-2 px-6 py-2"
             disabled={isPending}
           >
             <Save className="h-4 w-4" />

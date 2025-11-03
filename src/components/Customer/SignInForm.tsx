@@ -91,11 +91,9 @@ export function SignInForm() {
         <div className="w-full max-w-md space-y-6">
           {/* Heading */}
           <div className="space-y-2 text-center lg:text-left">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">SIGN IN</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">Customer admin.</h1>
             <p className="text-gray-600 text-sm leading-relaxed">
-              Welcome back.
-              <br />
-              Sign in to access your account.
+              Welcome back, sign in to access your account.
             </p>
           </div>
 

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import Image from 'next/image';
 import placeholder from "@/components/images/placeholder-product.webp"
+import { CustomerOrderTracking } from './order-tracking';
 
 // Type definitions
 interface CartItem {
@@ -63,7 +64,7 @@ export interface Order {
 interface DynamicTableProps {
   data: Order[];
   itemsPerPage?: number;
-  onTrackOrder: (order: Order) => void;
+  // onTrackOrder: (order: Order) => void;
   // onUpdateTracking: (order: Order) => void;
 }
 
@@ -74,6 +75,8 @@ const getStatusColor = (status: string): string => {
   switch (status.toLowerCase()) {
     case 'delivered':
     case 'completed':
+    case 'paid':
+    case 'success':
       return 'bg-green-500 text-white';
     case 'processing':
     case 'pending':
@@ -82,6 +85,7 @@ const getStatusColor = (status: string): string => {
       return 'bg-orange-500 text-white';
     case 'cancelled':
     case 'failed':
+    case 'draft':
       return 'bg-red-500 text-white';
     default:
       return 'bg-gray-500 text-white';
@@ -118,12 +122,14 @@ const getDisplayValue = (value: any): string => {
 const DynamicTable: React.FC<DynamicTableProps> = ({
   data,
   itemsPerPage = 5,
-  onTrackOrder,
+  // onTrackOrder,
   // onUpdateTracking
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
+  const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -133,6 +139,11 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   const handleViewDetails = (order: Order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
+  };
+
+  const handleTrackOrder = (order: Order) => {
+    setTrackingOrder(order);
+    setIsTrackingModalOpen(true);
   };
 
   const handlePageChange = (page: number) => {
@@ -155,13 +166,13 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   };
 
   type ColumnType<T> = {
-      title: string;
-      dataIndex: keyof T | string;
-      key: string;
-      width?: number;
-      render?: (value: any, record: T) => React.ReactNode;
-    };
-  
+    title: string;
+    dataIndex: keyof T | string;
+    key: string;
+    width?: number;
+    render?: (value: any, record: T) => React.ReactNode;
+  };
+
   const columns: ColumnType<Order>[] = [
     {
       title: 'Product',
@@ -268,20 +279,11 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
             variant="ghost"
             size="sm"
             className="p-1"
-            onClick={() => onTrackOrder(record)}
+            onClick={() => handleTrackOrder(record)}
             title="Track Order"
           >
             <Truck className="w-4 h-4" />
           </Button>
-          {/* <Button
-            variant="ghost"
-            size="sm"
-            className="p-1"
-            onClick={() => onUpdateTracking(record)}
-            title="Update Tracking"
-          >
-            <Package className="w-4 h-4" />
-          </Button> */}
           <Button
             variant="ghost"
             size="sm"
@@ -519,6 +521,17 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
           )}
         </DialogContent>
       </Dialog>
+
+      {trackingOrder && (
+        <CustomerOrderTracking
+          order={trackingOrder}
+          isOpen={isTrackingModalOpen}
+          onClose={() => {
+            setIsTrackingModalOpen(false);
+            setTrackingOrder(null);
+          }}
+        />
+      )}
     </>
   );
 };

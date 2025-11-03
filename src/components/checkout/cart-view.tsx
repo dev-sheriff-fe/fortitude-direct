@@ -230,6 +230,8 @@ type CartViewProps = {
   paymentMethod?: PaymentMethod;
   setSelectedPayment?: (method: PaymentMethod) => void;
   setWallets?: any;
+  orderTotal: number;
+  shippingFee: number;
 }
 
 const CartView = ({ 
@@ -238,7 +240,9 @@ const CartView = ({
   form, 
   paymentMethod, 
   setSelectedPayment,
-  setWallets 
+  setWallets,
+  orderTotal,
+  shippingFee
 }: CartViewProps) => {
   const { cart, getCartTotal, mainCcy } = useCart()
   const ccy = mainCcy()
@@ -316,6 +320,25 @@ const CartView = ({
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <h2 className="text-2xl font-bold">Checkout</h2>
+      </div>
+
+      {/* Order Summary */}
+      <div className="bg-muted p-4 rounded-lg">
+        <h3 className="font-semibold mb-3">Order Summary</h3>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span>Subtotal:</span>
+            <span>{formatPrice(orderTotal - shippingFee, ccy as CurrencyCode)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Shipping:</span>
+            <span>{formatPrice(shippingFee, ccy as CurrencyCode)}</span>
+          </div>
+          <div className="flex justify-between font-semibold border-t pt-2">
+            <span>Total:</span>
+            <span>{formatPrice(orderTotal, ccy as CurrencyCode)}</span>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -403,6 +426,7 @@ const CartView = ({
         paymentMethod={paymentMethod!}
         networks={networks}
         wallets={wallets}
+        orderTotal={orderTotal}
       />
     </>
   );

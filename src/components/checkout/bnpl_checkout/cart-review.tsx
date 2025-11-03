@@ -35,7 +35,7 @@ export const CartReview = ({
   selectedStore
 }: CartReviewProps) => {
   const [discountCode, setDiscountCode] = useState("");
-  const { cart } = useCart();
+  const { cart, getCartTotal, mainCcy } = useCart();
   const [checkoutData, setCheckoutData] = useState<any>(null);
 
   const { getValues, watch } = form;
@@ -47,7 +47,7 @@ export const CartReview = ({
     }
   }, []);
 
-  const subtotal = cart.reduce((sum, item) => sum + (item.salePrice * item.quantity), 0);
+  const subtotal = getCartTotal();
   const shipping = shippingMethod === "delivery" && selectedShippingOption ? selectedShippingOption.price : 0;
   const discount = 0;
   const total = subtotal + shipping + discount;
@@ -66,7 +66,14 @@ export const CartReview = ({
     console.log("Selected shipping option:", selectedShippingOption);
     console.log("Shipping method:", shippingMethod);
     console.log("Selected store:", selectedStore);
+
+    const updatedCheckoutData = {
+      ...checkoutData,
+      shippingFee: shipping,
+      totalAmount: total
+    };
     
+    sessionStorage.setItem('checkout', JSON.stringify(updatedCheckoutData));
     setCurrentStep('cart');
   };
 
@@ -89,7 +96,7 @@ export const CartReview = ({
               <p className="text-sm text-checkout-text-muted">{item.quantity}x</p>
             </div>
             <div className="text-checkout-text font-semibold">
-              {formatPrice(item?.salePrice, checkoutData?.ccy)}
+              {formatPrice(item?.salePrice, mainCcy() as any)}
             </div>
           </div>
         ))}
@@ -102,7 +109,7 @@ export const CartReview = ({
               Shipping: {selectedShippingOption.name}
             </span>
             <span className="text-checkout-text font-semibold">
-              {formatPrice(selectedShippingOption.price, checkoutData?.ccy)}
+              {formatPrice(selectedShippingOption.price, mainCcy() as any)}
             </span>
           </div>
         </div>
@@ -119,7 +126,7 @@ export const CartReview = ({
       <div className="space-y-3 mb-6 p-4 bg-checkout-bg-subtle rounded-lg">
         <div className="flex justify-between text-checkout-text-muted">
           <span>Subtotal</span>
-          <span>{formatPrice(subtotal, checkoutData?.ccy)}</span>
+          <span>{formatPrice(subtotal, mainCcy() as any)}</span>
         </div>
 
         <div className="flex justify-between text-checkout-text-muted">
@@ -127,24 +134,23 @@ export const CartReview = ({
           <span>
             {shippingMethod === "pickup"
               ? "Free"
-              : formatPrice(shipping, checkoutData?.ccy)
+              : formatPrice(shipping, mainCcy() as any)
             }
           </span>
         </div>
 
         <div className="flex justify-between text-checkout-text-muted">
           <span>Discount</span>
-          <span>{formatPrice(discount, checkoutData?.ccy)}</span>
+          <span>{formatPrice(discount, mainCcy() as any)}</span>
         </div>
 
         <div className="border-t pt-3">
           <div className="flex justify-between font-semibold text-checkout-text text-lg">
             <span>Total</span>
-            <span>{formatPrice(total, checkoutData?.ccy)}</span>
+            <span>{formatPrice(total, mainCcy() as any)}</span>
           </div>
         </div>
 
-        {/* Moved Continue to Payment Button */}
         <Button
           type="button"
           className="w-full bg-accent md:w-full"

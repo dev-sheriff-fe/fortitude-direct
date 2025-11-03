@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -31,10 +31,6 @@ import useCustomer from '@/store/customerStore';
 import { Button } from '@/components/ui/button';
 import dollarSign from '@/assets/dollar-sign-icons-gold-circle-2184236.webp'
 
-
-// Wallet data for the additional section
-
-
 const quickMenuData = [
   {
     title: 'Send Money',
@@ -54,25 +50,28 @@ const quickMenuData = [
   }
 ];
 
-// Updated CurrenciesCard component to handle image flags
 interface CurrenciesCardProps {
   currency: string;
   amount: string;
   flag: any;
+  label: string;
   currencyCode: string;
   isActive?: boolean;
   className?: string;
   forceHideAmount?: boolean;
+  isLowBalance?: boolean;
 }
 
 const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
   currency,
   amount,
   flag,
+  label,
   currencyCode,
   isActive = false,
   className,
-  forceHideAmount = false
+  forceHideAmount = false,
+  isLowBalance = false
 }) => {
   const [showAmount, setShowAmount] = React.useState(true);
 
@@ -84,8 +83,8 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
 
   console.log(customer);
   
-
   const displayAmount = forceHideAmount ? false : showAmount;
+  
   return (
     <Card
       className={cn(
@@ -94,6 +93,7 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
         isActive
           ? 'bg-accent text-white'
           : 'bg-white text-foreground',
+        isLowBalance ? 'border-red-300 bg-red-50 text-red-600' : '',
         className
       )}
     >
@@ -119,16 +119,17 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
               alt={`${currency} flag`}
               width={32}
               height={32}
-              className="w-8 h-8 object-cover"
+              className="w-10 h-10 object-cover"
             />
           </div>
-          <span className="text-sm font-medium">{currency}</span>
+          <span className="text-sm font-medium">{label}</span>
         </div>
 
         <div className="flex items-center gap-7 mb-2">
           <span className={cn(
             "text-xs",
-            isActive ? "text-white" : "text-muted-foreground"
+            isActive ? "text-white" : "text-muted-foreground",
+            isLowBalance ? "text-red-600 bg-red-600 rounded-md p-1 border border-red-600" : ""
           )}>
             Available Balance
           </span>
@@ -138,7 +139,8 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
               "transition-colors",
               isActive
                 ? "text-white hover:text-muted"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
+              isLowBalance ? "text-red-600 hover:text-red-800" : ""
             )}
             disabled={forceHideAmount}
           >
@@ -147,16 +149,23 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
         </div>
 
         <div className="mb-4">
-          <p className="text-xl font-bold">
+          <p className={cn(
+            "text-xl font-bold",
+            isLowBalance ? "text-red-600" : ""
+          )}>
             {displayAmount ? amount : '••••••••'}
           </p>
+          {isLowBalance && displayAmount && (
+            <p className="text-xs text-red-600 mt-1">Balance low, please top up</p>
+          )}
         </div>
 
         <div>
           <Badge variant="secondary" className="text-xs">
             <span className={cn(
               "text-xs",
-              isActive ? "text-black" : "text-muted-foreground"
+              isActive ? "text-black" : "text-muted-foreground",
+              isLowBalance ? "text-red-600" : ""
             )}>
               {currencyCode}
             </span>
@@ -171,7 +180,6 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
   );
 };
 
-// CryptoCard component for crypto currencies
 interface CryptoCardProps {
   currency: string;
   amount: string;
@@ -182,7 +190,9 @@ interface CryptoCardProps {
   changePositive?: boolean;
   className?: string;
   forceHideAmount?: boolean;
-  publicAddress?: string
+  publicAddress?: string;
+  isLowBalance?: boolean;
+  chain?: string;
 }
 
 const CryptoCard: React.FC<CryptoCardProps> = ({
@@ -193,9 +203,11 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
   isActive = false,
   change,
   changePositive,
+  chain,
   publicAddress,
   className,
-  forceHideAmount = false
+  forceHideAmount = false,
+  isLowBalance = false
 }) => {
   const [showAmount, setShowAmount] = React.useState(true);
 
@@ -213,6 +225,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
         isActive
           ? 'bg-accent text-white'
           : 'bg-white text-foreground',
+        isLowBalance ? 'border-red-300 bg-red-50 text-red-600' : '',
         className
       )}
     >
@@ -231,7 +244,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
       )}
 
       <CardContent className="p-5 relative z-10">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 space-y-1.5">
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden">
             <Image
@@ -242,17 +255,24 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
               className="w-8 h-8 object-cover"
             />
           </div>
-            <span className="text-sm font-medium">{currency}</span>
+            <div>
+              <span className="text-sm font-medium">{currency}</span>
+              <div className="text-xs text-muted-foreground">({chain})</div>
+            </div>
           </div>
           <Button variant={'ghost'} onClick={()=>copyToClipboard(publicAddress!)}>
             <Copy className='w-5 h-5 text-white'/>
           </Button>
         </div>
-
-        <div className="flex items-center gap-7 mb-2">
+        <div>
+          <span className="text-xs text-muted-foreground">Wallet Address</span>
+          <p className="text-sm break-[12px]">{publicAddress?.slice(0, 6)}...{publicAddress?.slice(-4)}</p>
+        </div>
+        <div className="flex items-center gap-7 mt-4">
           <span className={cn(
             "text-xs",
-            isActive ? "text-white" : "text-muted-foreground"
+            isActive ? "text-white" : "text-muted-foreground",
+            isLowBalance ? "text-red-600 bg-red-600 rounded-md p-1 border border-red-600" : ""
           )}>
             Holdings
           </span>
@@ -262,7 +282,8 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
               "transition-colors",
               isActive
                 ? "text-white hover:text-muted"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
+              isLowBalance ? "text-red-600 hover:text-red-800" : ""
             )}
             disabled={forceHideAmount}
           >
@@ -271,16 +292,23 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
         </div>
 
         <div className="mb-2">
-          <p className="text-xl font-bold">
+          <p className={cn(
+            "text-xl font-bold",
+            isLowBalance ? "text-red-600" : ""
+          )}>
             {displayAmount ? amount : '••••••••'}
           </p>
+          {isLowBalance && displayAmount && (
+            <p className="text-xs text-red-600 mt-1">Balance low, please top up</p>
+          )}
         </div>
 
         <div>
           <Badge variant="secondary" className="text-xs">
             <span className={cn(
               "text-xs",
-              isActive ? "text-black" : "text-muted-foreground"
+              isActive ? "text-black" : "text-muted-foreground",
+              isLowBalance ? "text-red-600" : ""
             )}>
               {currencyCode}
             </span>
@@ -295,24 +323,39 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
   );
 };
 
-// Helper function for class names
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
+const useBalanceVisibility = () => {
+  const [hideAllBalances, setHideAllBalances] = useState(false);
+
+  useEffect(() => {
+    const storedValue = localStorage.getItem('wallet-balance-visibility');
+    if (storedValue) {
+      setHideAllBalances(JSON.parse(storedValue));
+    }
+  }, []);
+
+  const toggleAllBalances = () => {
+    const newValue = !hideAllBalances;
+    setHideAllBalances(newValue);
+    localStorage.setItem('wallet-balance-visibility', JSON.stringify(newValue));
+  };
+
+  return { hideAllBalances, toggleAllBalances };
+};
 
 export const WalletOverview = () => {
-  const [hideAllBalances, setHideAllBalances] = useState(false);
+  const { hideAllBalances, toggleAllBalances } = useBalanceVisibility();
   const [activeTab, setActiveTab] = useState<'fiat' | 'crypto'>('fiat');
   const { customer } = useCustomer()
+  
   const { data, isLoading, error } = useQuery({
     queryKey: ['customer-dashboard-summary'],
     queryFn: () => axiosCustomer.request({
       method: 'GET',
       url: '/customer-dashboard/summary',
       params: {
-        // startDate: getCurrentDate(),
         startDate: '01-01-2025',
         endDate: '12-09-2025',
-        // merchantCode: user?.merchantCode,
-        // datePeriod: getCurrentDate(),
         datePeriod: "",
         storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
         username: customer?.username,
@@ -334,61 +377,111 @@ export const WalletOverview = () => {
     })
   })
 
+  const processFiatBalances = () => {
+    if (!balances?.data?.wallets || balances.data.wallets.length === 0) {
+      return [{
+        id: 0,
+        accountNo: 'DEFAULT_NGN',
+        accountType: 'WALLET',
+        entityCode: null,
+        symbol: 'NGN',
+        chain: 'BANK',
+        username: null,
+        publicAddress: 'DEFAULT_NGN',
+        name: 'Default NGN Wallet',
+        label: 'NGN Wallet',
+        balance: '0.00',
+        usdBalance: 0,
+        lcyBalance: 0,
+        lcyCcy: 'NGN',
+        logo: 'https://flagcdn.com/w320/ng.png',
+        status: null,
+        primaryWallet: true,
+        isLowBalance: true
+      }];
+    }
 
-
-  const toggleAllBalances = () => {
-    setHideAllBalances(!hideAllBalances);
+    return balances.data.wallets.map((wallet: any) => ({
+      ...wallet,
+      balance: parseFloat(wallet.balance).toFixed(2),
+      isActive: wallet.primaryWallet === true,
+      isLowBalance: parseFloat(wallet.balance) === 0
+    }));
   };
 
-  const fiatBalances = balances?.data?.wallets
-  const coinBalances = balances?.data?.coins
+  const processCryptoBalances = () => {
+    if (!balances?.data?.coins || balances.data.coins.length === 0) {
+      return [{
+        id: 0,
+        accountNo: 'DEFAULT_USDT',
+        accountType: 'COIN',
+        entityCode: null,
+        symbol: 'USDT',
+        chain: 'TRON',
+        username: null,
+        publicAddress: 'DEFAULT_USDT_ADDRESS',
+        name: 'Default USDT Wallet',
+        label: 'USDT',
+        balance: '0.00',
+        usdBalance: 0,
+        lcyBalance: 0,
+        lcyCcy: 'NGN',
+        logo: 'https://assets.coingecko.com/coins/images/325/standard/Tether.png?1696501661',
+        status: 'Active',
+        primaryWallet: true,
+        isLowBalance: true
+      }];
+    }
+
+    return balances.data.coins.map((coin: any) => ({
+      ...coin,
+      balance: parseFloat(coin.balance).toFixed(2),
+      isActive: coin.primaryWallet === true,
+      isLowBalance: parseFloat(coin.balance) === 0
+    }));
+  };
+
+  const fiatBalances = processFiatBalances();
+  const coinBalances = processCryptoBalances();
 
   const BalancesLoadingCards = ()=>(
     <div className="grid md:grid-cols-1 lg:grid-cols-4 gap-4 p-4">
-      {
-        [1, 2, 3, 4].map((item) => (
-        <div key={item} className="animate-pulse h-[180px] bg-gray-200 rounded-md mb-2"></div>
-    ))
-      }
+      {[1, 2, 3, 4].map((item) => (
+        <div key={item} className="animate-pulse h-[60px] bg-gray-200 rounded-md mb-2"></div>
+      ))}
     </div>
   )
 
-  
   return (
     <div className="space-y-4 lg:space-y-6">
-      {/* Wallet Overview Section */}
-      {/* Wallet Overview Section */}
       <div className="bg-background p-4 lg:p-6">
         <div className="flex items-center justify-between mb-4 lg:mb-6">
           <h3 className="text-base lg:text-lg font-semibold">Wallet Overview</h3>
         
-
           <div className="flex items-center gap-2">
             <div className='border-2 border-accent rounded-xl bg-accent/10 flex items-center gap-2 px-3 py-1.5'>
               <span className="text-sm text-foreground text-black font-semibold mr-2">
                 {hideAllBalances ? 'Show' : 'Hide'}
               </span>
 
-
-            <button
-              onClick={toggleAllBalances}
-              className={cn(
-                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
-                hideAllBalances ? "bg-accent" : "bg-gray-300"
-              )}
-            >
-              <span
+              <button
+                onClick={toggleAllBalances}
                 className={cn(
-                  "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                  hideAllBalances ? "translate-x-6" : "translate-x-1"
+                  "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
+                  hideAllBalances ? "bg-accent" : "bg-gray-300"
                 )}
-              />
-            </button>
-          </div>
+              >
+                <span
+                  className={cn(
+                    "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                    hideAllBalances ? "translate-x-6" : "translate-x-1"
+                  )}
+                />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="flex mb-4 lg:mb-6 gap-7">
           <button
             className={`py-2 px-1 font-medium text-sm relative ${activeTab === 'fiat'
@@ -416,70 +509,55 @@ export const WalletOverview = () => {
           </button>
         </div>
 
-
-        {/* Tab Content */}
         {activeTab === 'fiat' && (
           <>
-            {
-              balancesLoading && <BalancesLoadingCards/>
-            }
-
-             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
-            
-             {
-              fiatBalances ? fiatBalances?.map((wallet: any, index: number) => (
-              <CurrenciesCard
-                key={index}
-                currency={wallet.symbol}
-                amount={wallet.balance}
-                flag={wallet.logo}
-                currencyCode={wallet.symbol}
-                isActive={wallet.isActive}
-                forceHideAmount={hideAllBalances}
-
-              />
-            )) : <p>No fiat balances available</p>
-            }
-          </div>
+            {balancesLoading && <BalancesLoadingCards/>}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
+              {fiatBalances.map((wallet: any, index: number) => (
+                <CurrenciesCard
+                  key={index}
+                  currency={wallet.symbol}
+                  amount={wallet.balance}
+                  flag={wallet.logo}
+                  label={wallet.label}
+                  currencyCode={wallet.symbol}
+                  isActive={wallet.isActive}
+                  forceHideAmount={hideAllBalances}
+                  isLowBalance={wallet.isLowBalance}
+                />
+              ))}
+            </div>
           </>
-         
         )}
 
         {activeTab === 'crypto' && (
           <>
-            {
-              balancesLoading && <BalancesLoadingCards/>
-            }
+            {balancesLoading && <BalancesLoadingCards/>}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
-            {coinBalances ? coinBalances.map((wallet: any, index: number) => (
-              <CryptoCard
-                key={index}
-                currency={wallet.symbol}
-                amount={wallet.balance}
-                icon={wallet.logo}
-                currencyCode={wallet.symbol}
-                isActive={wallet.isActive}
-                publicAddress={wallet?.publicAddress}
-                // change={wallet.change}
-                // changePositive={wallet.changePositive}
-                forceHideAmount={hideAllBalances}
-
-              />
-            ))
-              : <p>No crypto balances available</p>}
-          </div>
+              {coinBalances.map((wallet: any, index: number) => (
+                <CryptoCard
+                  key={index}
+                  currency={wallet.symbol}
+                  amount={wallet.balance}
+                  icon={wallet.logo}
+                  currencyCode={wallet.symbol}
+                  isActive={wallet.isActive}
+                  publicAddress={wallet?.publicAddress}
+                  forceHideAmount={hideAllBalances}
+                  isLowBalance={wallet.isLowBalance}
+                  chain= {wallet?.chain}
+                />
+              ))}
+            </div>
           </>
         )}
       </div>
 
-      {/* Additional Wallet Data Section */}
       <div className="bg-background p-4 lg:p-6">
         <h3 className="text-base lg:text-lg font-semibold mb-4 lg:mb-6">Quick Menus</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
           {quickMenuData.map((item, index) => (
-            // <Card key={index} className="border-border shadow-sm">
-            // <CardContent className="flex justify-center items-center">
-            <div className='bg-background border rounded-lg p-3 flex justify-center items-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer'>
+            <div key={index} className='bg-background border rounded-lg p-3 flex justify-center items-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer'>
               <div className="flex items-center justify-center">
                 <div className="flex items-center justify-center gap-2 lg:gap-3 min-w-0">
                   <div className={`rounded-lg flex items-center justify-center flex-shrink-0`}>
@@ -491,8 +569,6 @@ export const WalletOverview = () => {
                 </div>
               </div>
             </div>
-            //   </CardContent>
-            // </Card>
           ))}
         </div>
       </div>

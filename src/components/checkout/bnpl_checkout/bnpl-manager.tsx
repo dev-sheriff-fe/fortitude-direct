@@ -15,7 +15,13 @@ interface ShippingData {
   };
 }
 
-const BnplManager = ({ setCurrentStep, form }: { setCurrentStep: (currentStep: CheckoutStep) => void, form: UseFormReturn<FormData> }) => {
+interface BnplManagerProps {
+  setCurrentStep: (currentStep: CheckoutStep) => void;
+  form: UseFormReturn<FormData>;
+  onShippingUpdate?: (shippingCost: number) => void;
+}
+
+const BnplManager = ({ setCurrentStep, form, onShippingUpdate }: BnplManagerProps) => {
   const [shippingData, setShippingData] = useState<ShippingData>({
     method: "delivery",
     option: {
@@ -35,10 +41,17 @@ const BnplManager = ({ setCurrentStep, form }: { setCurrentStep: (currentStep: C
 
   useEffect(() => {
     if (watchShippingMethod) {
+      const newMethod = watchShippingMethod;
       setShippingData(prev => ({
         ...prev,
-        method: watchShippingMethod
+        method: newMethod
       }));
+
+      if (newMethod === 'pickup') {
+        onShippingUpdate?.(0);
+      } else if (newMethod === 'delivery' && shippingData.option) {
+        onShippingUpdate?.(shippingData.option.price);
+      }
     }
   }, [watchShippingMethod]);
 
@@ -81,6 +94,10 @@ const BnplManager = ({ setCurrentStep, form }: { setCurrentStep: (currentStep: C
           ...prev,
           option: selectedOption
         }));
+
+        if (shippingData.method === 'delivery') {
+          onShippingUpdate?.(selectedOption.price);
+        }
       }
     }
   }, [watchShippingOption]);
@@ -99,6 +116,7 @@ const BnplManager = ({ setCurrentStep, form }: { setCurrentStep: (currentStep: C
             <ShippingForm
               setCurrentStep={setCurrentStep}
               form={form}
+              onShippingUpdate={onShippingUpdate}
             />
           </div>
 

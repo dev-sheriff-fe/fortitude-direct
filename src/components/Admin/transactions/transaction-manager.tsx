@@ -2,20 +2,22 @@
 import React, { useState } from 'react'
 import TransactionsFilter from './transactions-filter'
 import { useQuery } from '@tanstack/react-query'
-import axiosCustomer from '@/utils/fetch-function-customer'
+import axiosInstance from '@/utils/fetch-function';
 import TransactionsList from './transactions-list'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import useUser from '@/store/userStore';
 
 const TransactionsManager = () => {
+  const { user } = useUser();
   const { data, isLoading, error } = useQuery({
-    queryKey: ['customer-recent-trans'],
-    queryFn: () => axiosCustomer.request({
-      url: '/customer-dashboard/fetchRecentTrans',
+    queryKey: ['fetch-trans'],
+    queryFn: () => axiosInstance.request({
+      url: '/store-dashboard/fetchRecentTrans',
       method: 'GET',
-      // params: {
-      //   pageNumber: 1,
-      //   pageSize: 100
-      // }
+      params: {
+        storeCode: user?.storeCode,
+        entityCode: user?.entityCode
+      }
     })
   });
 

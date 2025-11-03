@@ -8,16 +8,18 @@ import { useCart } from '@/store/cart';
 import { CurrencyCode, formatPrice } from '@/utils/helperfns';
 import { CheckoutStep } from '@/app/checkout/checkoutContent';
 
-
-type Props = {
-  setCurrentStep: (step: CheckoutStep) => void,
-  copyToClipboard: (text: string) => void
+type BankPaymentProps = {
+  setCurrentStep: (step: CheckoutStep) => void;
+  copyToClipboard: (text: string) => void;
+  orderTotal: number;
 }
-const BankPayment = ({ setCurrentStep, copyToClipboard }: Props) => {
+
+const BankPayment = ({ setCurrentStep, copyToClipboard, orderTotal }: BankPaymentProps) => {
   const { toast } = useToast()
-  const { getCartTotal, mainCcy } = useCart()
+  const { mainCcy } = useCart()
 
   const ccy = mainCcy()
+  
   return (
     <div className="max-w-md mx-auto space-y-6">
       <div className="flex items-center gap-2">
@@ -96,7 +98,7 @@ const BankPayment = ({ setCurrentStep, copyToClipboard }: Props) => {
             </div>
 
             <div className="bg-yellow-50 p-3 rounded text-xs">
-              <strong>Amount to Transfer:</strong> {formatPrice(getCartTotal(), ccy as CurrencyCode)}<br />
+              <strong>Amount to Transfer:</strong> {formatPrice(orderTotal, ccy as CurrencyCode)}<br />
               <strong>Important:</strong> Include the reference for instant processing
             </div>
           </div>

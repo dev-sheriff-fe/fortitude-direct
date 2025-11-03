@@ -21,8 +21,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescript
 import { AlertDialogCancel } from '@radix-ui/react-alert-dialog';
 import ConfirmPayment from './confirmPayment';
 
-
-// Type definitions based on the new API response
 interface CartItem {
   itemCode: string;
   itemName: string;
@@ -100,6 +98,7 @@ const getStatusColor = (status: string): string => {
       return 'bg-orange-500 text-white';
     case 'cancelled':
     case 'failed':
+    case 'draft':
       return 'bg-red-500 text-white';
     default:
       return 'bg-gray-500 text-white';
@@ -124,7 +123,6 @@ const getStatusIcon = (status: string): React.ReactNode => {
   }
 };
 
-// DynamicTable Component
 const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   data,
@@ -153,7 +151,6 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     }
   };
 
-  // Update columns to include the click handler
   const columnsWithHandler = columns.map(col => {
     if (col.key === 'actions') {
       return {
@@ -210,7 +207,6 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4">
         <p className="text-sm text-gray-500">
           Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Orders
@@ -250,7 +246,6 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
         </div>
       </div>
 
-      {/* Order Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl h-full  overflow-y-auto">
           <DialogHeader className='flex flex-col'>
@@ -353,7 +348,6 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   );
 };
 
-// Mobile Order Card Component
 const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails }) => {
   const firstItem = order?.cartItems[0];
 
@@ -420,8 +414,10 @@ export default function OrderHistory(): React.ReactElement {
       url: '/store-dashboard/fetch-recent-orders',
       method: 'GET',
       params: {
+        pageNumber: 1,
+        pageSize: 10,
         storeCode: user?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
-        entityCode: user?.entityCode
+        entityCode: user?.entityCode || process.env.NEXT_PUBLIC_ENTITY_CODE
       }
     })
   });
@@ -429,7 +425,6 @@ export default function OrderHistory(): React.ReactElement {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Format API data for the table
   const orders: Order[] = data?.data?.data || [];
 
   const handleViewDetails = (order: Order) => {
