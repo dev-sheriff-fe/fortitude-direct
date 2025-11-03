@@ -3,7 +3,8 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFoo
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check } from 'lucide-react';
+import { Check, Copy } from 'lucide-react';
+import { copyToClipboard } from '@/utils/helperfns';
 
 const BnplChainSelector = ({ 
   modalOpen, 
@@ -13,12 +14,12 @@ const BnplChainSelector = ({
   onConfirm,
   isPending 
 }:any) => {
-  const [selectedNetwork, setSelectedNetwork] = useState(null);
-  const [selectedWallet, setSelectedWallet] = useState(null);
+  const [selectedNetwork, setSelectedNetwork] = useState<any|null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<any|null>(null);
 
   // Filter wallets based on selected network
-  const availableWallets = selectedNetwork 
-    ? wallets.filter(wallet => wallet.chain === selectedNetwork.code)
+  const availableWallets = selectedNetwork
+    ? wallets.filter((wallet:any) => wallet.chain === selectedNetwork.code)
     : [];
 
   const handleConfirm = () => {
@@ -52,7 +53,7 @@ const BnplChainSelector = ({
           <div className="space-y-3">
             <h3 className="font-semibold text-sm">Step 1: Select Network</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {networks?.map((network) => (
+              {networks?.map((network:any) => (
                 <Card
                   key={network.code}
                   className={`cursor-pointer transition-all ${
@@ -95,7 +96,7 @@ const BnplChainSelector = ({
             <div className="space-y-3">
               <h3 className="font-semibold text-sm">Step 2: Select Token</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {availableWallets.map((wallet, index) => (
+                {availableWallets.map((wallet:any, index:number) => (
                   <Card
                     key={`${wallet.publicAddress}-${wallet.symbol}-${index}`}
                     className={`cursor-pointer transition-all ${
@@ -147,9 +148,16 @@ const BnplChainSelector = ({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Address:</span>
-                    <span className="font-mono text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs">
                       {selectedWallet.publicAddress.slice(0, 10)}...{selectedWallet.publicAddress.slice(-8)}
                     </span>
+                    {selectedWallet?.publicAddress && (
+                      <button onClick={() => copyToClipboard(selectedWallet?.publicAddress as string)}>
+                        <Copy className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    )}
+                    </div>
                   </div>
                 </div>
               </CardContent>

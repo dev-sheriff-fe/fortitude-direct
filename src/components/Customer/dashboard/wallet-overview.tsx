@@ -93,7 +93,7 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
         isActive
           ? 'bg-accent text-white'
           : 'bg-white text-foreground',
-        isLowBalance ? 'border-red-300 bg-red-50' : '',
+        isLowBalance ? 'border-red-300 bg-red-50 text-red-600' : '',
         className
       )}
     >
@@ -129,7 +129,7 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
           <span className={cn(
             "text-xs",
             isActive ? "text-white" : "text-muted-foreground",
-            isLowBalance ? "text-red-600" : ""
+            isLowBalance ? "text-red-600 bg-red-600 rounded-md p-1 border border-red-600" : ""
           )}>
             Available Balance
           </span>
@@ -192,6 +192,7 @@ interface CryptoCardProps {
   forceHideAmount?: boolean;
   publicAddress?: string;
   isLowBalance?: boolean;
+  chain?: string;
 }
 
 const CryptoCard: React.FC<CryptoCardProps> = ({
@@ -202,6 +203,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
   isActive = false,
   change,
   changePositive,
+  chain,
   publicAddress,
   className,
   forceHideAmount = false,
@@ -223,7 +225,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
         isActive
           ? 'bg-accent text-white'
           : 'bg-white text-foreground',
-        isLowBalance ? 'border-red-300 bg-red-50' : '',
+        isLowBalance ? 'border-red-300 bg-red-50 text-red-600' : '',
         className
       )}
     >
@@ -242,7 +244,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
       )}
 
       <CardContent className="p-5 relative z-10">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 space-y-1.5">
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mr-3 overflow-hidden">
             <Image
@@ -253,18 +255,24 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
               className="w-8 h-8 object-cover"
             />
           </div>
-            <span className="text-sm font-medium">{currency}</span>
+            <div>
+              <span className="text-sm font-medium">{currency}</span>
+              <div className="text-xs text-muted-foreground">({chain})</div>
+            </div>
           </div>
           <Button variant={'ghost'} onClick={()=>copyToClipboard(publicAddress!)}>
             <Copy className='w-5 h-5 text-white'/>
           </Button>
         </div>
-
-        <div className="flex items-center gap-7 mb-2">
+        <div>
+          <span className="text-xs text-muted-foreground">Wallet Address</span>
+          <p className="text-sm break-[12px]">{publicAddress?.slice(0, 6)}...{publicAddress?.slice(-4)}</p>
+        </div>
+        <div className="flex items-center gap-7 mt-4">
           <span className={cn(
             "text-xs",
             isActive ? "text-white" : "text-muted-foreground",
-            isLowBalance ? "text-red-600" : ""
+            isLowBalance ? "text-red-600 bg-red-600 rounded-md p-1 border border-red-600" : ""
           )}>
             Holdings
           </span>
@@ -537,6 +545,7 @@ export const WalletOverview = () => {
                   publicAddress={wallet?.publicAddress}
                   forceHideAmount={hideAllBalances}
                   isLowBalance={wallet.isLowBalance}
+                  chain= {wallet?.chain}
                 />
               ))}
             </div>

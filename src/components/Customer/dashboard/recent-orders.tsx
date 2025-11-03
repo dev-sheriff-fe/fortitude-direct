@@ -130,28 +130,10 @@ const getStatusIcon = (status: string): React.ReactNode => {
   }
 };
 
-const DynamicTable: React.FC<DynamicTableProps> = ({
-  columns,
-  data,
-  itemsPerPage = 5,
-  onViewDetails
-}) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const queryClient = useQueryClient()
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = data.slice(startIndex, endIndex);
-
-  const handleViewDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setIsModalOpen(true);
-    onViewDetails(order);
-  };
-
-  const {mutate,isPending} = useMutation({
+// process payment mutation
+const useProcessPayment = (setIsAlertOpen: (open: boolean) => void) => {
+   const queryClient = useQueryClient()
+    const {mutate,isPending} = useMutation({
     mutationFn: (orderNo:string)=>axiosCustomer.request({
       url: '/ecomm-wallet/process-pay',
       method: 'GET',
@@ -165,6 +147,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
         return
       }
       toast?.success(data?.data?.desc)
+      setIsAlertOpen(false)
       queryClient.invalidateQueries({
         queryKey: ['customer-recent-orders']
       })
@@ -173,6 +156,134 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       toast.error('Something went wrong!')
     }
   })
+
+  return {mutate,isPending}
+}
+
+// Order item modal component
+interface orderItemProps {
+  selectedOrder: Order | null;
+  isModalOpen: boolean;
+  setIsModalOpen: (open: boolean) => void;
+}
+
+const OrderItem = ({selectedOrder, isModalOpen,setIsModalOpen}:orderItemProps)=>{
+
+  return (
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader className='flex flex-col'>
+            <DialogTitle>Order Details - {selectedOrder?.cartId}</DialogTitle>
+            <DialogDescription>
+              Detailed information about the selected order
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedOrder && (
+            <div className="py-4">
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Order Date:</p>
+                  <p className="text-sm">{selectedOrder?.orderDate}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Customer:</p>
+                  <p className="text-sm">{selectedOrder.customerName}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Total Amount:</p>
+                  <p className="text-sm font-semibold">{selectedOrder?.ccy} {selectedOrder?.totalAmount.toFixed(2)}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Payment Method:</p>
+                  <p className="text-sm">{selectedOrder?.paymentMethod || 'Not specified'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Order Status:</p>
+                  <Badge className={`${getStatusColor(selectedOrder.orderSatus)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
+                    {getStatusIcon(selectedOrder.orderSatus)}
+                    {selectedOrder.orderSatus}
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Payment Status:</p>
+                  <Badge className={`${getStatusColor(selectedOrder?.paymentStatus)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
+                    {getStatusIcon(selectedOrder?.paymentStatus)}
+                    {selectedOrder?.paymentStatus}?
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-3">Order Items</h4>
+                <div className="space-y-3">
+                  {selectedOrder.cartItems.map((item, index) => (
+                    <div key={index} className="flex items-center gap-3 p-2 border rounded-lg">
+                      <div className="w-12 h-12 relative rounded-md overflow-hidden">
+                        <Image
+                          src={item?.picture || `${placeholder.src}`}
+                          alt={item?.itemName}
+                          fill
+                          className="object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = `${placeholder.src}`;
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{item?.itemName}</p>
+                        <p className="text-xs text-gray-500">Qty: {item?.quantity} | {selectedOrder.ccy} {item?.price.toFixed(2)} each</p>
+                      </div>
+                      <div className="text-sm font-semibold">
+                        {selectedOrder.ccy} {item?.amount.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {selectedOrder.deliveryAddress && (
+                <div className="border-t pt-4 mt-4">
+                  <h4 className="font-medium mb-2">Delivery Address</h4>
+                  <p className="text-sm">
+                    {selectedOrder.deliveryAddress.street}<br />
+                    {selectedOrder.deliveryAddress.city && `${selectedOrder.deliveryAddress.city}, `}
+                    {selectedOrder.deliveryAddress.state}<br />
+                    {selectedOrder.deliveryAddress.postCode && `${selectedOrder.deliveryAddress.postCode}, `}
+                    {selectedOrder.deliveryAddress.country}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+  )
+}
+
+const DynamicTable: React.FC<DynamicTableProps> = ({
+  columns,
+  data,
+  itemsPerPage = 4,
+  onViewDetails
+}) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const queryClient = useQueryClient()
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = data.slice(startIndex, endIndex);
+  const {mutate,isPending} = useProcessPayment(setIsAlertOpen)
+  const handleViewDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+    onViewDetails(order);
+  };
+
+
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -196,7 +307,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
           </Button>
             {
               record?.paymentMethod === 'BNPL' && record?.orderSatus =='Payment Pending' && (
-                <AlertDialog>
+                <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
                   <AlertDialogTrigger asChild>
                     <Button
                       variant="ghost"
@@ -310,101 +421,20 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
         </div>
       </div>
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader className='flex flex-col'>
-            <DialogTitle>Order Details - {selectedOrder?.cartId}</DialogTitle>
-            <DialogDescription>
-              Detailed information about the selected order
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedOrder && (
-            <div className="py-4">
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Order Date:</p>
-                  <p className="text-sm">{selectedOrder?.orderDate}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Customer:</p>
-                  <p className="text-sm">{selectedOrder.customerName}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Total Amount:</p>
-                  <p className="text-sm font-semibold">{selectedOrder?.ccy} {selectedOrder?.totalAmount.toFixed(2)}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Payment Method:</p>
-                  <p className="text-sm">{selectedOrder?.paymentMethod || 'Not specified'}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Order Status:</p>
-                  <Badge className={`${getStatusColor(selectedOrder.orderSatus)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
-                    {getStatusIcon(selectedOrder.orderSatus)}
-                    {selectedOrder.orderSatus}
-                  </Badge>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Payment Status:</p>
-                  <Badge className={`${getStatusColor(selectedOrder?.paymentStatus)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
-                    {getStatusIcon(selectedOrder?.paymentStatus)}
-                    {selectedOrder?.paymentStatus}?
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Order Items</h4>
-                <div className="space-y-3">
-                  {selectedOrder.cartItems.map((item, index) => (
-                    <div key={index} className="flex items-center gap-3 p-2 border rounded-lg">
-                      <div className="w-12 h-12 relative rounded-md overflow-hidden">
-                        <Image
-                          src={item?.picture || `${placeholder.src}`}
-                          alt={item?.itemName}
-                          fill
-                          className="object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = `${placeholder.src}`;
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{item?.itemName}</p>
-                        <p className="text-xs text-gray-500">Qty: {item?.quantity} | {selectedOrder.ccy} {item?.price.toFixed(2)} each</p>
-                      </div>
-                      <div className="text-sm font-semibold">
-                        {selectedOrder.ccy} {item?.amount.toFixed(2)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {selectedOrder.deliveryAddress && (
-                <div className="border-t pt-4 mt-4">
-                  <h4 className="font-medium mb-2">Delivery Address</h4>
-                  <p className="text-sm">
-                    {selectedOrder.deliveryAddress.street}<br />
-                    {selectedOrder.deliveryAddress.city && `${selectedOrder.deliveryAddress.city}, `}
-                    {selectedOrder.deliveryAddress.state}<br />
-                    {selectedOrder.deliveryAddress.postCode && `${selectedOrder.deliveryAddress.postCode}, `}
-                    {selectedOrder.deliveryAddress.country}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <OrderItem
+        selectedOrder={selectedOrder}
+        isModalOpen= {isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
     </>
   );
 };
 
 const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails }) => {
   const firstItem = order.cartItems[0];
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const {isPending,mutate} = useProcessPayment(setIsAlertOpen)
   return (
     <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
       <div className="flex items-center justify-between">
@@ -451,11 +481,53 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
           variant="ghost"
           size="sm"
           className="p-1"
-          onClick={() => onViewDetails(order)}
+          onClick={() => {
+            onViewDetails(order);
+            setIsModalOpen(true);
+          }}
         >
           <Eye className="w-4 h-4" />
         </Button>
+
+        {
+          order?.paymentMethod === 'BNPL' && order?.orderSatus =='Payment Pending' && (
+            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-1"
+                >
+                  <Repeat className="w-4 h-4 mr-1" />
+            </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Proceed with payment?
+                  </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <Button
+                  className='bg-accent text-white p-2 text-sm rounded-md'
+                  onClick={()=>mutate(order?.cartId!)}
+                  disabled = {isPending}
+                  >
+                      {isPending ? `Please wait..` : 'Make Payment'}
+                  </Button>
+              </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )
+      }  
       </div>
+      <OrderItem
+        selectedOrder={order}
+        isModalOpen= {isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
     </div>
   );
 };
