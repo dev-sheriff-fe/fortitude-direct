@@ -19,6 +19,7 @@ export interface LookupOptions {
 
 const useGetLookup = (categoryCode: string) => {
   const {customer} = useCustomer()
+  const entityCode = process.env.NEXT_PUBLIC_ENTITYCODE || customer?.entityCode || 'FTD';
   const { data: lookupData } = useQuery<AxiosResponse<LookupOptions[]>>({
     queryKey: [categoryCode],
     queryFn: () =>
@@ -26,7 +27,7 @@ const useGetLookup = (categoryCode: string) => {
         url: 'lookupdata/getdatabycategorycode/' + categoryCode,
         method: 'GET',
         params: {
-          entityCode: customer?.entityCode ?? 'ETZ',
+          entityCode: entityCode,
         },
       })
   }    

@@ -13,7 +13,9 @@ import {
 } from "@/components/ui/dialog";
 import Image from 'next/image';
 import placeholder from "@/components/images/placeholder-product.webp"
+import { CustomerOrderTracking } from './order-tracking';
 
+// Type definitions
 interface CartItem {
   itemCode: string;
   itemName: string;
@@ -62,8 +64,8 @@ export interface Order {
 interface DynamicTableProps {
   data: Order[];
   itemsPerPage?: number;
-  onTrackOrder: (order: Order) => void;
-  onUpdateTracking: (order: Order) => void;
+  // onTrackOrder: (order: Order) => void;
+  // onUpdateTracking: (order: Order) => void;
 }
 
 // Helper functions
@@ -96,7 +98,6 @@ const getStatusIcon = (status: string): React.ReactNode => {
   switch (status.toLowerCase()) {
     case 'delivered':
     case 'completed':
-    case 'paid':
       return <Eye className="w-3 h-3" />;
     case 'processing':
     case 'pending':
@@ -105,7 +106,6 @@ const getStatusIcon = (status: string): React.ReactNode => {
       return <Truck className="w-3 h-3" />;
     case 'cancelled':
     case 'failed':
-    case 'draft':
       return <Package className="w-3 h-3" />;
     default:
       return null;
@@ -122,12 +122,14 @@ const getDisplayValue = (value: any): string => {
 const DynamicTable: React.FC<DynamicTableProps> = ({
   data,
   itemsPerPage = 5,
-  onTrackOrder,
-  onUpdateTracking
+  // onTrackOrder,
+  // onUpdateTracking
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
+  const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -139,12 +141,18 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
     setIsModalOpen(true);
   };
 
+  const handleTrackOrder = (order: Order) => {
+    setTrackingOrder(order);
+    setIsTrackingModalOpen(true);
+  };
+
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
 
+  // Calculate order totals for the modal
   const calculateSubtotal = (order: Order) => {
     return order.cartItems?.reduce((sum, item) => sum + item.amount, 0) || 0;
   };
@@ -158,13 +166,13 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
   };
 
   type ColumnType<T> = {
-      title: string;
-      dataIndex: keyof T | string;
-      key: string;
-      width?: number;
-      render?: (value: any, record: T) => React.ReactNode;
-    };
-  
+    title: string;
+    dataIndex: keyof T | string;
+    key: string;
+    width?: number;
+    render?: (value: any, record: T) => React.ReactNode;
+  };
+
   const columns: ColumnType<Order>[] = [
     {
       title: 'Product',
@@ -173,37 +181,23 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       width: 200,
       render: (items, record) => {
         const cartItems = items as CartItem[];
-        const firstItem = cartItems && cartItems.length > 0 ? cartItems[0] : null;
-        
+        const firstItem = cartItems[0];
         return (
           <div className="flex items-center gap-3">
             <div className="w-13 h-10 relative rounded-md overflow-hidden">
-              {firstItem ? (
-                <Image
-                  src={firstItem.picture || placeholder.src}
-                  alt={firstItem.itemName || 'Product image'}
-                  fill
-                  className="object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = placeholder.src;
-                  }}
-                />
-              ) : (
-                <Image
-                  src={placeholder.src}
-                  alt="No product image"
-                  fill
-                  className="object-cover"
-                />
-              )}
+              <Image
+                src={firstItem.picture || `${placeholder.src}`}
+                alt={firstItem.itemName}
+                fill
+                className="object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `${placeholder.src}`;
+                }}
+              />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">
-                {firstItem ? getDisplayValue(firstItem.itemName) : 'No items in cart'}
-              </p>
-              <p className="text-xs text-gray-500">
-                {cartItems?.length || 0} item{(cartItems?.length || 0) !== 1 ? 's' : ''}
-              </p>
+              <p className="text-sm font-medium text-gray-900">{getDisplayValue(firstItem.itemName)}</p>
+              <p className="text-xs text-gray-500">Cart: {cartItems.length} item{cartItems.length !== 1 ? 's' : ''}</p>
             </div>
           </div>
         );
@@ -285,19 +279,10 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
             variant="ghost"
             size="sm"
             className="p-1"
-            onClick={() => onTrackOrder(record)}
+            onClick={() => handleTrackOrder(record)}
             title="Track Order"
           >
             <Truck className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-1"
-            onClick={() => onUpdateTracking(record)}
-            title="Update Tracking"
-          >
-            <Package className="w-4 h-4" />
           </Button>
           <Button
             variant="ghost"
@@ -350,6 +335,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
         </table>
       </div>
 
+      {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4">
         <p className="text-sm text-gray-500">
           Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Orders
@@ -389,6 +375,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
         </div>
       </div>
 
+      {/* Order Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader className='flex flex-col'>
@@ -456,38 +443,35 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
               <div className="border-t pt-4">
                 <h4 className="font-medium mb-3">Order Items</h4>
                 <div className="space-y-3">
-                  {selectedOrder.cartItems && selectedOrder.cartItems.length > 0 ? (
-                    selectedOrder.cartItems.map((item, index) => (
-                      <div key={index} className="flex items-center gap-3 p-2 border rounded-lg">
-                        <div className="w-12 h-12 relative rounded-md overflow-hidden">
-                          <Image
-                            src={item.picture || placeholder.src}
-                            alt={item.itemName}
-                            fill
-                            className="object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = placeholder.src;
-                            }}
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{getDisplayValue(item.itemName)}</p>
-                          <p className="text-xs text-gray-500">
-                            Code: {getDisplayValue(item.itemCode)} |
-                            Qty: {getDisplayValue(item.quantity)} |
-                            {selectedOrder.ccy || 'N/A'} {item.price?.toFixed(2) || '0.00'} each
-                          </p>
-                        </div>
-                        <div className="text-sm font-semibold">
-                          {selectedOrder.ccy || 'N/A'} {item.amount?.toFixed(2) || '0.00'}
-                        </div>
+                  {selectedOrder.cartItems.map((item, index) => (
+                    <div key={index} className="flex items-center gap-3 p-2 border rounded-lg">
+                      <div className="w-12 h-12 relative rounded-md overflow-hidden">
+                        <Image
+                          src={item.picture || `${placeholder.src}`}
+                          alt={item.itemName}
+                          fill
+                          className="object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = `${placeholder.src}`;
+                          }}
+                        />
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-500 text-center py-4">No items in this order</p>
-                  )}
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{getDisplayValue(item.itemName)}</p>
+                        <p className="text-xs text-gray-500">
+                          Code: {getDisplayValue(item.itemCode)} |
+                          Qty: {getDisplayValue(item.quantity)} |
+                          {selectedOrder.ccy || 'N/A'} {item.price?.toFixed(2) || '0.00'} each
+                        </p>
+                      </div>
+                      <div className="text-sm font-semibold">
+                        {selectedOrder.ccy || 'N/A'} {item.amount?.toFixed(2) || '0.00'}
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
+                {/* Order Totals Calculation */}
                 <div className="border-t-2 border-gray-300 pt-4 mt-6">
                   <div className="flex justify-end">
                     <div className="w-64">
@@ -537,6 +521,17 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
           )}
         </DialogContent>
       </Dialog>
+
+      {trackingOrder && (
+        <CustomerOrderTracking
+          order={trackingOrder}
+          isOpen={isTrackingModalOpen}
+          onClose={() => {
+            setIsTrackingModalOpen(false);
+            setTrackingOrder(null);
+          }}
+        />
+      )}
     </>
   );
 };

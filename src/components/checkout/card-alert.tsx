@@ -4,14 +4,13 @@ import { Button } from '../ui/button'
 import useCustomer from '@/store/customerStore'
 import { useCart } from '@/store/cart'
 import { UseFormReturn } from 'react-hook-form'
-import { FormData, PaymentMethod } from '@/app/(app_layout)/checkout/checkoutContent'
+import { FormData, PaymentMethod } from '@/app/checkout/checkoutContent'
 import { useLocationStore } from '@/store/locationStore'
 import { getCurrentDate } from '@/utils/helperfns'
 import { toast } from 'sonner'
 import { useMutation } from '@tanstack/react-query'
 import axiosCustomer from '@/utils/fetch-function-customer'
 import BnplChainSelector from './bnpl-chain-selector'
-
 
 interface CardAlertProps {
   modalOpen: boolean;
@@ -20,6 +19,7 @@ interface CardAlertProps {
   paymentMethod: PaymentMethod;
   networks?: any[];
   wallets?: any[];
+  orderTotal: number;
 }
 
 const CardAlert = ({
@@ -28,7 +28,8 @@ const CardAlert = ({
   form,
   paymentMethod,
   networks = [],
-  wallets = []
+  wallets = [],
+  orderTotal 
 }: CardAlertProps) => {
   const { cart } = useCart()
   const { customer } = useCustomer()
@@ -90,20 +91,18 @@ const CardAlert = ({
       picture: item?.picture,
     }))
 
+    const totalAmount = orderTotal;
+
     const payload = {
       channel: "WEB",
       cartId: checkoutData?.orderNo,
       orderDate: currentDate,
-      totalAmount: paymentMethod === 'bnpl' || paymentMethod === 'crypto_token' 
-        ? checkoutData?.payingAmount 
-        : checkoutData?.totalAmount,
+      totalAmount: totalAmount,
       totalDiscount: 0,
       deliveryOption: getValues('shippingMethod'),
       paymentMethod: paymentMethod?.toUpperCase(),
       couponCode: "",
-      ccy: paymentMethod === 'bnpl' || paymentMethod === 'crypto_token' 
-        ? checkoutData?.payingCurrency 
-        : checkoutData?.ccy,
+      ccy: checkoutData?.ccy,
       deliveryFee: 0,
       geolocation: location ? `${location?.latitude}, ${location?.longitude}` : '',
       deviceId: customer?.deviceID,
@@ -135,15 +134,6 @@ const CardAlert = ({
       }
     }
 
-    // if (paymentMethod === 'crypto_token') {
-    //   return {
-    //     ...payload,
-    //     networkChain: 'TRON',
-    //     publicAddress: 'TZGTKTChA62a1wWNa3DrZ4U8wSUaYVv3y9',
-    //     tokenSymbol: 'USDT'
-    //   }
-    // }
-
     return payload
   }
 
@@ -174,6 +164,7 @@ const CardAlert = ({
         wallets={wallets}
         onConfirm={onBnplConfirm}
         isPending={isPending}
+        orderTotal={orderTotal} 
       />
     )
   }
@@ -186,6 +177,8 @@ const CardAlert = ({
           <AlertDialogTitle>Confirm Payment</AlertDialogTitle>
           <AlertDialogDescription>
             Proceed with card payment?
+            <br />
+            <strong>Total Amount: ${orderTotal.toFixed(2)}</strong>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -195,7 +188,7 @@ const CardAlert = ({
             onClick={onSubmit}
             disabled={isPending}
           >
-            {isPending ? 'Please wait..' : 'Make Payment'}
+            {isPending ? 'Please wait..' : `Pay $${orderTotal.toFixed(2)}`}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

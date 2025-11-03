@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, QrCode, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import { CheckoutStep } from '@/app/(app_layout)/checkout/checkoutContent';
+import { CheckoutStep } from '@/app/checkout/checkoutContent';
 
 interface PaymentResponse {
   url: string;
@@ -17,16 +17,25 @@ interface VerifyResponse {
 }
 
 interface SolanaPayProps {
-  setCurrentStep: (currentStep:CheckoutStep)=>void
+  setCurrentStep: (currentStep: CheckoutStep) => void;
+  orderTotal: number;
 }
 
-const SolanaPay = ({setCurrentStep}:SolanaPayProps) => {
+const SolanaPay = ({ setCurrentStep, orderTotal }: SolanaPayProps) => {
   const [qrCode, setQrCode] = useState<string>();
   const [reference, setReference] = useState<string>();
 
   const generatePaymentMutation = useMutation({
     mutationFn: async (): Promise<PaymentResponse> => {
-      const res = await fetch('/api/solana-pay', { method: 'POST' });
+      const res = await fetch('/api/solana-pay', { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: orderTotal
+        })
+      });
       if (!res.ok) throw new Error('Failed to generate payment');
       return res.json();
     },
@@ -34,7 +43,7 @@ const SolanaPay = ({setCurrentStep}:SolanaPayProps) => {
       try {
         const qr = createQR(data.url);
         const qrBlob = await qr.getRawData('png');
-        
+
         if (!qrBlob) {
           throw new Error('Failed to generate QR code');
         }
@@ -101,14 +110,9 @@ const SolanaPay = ({setCurrentStep}:SolanaPayProps) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      {/* Gradient background effects */}
-      {/* <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-[120px] animate-pulse delay-1000" />
-      </div> */}
-      <Button onClick={()=>setCurrentStep('cart')} className='absolute top-3 left-3'>
-          <ArrowLeft className='w-5 h-5'/>
-        </Button>
+      <Button onClick={() => setCurrentStep('cart')} className='absolute top-3 left-3'>
+        <ArrowLeft className='w-5 h-5' />
+      </Button>
 
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
@@ -121,6 +125,9 @@ const SolanaPay = ({setCurrentStep}:SolanaPayProps) => {
           <p className="text-muted-foreground">
             Generate and verify payments on Solana
           </p>
+          <div className="mt-2 text-sm font-medium">
+            Amount: ${orderTotal.toFixed(2)}
+          </div>
         </div>
 
         <Card className="backdrop-blur-sm bg-card/50 border-border/50 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">

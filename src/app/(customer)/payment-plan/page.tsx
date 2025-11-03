@@ -1,7 +1,7 @@
 'use client'
 import { PaymentPlanCard } from "@/components/Customer/payment-plan/payment-plan-card";
 import { Button } from "@/components/ui/button";
-import Loader from "@/components/ui/loader/loader";
+import Loader from "@/components/ui/loader"
 
 // import useCustomer from "@/store/customerStore";
 // import { PaymentPlanResponse } from "@/types";

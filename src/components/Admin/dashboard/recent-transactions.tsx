@@ -16,7 +16,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// Type definitions
 interface Transaction {
   date: string;
   amount: number;
