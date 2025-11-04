@@ -83,7 +83,7 @@ const CartView = ({
     }
   }, []);
 
-  // Check if payment method requires modal (CARD or BNPL)
+  // Check payment method requires modal (CARD or BNPL)
   const requiresModal = (code: string) => {
     return code === 'CARD_PAYMENT' || code === 'BNPL_3_INSTALLMENTS';
   };

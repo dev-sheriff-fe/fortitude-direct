@@ -12,7 +12,6 @@ import {
   X,
   Package,
   Barcode,
-  BadgeDollarSign,
   Warehouse,
   ImageIcon,
   Tag,
@@ -20,7 +19,10 @@ import {
   Box,
   Hash,
   ArrowLeft,
-  // NigerianNaira
+  Palette,
+  Ruler,
+  Calendar,
+  Loader2
 } from "lucide-react";
 import FileUpload from "@/components/Admin/inventories/file-input";
 import { useForm, Controller } from "react-hook-form";
@@ -48,6 +50,10 @@ interface ProductFormData {
   barCode: string;
   brand: string;
   ccy: string;
+  color: string;
+  itemSize: string;
+  model: string;
+  expiryDate: string;
 }
 
 interface CreateProductPageProps {
@@ -60,10 +66,12 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
   const searchParams = useSearchParams();
   const [isEditMode, setIsEditMode] = useState(mode === 'edit');
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [editingProductCategory, setEditingProductCategory] = useState<string | null>(null);
   const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm<ProductFormData>();
+  const [isFormLoading, setIsFormLoading] = useState(false);
 
   const { mutate: saveProduct, isPending } = useProductMutation();
-  const { data: categories } = useCategories();
+  const { data: categories, isLoading: isLoadingCategories } = useCategories();
   const { user } = useUser();
   const { fileUrl, handleFileChange } = useFileUpload();
 
@@ -72,10 +80,12 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
   useEffect(() => {
     const editParam = searchParams.get('edit');
     const idParam = searchParams.get('id');
+    const categoryParam = searchParams.get('category');
 
-    if (editParam === 'true' && idParam) {
+    if (editParam === 'true' && idParam && categoryParam) {
       setIsEditMode(true);
       setEditingProductId(idParam);
+      setEditingProductCategory(categoryParam);
     }
   }, [searchParams]);
 
@@ -91,49 +101,120 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
     enabled: !!editingProductId && isEditMode,
   });
 
-  useEffect(() => {
-    if (productData?.data && isEditMode) {
-      const product = productData.data.productDto;
-      console.log('Product data received:', product);
+  const parseDDMMYYYYToInputDate = (dateString: string): string => {
+    if (!dateString) return "";
 
-      const productObj = {
-        productId: product?.id?.toString() || "",
-        productName: product?.name || "",
-        productDescription: product?.description || "",
-        productCategory: product?.category || "",
-        productCode: product?.code || "",
-        productPrice: product?.salePrice?.toString() || "",
-        stockQuantity: product?.qtyInStore || 0,
-        unitQuantity: product?.unit || "",
-        imageURL: product?.picture || "",
-        costPrice: product?.costPrice?.toString() || "",
-        storeId: user?.storeCode || "",
-        barCode: product?.barCode || "",
-        brand: product?.brand || "",
-        ccy: product?.ccy || 'NGN'
-      };
+    try {
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        const day = parts[0].padStart(2, '0');
+        const month = parts[1].padStart(2, '0');
+        const year = parts[2];
 
-      console.log('Form data to be set:', productObj);
-      reset(productObj);
-    } else if (!isEditMode) {
-      reset({
-        productId: "",
-        productName: "",
-        productDescription: "",
-        productCategory: "",
-        productCode: "",
-        productPrice: "",
-        stockQuantity: 0,
-        unitQuantity: "",
-        imageURL: "",
-        costPrice: "",
-        storeId: user?.storeCode || "",
-        barCode: "",
-        brand: "",
-        ccy: "NGN"
-      });
+        const formattedDate = `${year}-${month}-${day}`;
+        const date = new Date(formattedDate);
+        if (!isNaN(date.getTime())) {
+          return formattedDate;
+        }
+      }
+
+      console.warn('Invalid date format:', dateString);
+      return "";
+    } catch (error) {
+      console.warn('Error parsing date:', dateString, error);
+      return "";
     }
-  }, [productData, isEditMode, user, reset]);
+  };
+
+  const formatInputDateToDDMMYYYY = (dateString: string): string => {
+    if (!dateString) return "";
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "";
+
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.warn('Error formatting date:', dateString, error);
+      return "";
+    }
+  };
+
+  useEffect(() => {
+    const loadFormData = async () => {
+      if (productData?.data && isEditMode) {
+        setIsFormLoading(true);
+
+        if (isLoadingCategories) {
+          console.log('Waiting for categories to load...');
+          return;
+        }
+
+        const product = productData.data.productDto;
+        console.log('Product data received:', product);
+        console.log('Available categories:', categories?.categories);
+
+        const matchedCategory = categories?.categories?.find(
+          (cat: any) => cat.code === product?.category
+        );
+
+        console.log('Matched category:', matchedCategory);
+
+        const productObj = {
+          productId: product?.id?.toString() || "",
+          productName: product?.name || "",
+          productDescription: product?.description || "",
+          productCategory: matchedCategory?.code || product?.category || "",
+          productCode: product?.code || "",
+          productPrice: product?.salePrice?.toString() || "",
+          stockQuantity: product?.qtyInStore || 0,
+          unitQuantity: product?.unit || "",
+          imageURL: product?.picture || "",
+          costPrice: product?.costPrice?.toString() || "",
+          storeId: user?.storeCode || "",
+          barCode: product?.barCode || "",
+          brand: product?.brand || "",
+          ccy: product?.ccy || 'NGN',
+          color: product?.color || "",
+          itemSize: product?.itemSize || "",
+          model: product?.model || "",
+          expiryDate: parseDDMMYYYYToInputDate(product?.expiryDate || "")
+        };
+
+        console.log('Form data to be set:', productObj);
+        reset(productObj);
+        setIsFormLoading(false);
+      } else if (!isEditMode) {
+        reset({
+          productId: "",
+          productName: "",
+          productDescription: "",
+          productCategory: "",
+          productCode: "",
+          productPrice: "",
+          stockQuantity: 0,
+          unitQuantity: "",
+          imageURL: "",
+          costPrice: "",
+          storeId: user?.storeCode || "",
+          barCode: "",
+          brand: "",
+          ccy: "NGN",
+          color: "",
+          itemSize: "",
+          model: "",
+          expiryDate: ""
+        });
+        setIsFormLoading(false);
+      }
+    };
+
+    loadFormData();
+  }, [productData, isEditMode, user, reset, categories, isLoadingCategories]);
 
   const onSubmitForm = async (values: ProductFormData) => {
     try {
@@ -141,18 +222,22 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
         productId: isEditMode ? (editingProductId || product?.id || product?.productId) : null,
         productName: values?.productName,
         productDescription: values?.productDescription,
-        productCategory: values?.productCategory,
+        // productCategory: values?.productCategory,
+        productCategory: isEditMode ? (editingProductCategory || product?.category || product?.productCategory) : values?.productCategory,
         productCode: values?.productCode,
         productPrice: values?.productPrice,
         stockQuantity: values?.stockQuantity,
         unitQuantity: values?.unitQuantity,
-        base64Image: "",
         imageURL: fileUrl ? fileUrlFormatted(fileUrl) : (fileUrlFormatted(values?.imageURL) || ""),
         costPrice: values?.costPrice,
         storeId: user?.storeCode || process.env.NEXT_PUBLIC_DEFAULT_STORE_CODE,
         barCode: values?.barCode,
         brand: values?.brand,
         ccy: values?.ccy || 'NGN',
+        color: values?.color || null,
+        itemSize: values?.itemSize || null,
+        model: values?.model || null,
+        expiryDate: formatInputDateToDDMMYYYY(values?.expiryDate) || null
       };
 
       console.log('Submitting payload:', payload);
@@ -165,11 +250,17 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
     }
   };
 
-  if (isLoadingProduct) {
+  if (isLoadingProduct || isFormLoading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/20 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 text-accent-foreground animate-spin" />
+          </div>
           <p className="text-gray-500">Loading product data...</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            {isLoadingCategories ? "Loading categories..." : "Preparing form..."}
+          </p>
         </div>
       </div>
     );
@@ -188,7 +279,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
         </Button>
       </div>
 
-      {/* Page Header */}
       <div className="flex items-center justify-center mb-8">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/20 flex items-center justify-center">
@@ -205,9 +295,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
 
       <form onSubmit={handleSubmit(onSubmitForm)}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Product Information */}
           <div className="space-y-8">
-            {/* Basic Information Card */}
             <Card className="border-accent/20 border-2 shadow-md">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -251,9 +339,20 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
                       name="productCategory"
                       control={control}
                       render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          disabled={isLoadingCategories}
+                        >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select category" />
+                            {isLoadingCategories ? (
+                              <div className="flex items-center gap-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span>Loading categories...</span>
+                              </div>
+                            ) : (
+                              <SelectValue placeholder="Select category" />
+                            )}
                           </SelectTrigger>
                           <SelectContent>
                             {categories?.categories?.map((category: any, index: number) => (
@@ -265,6 +364,12 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
                         </Select>
                       )}
                     />
+                    {isLoadingCategories && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Loading categories...
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -278,11 +383,77 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
               </CardContent>
             </Card>
 
-            {/* Pricing Card */}
             <Card className="border-accent/20 border-2 shadow-md">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
-                  <span className="absolute left-2 top-2 h-4 w-4 text-muted-foreground">₦</span>
+                  <Warehouse className="h-5 w-5" />
+                  Product Specifications
+                </CardTitle>
+                <CardDescription>Additional product details and attributes</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="color" className="text-sm font-medium">Color</Label>
+                    <div className="relative">
+                      <Palette className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="color"
+                        className="pl-10"
+                        {...register("color")}
+                        placeholder="e.g., Red, Blue, Black"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="itemSize" className="text-sm font-medium">Size</Label>
+                    <div className="relative">
+                      <Ruler className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="itemSize"
+                        className="pl-10"
+                        {...register("itemSize")}
+                        placeholder="e.g., S, M, L, 10x10"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="model" className="text-sm font-medium">Model</Label>
+                  <div className="relative">
+                    <Warehouse className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="model"
+                      className="pl-10"
+                      {...register("model")}
+                      placeholder="Product model number"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="expiryDate" className="text-sm font-medium">Expiry Date</Label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="expiryDate"
+                      type="date"
+                      className="pl-10"
+                      {...register("expiryDate")}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="space-y-8">
+            <Card className="border-accent/20 border-2 shadow-md">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
+                  <span className="text-muted-foreground">₦</span>
                   Pricing
                 </CardTitle>
                 <CardDescription>Product pricing information</CardDescription>
@@ -295,12 +466,12 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
                       <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
-                      <span className="absolute left-2 top-2 h-4 w-4 text-muted-foreground">₦</span>
+                      <span className="absolute left-2 top-2 text-muted-foreground">₦</span>
                       <Input
                         id="productPrice"
                         type="number"
                         step="0.01"
-                        className="pl-10"
+                        className="pl-8"
                         {...register("productPrice", {
                           required: "Selling price is required",
                           min: { value: 0, message: "Price must be positive" }
@@ -315,12 +486,12 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
                   <div className="space-y-2">
                     <Label htmlFor="costPrice" className="text-sm font-medium">Cost Price</Label>
                     <div className="relative">
-                      <span className="absolute left-2 top-2 h-4 w-4 text-muted-foreground">₦</span>
+                      <span className="absolute left-2 top-2 text-muted-foreground">₦</span>
                       <Input
                         id="costPrice"
                         type="number"
                         step="0.01"
-                        className="pl-10"
+                        className="pl-8"
                         {...register("costPrice", {
                           min: { value: 0, message: "Cost price must be positive" }
                         })}
@@ -354,11 +525,7 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Right Column - Inventory & Image */}
-          <div className="space-y-8">
-            {/* Codes & Inventory Card */}
             <Card className="border-accent/20 border-2 shadow-md">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -436,7 +603,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
               </CardContent>
             </Card>
 
-            {/* Product Image Card */}
             <Card className="border-accent/20 border-2 shadow-md">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2 text-accent-foreground">
@@ -447,7 +613,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
-                  {/* Image Preview */}
                   {(fileUrl || watchedImageURL) && (
                     <div className="flex flex-col items-center space-y-3">
                       <Label className="text-sm font-medium">Image Preview</Label>
@@ -482,7 +647,6 @@ const CreateProductPage = ({ product, mode = product ? 'edit' : 'create' }: Crea
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex justify-end gap-4 pt-8 mt-8 border-t border-accent/20">
           <Button
             type="button"
