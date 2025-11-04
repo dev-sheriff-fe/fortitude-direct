@@ -64,10 +64,10 @@ export default function OrderHistory(): React.ReactElement {
     queryFn: () => axiosCustomer.request({
       url: '/customer-dashboard/fetch-recent-orders',
       method: 'GET',
-      params: {
-        storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
-        entityCode: customer?.entityCode
-      }
+      // params: {
+      //   storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
+      //   entityCode: customer?.entityCode
+      // }
     })
   });
 
@@ -109,7 +109,7 @@ export default function OrderHistory(): React.ReactElement {
                 Orders Management
               </h1>
               <p className="text-muted-foreground">
-                View and manage customer orders
+                View and manage your orders
               </p>
             </div>
           </div>

@@ -540,8 +540,8 @@ export default function OrderHistory(): React.ReactElement {
       url: '/customer-dashboard/fetch-recent-orders',
       method: 'GET',
       params: {
-        storeCode: customer?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
-        entityCode: customer?.entityCode
+        pageNumber: 1,
+        pageSize: 10,
       }
     })
   });

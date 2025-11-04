@@ -159,7 +159,7 @@ const CurrenciesCard: React.FC<CurrenciesCardProps> = ({
   };
 
   const displayAmount = forceHideAmount ? false : showAmount;
-  
+
   return (
     <Card
       className={cn(
@@ -390,15 +390,12 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
   );
 };
 
-// Helper function for class names
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
 
-// Helper function to get/set balance visibility from localStorage
 const useBalanceVisibility = () => {
   const [hideAllBalances, setHideAllBalances] = useState(false);
 
   useEffect(() => {
-    // Get the stored value from localStorage on component mount
     const storedValue = localStorage.getItem('admin-wallet-balance-visibility');
     if (storedValue) {
       setHideAllBalances(JSON.parse(storedValue));
@@ -408,7 +405,6 @@ const useBalanceVisibility = () => {
   const toggleAllBalances = () => {
     const newValue = !hideAllBalances;
     setHideAllBalances(newValue);
-    // Store the value in localStorage with admin-specific key
     localStorage.setItem('admin-wallet-balance-visibility', JSON.stringify(newValue));
   };
 
@@ -419,7 +415,15 @@ export const WalletOverview = () => {
   const { hideAllBalances, toggleAllBalances } = useBalanceVisibility();
   const [activeTab, setActiveTab] = useState<'fiat' | 'crypto'>('fiat');
   const { user } = useUser()
-  
+
+  const getCurrentDate = () => {
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard-summary'],
     queryFn: () => axiosInstance.request({
@@ -427,7 +431,7 @@ export const WalletOverview = () => {
       url: '/store-dashboard/summary',
       params: {
         startDate: '01-01-2025',
-        endDate: '02-09-2025',
+        endDate: getCurrentDate(),
         datePeriod: "",
         storeCode: user?.storeCode || process.env.NEXT_PUBLIC_STORE_CODE,
         username: user?.username,

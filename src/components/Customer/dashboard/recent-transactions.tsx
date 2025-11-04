@@ -56,11 +56,11 @@ const getStatusColor = (status: string): string => {
   }
 };
 
-const DynamicTable: React.FC<DynamicTableProps> = ({ 
-  columns, 
-  data, 
-  itemsPerPage = 6,
-  onViewDetails 
+const DynamicTable: React.FC<DynamicTableProps> = ({
+  columns,
+  data,
+  itemsPerPage = 5,
+  onViewDetails
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -88,9 +88,9 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
       return {
         ...col,
         render: (text: string, record: Transaction) => (
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             className="p-1"
             onClick={() => handleViewDetails(record)}
           >
@@ -109,8 +109,8 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
           <thead>
             <tr className="border-b-2 border-gray-200">
               {columnsWithHandler.map((column) => (
-                <th 
-                  key={column.key} 
+                <th
+                  key={column.key}
                   className="text-left p-3 font-bold text-sm text-gray-700"
                 >
                   {column.title}
@@ -120,13 +120,13 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
           </thead>
           <tbody>
             {currentData.map((item, index) => (
-              <tr 
-                key={index} 
+              <tr
+                key={index}
                 className={`border-b border-gray-200 ${index === currentData.length - 1 ? 'border-b-0' : ''}`}
               >
                 {columnsWithHandler.map((column) => (
                   <td key={column.key} className="p-3 text-sm">
-                    {column.render 
+                    {column.render
                       ? column.render(item[column.dataIndex as keyof Transaction], item, index)
                       : item[column.dataIndex as keyof Transaction]
                     }
@@ -144,16 +144,16 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
           Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} entries
         </p>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
             className="text-xs"
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          
+
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <Button
               key={page}
@@ -165,10 +165,10 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
               {page}
             </Button>
           ))}
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
+
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="text-xs"
@@ -187,7 +187,7 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
               Detailed information about the selected transaction
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedTransaction && (
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
@@ -229,16 +229,16 @@ const DynamicTable: React.FC<DynamicTableProps> = ({
 };
 
 export default function TransactionHistory(): React.ReactElement {
-  const {customer} = useCustomer()
+  const { customer } = useCustomer()
   const { data, isLoading, error } = useQuery({
     queryKey: ['customer-recent-trans'],
     queryFn: () => axiosCustomer.request({
       url: '/customer-dashboard/fetchRecentTrans',
       method: 'GET',
-      // params: {
-      //   storeCode: "STO445",
-      //   entityCode: customer?.entityCode
-      // }
+      params: {
+        pageNumber: 1,
+        pageSize: 10,
+      }
     })
   });
 
@@ -315,9 +315,9 @@ export default function TransactionHistory(): React.ReactElement {
       dataIndex: 'actions',
       key: 'actions',
       render: (text: string, record: Transaction) => (
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="p-1"
           onClick={() => handleViewDetails(record)}
         >
@@ -329,44 +329,44 @@ export default function TransactionHistory(): React.ReactElement {
 
   return (
     <>
-     {
-      transactions?.length > 0 && (
-        <Card className="border-gray-200 shadow-sm h-fit">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base lg:text-lg font-semibold text-gray-900">
-            Recent Transactions
-          </CardTitle>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Export</span>
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center items-center h-40">
-            <p className="text-gray-500">Loading transactions...</p>
-          </div>
-        ) : error ? (
-          <div className="flex justify-center items-center h-40">
-            <p className="text-red-500">Error loading transactions</p>
-          </div>
-        ) : transactions.length === 0 ? (
-          <div className="flex justify-center items-center h-40">
-            <p className="text-gray-500">No transactions found</p>
-          </div>
-        ) : (
-          <DynamicTable 
-            columns={columns} 
-            data={transactions} 
-            onViewDetails={handleViewDetails}
-          />
-        )}
-      </CardContent>
-    </Card>
-      )
-     }
+      {
+        transactions?.length > 0 && (
+          <Card className="border-gray-200 shadow-sm h-fit">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base lg:text-lg font-semibold text-gray-900">
+                  Recent Transactions
+                </CardTitle>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="flex justify-center items-center h-40">
+                  <p className="text-gray-500">Loading transactions...</p>
+                </div>
+              ) : error ? (
+                <div className="flex justify-center items-center h-40">
+                  <p className="text-red-500">Error loading transactions</p>
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="flex justify-center items-center h-40">
+                  <p className="text-gray-500">No transactions found</p>
+                </div>
+              ) : (
+                <DynamicTable
+                  columns={columns}
+                  data={transactions}
+                  onViewDetails={handleViewDetails}
+                />
+              )}
+            </CardContent>
+          </Card>
+        )
+      }
     </>
   );
 }
