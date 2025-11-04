@@ -717,7 +717,7 @@ export const WalletOverview = () => {
                         variant="outline"
                         className="text-xs bg-muted/50 group-hover:bg-muted transition-colors"
                       >
-                        {item.volume} orders
+                        {item.volume} vol.
                       </Badge>
                     </div>
                   </div>
