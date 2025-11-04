@@ -1,6 +1,6 @@
 'use client'
 import { cn } from '@/lib/utils';
-import { CalendarClockIcon, Clock, EyeOff, Folder, Key, LayoutDashboard, ListOrdered, Send, Sheet, Store } from 'lucide-react';
+import { CalendarClockIcon, ClipboardList, Clock, EyeOff, Folder, Key, LayoutDashboard, ListOrdered, PiggyBank, Send, Settings2Icon, Sheet, Store } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,13 +9,14 @@ import React from 'react'
 const navigationItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Orders', href: '/orders', icon: Clock },
-  { name: 'Transactions', href: '/transactions', icon: ListOrdered },
-  { name: 'Store Front', href: '/', icon: Store },
+  { name: 'Transactions', href: '/transactions', icon: PiggyBank },
   { name: 'My Credit Score', href: '/credit-score', icon: Sheet },
   { name: 'Send Money', href: '/send-money', icon: Send },
+  {name: 'Manage Accounts', href: '/add-bank-account', icon: Settings2Icon},
+  { name: 'Store Front', href: '/', icon: Store },
   { name: 'My Documents', href: '/documents', icon: Folder },
   { name: 'BNPL Payment Plan', href: '/payment-plan', icon: CalendarClockIcon },
-  // { name: 'Reports', href: '/reports', icon: ClipboardList },
+  { name: 'Reports', href: '/reports', icon: ClipboardList },
   { name: 'API Key', href: '/api-key', icon: Key },
   { name: 'Change Password', href: '/reset-password', icon: EyeOff },
 ];
@@ -34,7 +35,7 @@ const SidebarMobile = () => {
         scrollbarColor: 'transparent',
       }}
     >
-      <div className="p-4 lg:p-6 border-b border-white/10">
+      <div className="p-4 lg:p-6">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center bg-white/20 p-2 rounded-md">
             <Image

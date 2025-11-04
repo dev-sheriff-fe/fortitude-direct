@@ -264,7 +264,7 @@ const OrderItem = ({selectedOrder, isModalOpen,setIsModalOpen}:orderItemProps)=>
 const DynamicTable: React.FC<DynamicTableProps> = ({
   columns,
   data,
-  itemsPerPage = 4,
+  itemsPerPage = 5,
   onViewDetails
 }) => {
   const [currentPage, setCurrentPage] = useState(1);

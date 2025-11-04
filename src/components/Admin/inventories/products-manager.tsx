@@ -69,17 +69,20 @@ const ProductsManager = ({ onCountChange }: ProductsManagerProps) => {
   const searchParams = useSearchParams();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [editingProductCategory, setEditingProductCategory] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   useEffect(() => {
     const editParam = searchParams.get('edit');
     const idParam = searchParams.get('id');
+    const categoryParam = searchParams.get('category');
 
-    if (editParam === 'true' && idParam) {
+    if (editParam === 'true' && idParam && categoryParam) {
       setIsEditMode(true);
       setEditingProductId(idParam);
-      router.push(`/admin/inventories/create-product?edit=true&id=${idParam}`);
+      setEditingProductCategory(categoryParam);
+      router.push(`/admin/inventories/create-product?edit=true&id=${idParam}&category=${categoryParam}`);
     }
   }, [searchParams, router]);
 
@@ -115,7 +118,7 @@ const ProductsManager = ({ onCountChange }: ProductsManagerProps) => {
   ) || [];
 
   const handleEditDetails = (product: Product) => {
-    router.push(`/admin/inventories/create-product?edit=true&id=${product.id}`);
+    router.push(`/admin/inventories/create-product?edit=true&id=${product.id}&category=${product.category}`);
   };
 
   const handleViewDetails = (product: Product) => {
@@ -369,7 +372,7 @@ const ProductsManager = ({ onCountChange }: ProductsManagerProps) => {
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Cost Price</p>
-                    <p className="text-sm">{formatCurrency(selectedProduct.costPrice, selectedProduct.ccy)}</p>
+                    <p className="text-sm">{formatCurrency(Number(selectedProduct.costPrice), selectedProduct.ccy)}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Old Price</p>
