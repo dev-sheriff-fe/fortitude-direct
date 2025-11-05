@@ -4,9 +4,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import axiosInstance from "@/utils/fetch-function";
 import useCustomer from "@/store/customerStore";
-
+import { logout } from '@/utils/auth-utils-customer'
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +24,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Shield, Lock, Eye, EyeOff } from "lucide-react";
+import axiosCustomer from "@/utils/fetch-function-customer";
+import { log } from "console";
 
 interface SetPinFormData {
   newPin: string;
@@ -40,7 +41,8 @@ const TransactionPinModal = ({ isOpen, onClose }: TransactionPinModalProps) => {
   const { customer } = useCustomer();
   const [showNewPin, setShowNewPin] = useState(false);
   const [showConfirmPin, setShowConfirmPin] = useState(false);
-  
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<SetPinFormData>({
     defaultValues: {
       newPin: "",
@@ -57,22 +59,29 @@ const TransactionPinModal = ({ isOpen, onClose }: TransactionPinModalProps) => {
         // deviceId: typeof window !== 'undefined' ? localStorage.getItem('deviceId') || 'web-app' : 'web-app'
       };
 
-      const response = await axiosInstance.post('/ecommerce/setPIN', payload);
+      const response = await axiosCustomer.post('/ecommerce/setPIN', payload);
       return response.data;
     },
     onSuccess: (data) => {
       if (data.code === "000") {
-        toast.success("Transaction PIN set successfully!");
+        toast.success("Transaction PIN set successfully! You will be logged out in 5 seconds...");
         reset();
         onClose();
       } else {
         toast.error(data.message || "Failed to set transaction PIN");
       }
     },
+    onSettled: () => {
+      setIsLoggingOut(true);
+      setTimeout(() => {
+        logout();
+        setIsLoggingOut(false);
+      }, 5000);
+    },
     onError: (error: any) => {
       console.error('Error setting PIN:', error);
       toast.error(error.response?.data?.message || "Failed to set transaction PIN");
-    }
+    },
   });
 
   const onSubmit = (data: SetPinFormData) => {
@@ -92,13 +101,20 @@ const TransactionPinModal = ({ isOpen, onClose }: TransactionPinModalProps) => {
   const watchNewPin = watch("newPin");
   const watchConfirmPin = watch("confirmPin");
 
+  const truncateUsername = (username: string | undefined) => {
+    if (!username) return "N/A";
+    // if (username.length <= 8) return username;
+    const firstPart = username.slice(0, 7);
+    const lastPart = username.slice(-4);
+    return `${firstPart}***${lastPart}`;
+  };
+
+
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-primary/20">
-            <Shield className="w-6 h-6 text-primary" />
-          </div>
+        <DialogHeader className="flex flex-col mb-4">
           <DialogTitle className="text-center text-xl">
             Set Transaction PIN
           </DialogTitle>
@@ -115,20 +131,19 @@ const TransactionPinModal = ({ isOpen, onClose }: TransactionPinModalProps) => {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-7 text-sm justify-between">
               <div>
                 <Label className="text-xs text-muted-foreground">Username</Label>
-                <p className="font-medium">{customer?.username || "N/A"}</p>
+                <p className="font-medium">{truncateUsername(customer?.username)}</p>
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground">Entity Code</Label>
-                <p className="font-medium">{customer?.entityCode || "N/A"}</p>
+                <Label className="text-xs text-muted-foreground">Tier</Label>
+                <p className="font-medium">{customer?.customerTier || "N/A"}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* PIN Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-3">
             <Label htmlFor="newPin" className="text-sm font-medium">
@@ -183,7 +198,7 @@ const TransactionPinModal = ({ isOpen, onClose }: TransactionPinModalProps) => {
                 placeholder="Confirm 4-digit PIN"
                 {...register("confirmPin", {
                   required: "Please confirm your PIN",
-                  validate: value => 
+                  validate: value =>
                     value === watchNewPin || "PINs do not match"
                 })}
               />
