@@ -58,6 +58,7 @@ export const LoginForm = ({ setIsOpen }: LoginProps) => {
             localStorage.setItem("token_customer", data.data.ticketID)
             localStorage.setItem("customer_store", JSON.stringify(data.data))
             setCustomer(data?.data)
+            toast.success("Login successful, proceed to checkout.")
             if (data?.data?.ticketID) {
                 if (hasAccess([data?.data.userRole], ["CUSTOMER"])) {
                     setAuthCredentials(data?.data.ticketID, ['CUSTOMER'])
@@ -158,14 +159,14 @@ export const LoginForm = ({ setIsOpen }: LoginProps) => {
                 </Link >
             </p>
 
-            <Link href="/admin-login" target="_blank" className="relative z-10">
+            {/* <Link href="/admin-login" target="_blank" className="relative z-10">
                 <p className='text-sm text-center'>
                     Are you an admin?{' '}
                     <button type='button' className="text-accent underline">
                         login here
                     </button>
                 </p>
-            </Link>
+            </Link> */}
         </div>
     )
 }

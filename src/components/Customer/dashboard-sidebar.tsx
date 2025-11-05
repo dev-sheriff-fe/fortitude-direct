@@ -34,6 +34,7 @@ const navigationItems = [
   { name: 'Reports', href: '/reports', icon: ClipboardList },
   { name: 'API Key', href: '/api-key', icon: Key },
   { name: 'Change Password', href: '/reset-password', icon: EyeOff },
+  { name: 'Settings', href: '/settings', icon: Settings2Icon }
 ];
 
 export const DashboardSidebar = () => {
