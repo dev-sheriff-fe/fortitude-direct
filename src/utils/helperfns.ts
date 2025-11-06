@@ -88,6 +88,9 @@ export const getStatusBadge = (status: string) => {
     "y": "bg-green-500 text-white",
     "success": "bg-green-500 text-white"
   };
+
+  console.log(status);
+  
   
   return variants[status?.toLowerCase()] || "bg-gray-500 text-gray-400";
 };
