@@ -18,7 +18,7 @@ const useUser = create<UserStore>()(
       clear: () => set(() => ({ user: null })),
     }),
     {
-      name: 'store_admin',
+      name: 'user',
       storage: createJSONStorage(() => localStorage),
     }
   )
