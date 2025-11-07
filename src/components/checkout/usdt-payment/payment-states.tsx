@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useCart } from "@/store/cart";
 import { copyToClipboard } from "@/utils/helperfns";
 import { AlertCircle, CheckCircle, Clock, Copy, ExternalLink, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -70,6 +71,7 @@ import { useRouter } from "next/navigation";
     // Payment Success screen
    export const PaymentSuccessScreen = ({paymentResponse}:{paymentResponse:any}) => {
     const router = useRouter()
+    const {clearCart} = useCart()
   return  (
           <div className='flex flex-col justify-center items-center w-full'>
             <div className="w-full max-w-md space-y-6 text-center">
@@ -130,7 +132,10 @@ import { useRouter } from "next/navigation";
                 </CardContent>
               </Card>
               <button
-                  onClick={()=>router?.push(`/`)}
+                  onClick={()=>{
+                    router?.push(`/`)
+                    clearCart()
+                  }}
                   className="w-full rounded-lg bg-white text-foreground font-semibold py-3 px-4 hover:bg-secondary/80 transition-all border "
                 >
                   Continue Shopping
