@@ -272,7 +272,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
           <span className={cn(
             "text-xs",
             isActive ? "text-white" : "text-muted-foreground",
-            isLowBalance ? "text-red-600 bg-red-600 rounded-md p-1 border border-red-600" : ""
+            isLowBalance ? "text-white bg-red-600 rounded-md p-1 border border-red-600" : ""
           )}>
             Holdings
           </span>
