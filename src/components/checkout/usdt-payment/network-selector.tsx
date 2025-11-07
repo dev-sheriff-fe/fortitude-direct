@@ -80,7 +80,7 @@ export default function NetworkSelector({ selectedNetwork, onNetworkChange, netw
               />
                 <div className="flex-1">
                   <p className={`font-medium ${selectedNetwork?.symbol === network?.symbol ? "text-accent" : "text-foreground"}`}>
-                    {network?.symbol} <span className="text-sm">({selectedNetwork?.chain})</span>
+                    {network?.symbol} <span className="text-sm">({network?.chain})</span>
                   </p>
                   {/* <p className="text-xs text-muted-foreground">{network.symbol}</p> */}
                 </div>

@@ -13,6 +13,7 @@ import DirectTransferFlow from './usdt-payment/directTransferFlow'
 import MetaMaskFlow from './usdt-payment/metamask-flow'
 import { UseFormReturn } from 'react-hook-form'
 import AlgorandTransfer from './usdt-payment/algorandTransfer'
+import { TronTransactions } from './usdt-payment/tron-payment'
 
 type UsdtPaymentProps = {
   setCurrentStep: (step: CheckoutStep) => void;
@@ -27,7 +28,7 @@ export type PaymentStatus = "pending" | "checking" | "confirmed" | "failed" | 'i
 
 const UsdtPayment = ({ setCurrentStep, currentStep, wallets, form, orderTotal,checkoutData }: UsdtPaymentProps) => {
   const { getCartTotal, mainCcy, cart } = useCart()
-  const [paymentMethod, setPaymentMethod] = useState<"direct" | "metamask" | "algorand">("direct")
+  const [paymentMethod, setPaymentMethod] = useState<"direct" | "metamask" | "algorand" | "tron">("metamask")
   const [selectedNetwork, setSelectedNetwork] = useState<any | null>(null)
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle")
   const { data } = useQuery({
@@ -107,6 +108,19 @@ const UsdtPayment = ({ setCurrentStep, currentStep, wallets, form, orderTotal,ch
                   recipientAddress={selectedNetwork?.publicAddress}
                   orderNo={checkoutData?.orderNo}
                   network={selectedNetwork?.chain}
+                  form={form}
+                  paymentStatus={paymentStatus}
+                  setPaymentStatus={setPaymentStatus}
+                />
+              )
+              : paymentMethod === 'tron'
+              ?
+              (
+                <TronTransactions
+                  amount={payingAmount}
+                  recipientAddress={selectedNetwork?.publicAddress}
+                  orderNo={checkoutData?.orderNo}
+                  selectedNetwork={selectedNetwork}
                   form={form}
                   paymentStatus={paymentStatus}
                   setPaymentStatus={setPaymentStatus}
