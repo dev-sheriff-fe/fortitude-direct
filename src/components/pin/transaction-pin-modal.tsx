@@ -56,6 +56,7 @@ const TransactionPinModal = ({ isOpen, onClose }: TransactionPinModalProps) => {
         username: customer?.username || "",
         newPin: data.newPin,
         entityCode: customer?.entityCode || "",
+        channel: "WEB",
         // deviceId: typeof window !== 'undefined' ? localStorage.getItem('deviceId') || 'web-app' : 'web-app'
       };
 

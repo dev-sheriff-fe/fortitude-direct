@@ -102,8 +102,19 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
       render: (text, record) => (
         <div>
           <p className="text-sm font-semibold text-gray-900">{getDisplayValue(text)}</p>
-          <p className="text-xs text-gray-500">{getDisplayValue(record.date)}</p>
+          {/* <p className="text-xs text-gray-500">{getDisplayValue(record.date)}</p> */}
         </div>
+      ),
+    },
+    {
+      title: 'Date & Time',
+      dataIndex: 'date',
+      key: 'date',
+      width: 150,
+      render: (text) => (
+        <p className="text-sm text-gray-900 truncate" title={text}>
+          {getDisplayValue(text)}
+        </p>
       ),
     },
     {
@@ -135,17 +146,17 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
         </span>
       ),
     },
-    {
-      title: 'Address',
-      dataIndex: 'fromAddress',
-      key: 'address',
-      width: 150,
-      render: (text) => (
-        <p className="text-sm text-gray-900 truncate" title={text}>
-          {getDisplayValue(text)}
-        </p>
-      ),
-    },
+    // {
+    //   title: 'Address',
+    //   dataIndex: 'fromAddress',
+    //   key: 'address',
+    //   width: 150,
+    //   render: (text) => (
+    //     <p className="text-sm text-gray-900 truncate" title={text}>
+    //       {getDisplayValue(text)}
+    //     </p>
+    //   ),
+    // },
     {
       title: 'Status',
       dataIndex: 'status',

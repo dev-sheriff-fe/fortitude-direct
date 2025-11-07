@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Download, Plus, Search, Eye, MapPin, Phone, Mail, Globe, Edit } from 'lucide-react';
+import { Download, Plus, Search, Eye, MapPin, Phone, Mail, Globe, Edit, ExternalLink } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/utils/fetch-function';
 import useUser from '@/store/userStore';
@@ -65,13 +65,15 @@ const DynamicTable = ({
     data,
     itemsPerPage = 5,
     onViewDetails,
-    onEditDetails
+    onEditDetails,
+    onGoToStore
 }: {
     columns: Column[];
     data: Store[];
     itemsPerPage?: number;
     onViewDetails: (store: Store) => void;
     onEditDetails: (store: Store) => void;
+    onGoToStore: (store: Store) => void;
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedStore, setSelectedStore] = useState<Store | null>(null);
@@ -115,6 +117,14 @@ const DynamicTable = ({
                             onClick={() => onEditDetails(record)}
                         >
                             <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-1"
+                            onClick={() => onGoToStore(record)}
+                        >
+                            <ExternalLink className="w-4 h-4" />
                         </Button>
                     </div>
                 )
@@ -555,6 +565,10 @@ export default function StoresPage() {
                                             data={filteredStores}
                                             onViewDetails={handleViewDetails}
                                             onEditDetails={handleEditDetails}
+                                            onGoToStore={(store) => {
+                                                window.open(`/?storeCode=${store.code}`, '_blank');
+                                                // console.log('Go to store:', store);
+                                            }}
                                         />
                                     </div>
                                 </>

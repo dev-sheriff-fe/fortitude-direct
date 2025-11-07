@@ -511,7 +511,7 @@ const CheckoutContent = () => {
   );
 
   return (
-    <div className="min-h-screen p-2">
+    <div className="min-h-screen p-2 bg-[#f7f7f7]">
       <div className="max-w-6xl mx-auto py-8">
         {currentStep === 'info' && (
           <BnplManager

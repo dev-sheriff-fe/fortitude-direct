@@ -183,7 +183,7 @@ const DynamicTable = ({
 
             <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-gray-200 gap-4">
                 <p className="text-sm text-gray-500">
-                    Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Staff
+                    Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} Users
                 </p>
                 <div className="flex items-center gap-2">
                     <Button
@@ -223,9 +223,9 @@ const DynamicTable = ({
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader className='flex flex-col'>
-                        <DialogTitle>Staff Details - {selectedStaff?.staffName}</DialogTitle>
+                        <DialogTitle>User Details - {selectedStaff?.staffName}</DialogTitle>
                         <DialogDescription>
-                            Detailed information about the selected staff member
+                            Detailed information about the selected user
                         </DialogDescription>
                     </DialogHeader>
 
@@ -264,7 +264,7 @@ const DynamicTable = ({
                                     </Badge>
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="text-sm font-medium">Staff ID:</p>
+                                    <p className="text-sm font-medium">User ID:</p>
                                     <p className="text-sm">{getDisplayValue(selectedStaff.staffUserId)}</p>
                                 </div>
                             </div>
@@ -427,9 +427,9 @@ const LinkStaffModal = ({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Link Existing User as Staff</DialogTitle>
+                    <DialogTitle>Link Existing User</DialogTitle>
                     <DialogDescription>
-                        Link an existing user to your store as a staff member
+                        Link an existing user to your store
                     </DialogDescription>
                 </DialogHeader>
 
@@ -577,7 +577,7 @@ export default function StaffsPage() {
 
     const handleEditDetails = (staff: Staff) => {
         // You might need to adjust this based on your actual edit flow
-        router.push(`/admin/staffs/create-staff?edit=true&id=${staff.staffUsername}`);
+        router.push(`/admin/users/create-users?edit=true&id=${staff.staffUsername}`);
     };
 
     const handleOpenLinkModal = () => {
@@ -683,16 +683,16 @@ export default function StaffsPage() {
                     <div className="flex items-center gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-foreground mb-2">
-                                Staff Management
+                                User Management
                             </h1>
                             <p className="text-muted-foreground">
-                                View and manage your staff members
+                                View and manage your users
                             </p>
                         </div>
                     </div>
                     <div className="text-right">
                         <p className="text-2xl font-bold text-foreground">{staffs.length}</p>
-                        <p className="text-sm text-muted-foreground">Total Staff</p>
+                        <p className="text-sm text-muted-foreground">Total Users</p>
                     </div>
                 </div>
 
@@ -709,10 +709,10 @@ export default function StaffsPage() {
                         </div>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <Link href="/admin/staffs/create-staff" className="w-full sm:w-auto">
+                            <Link href="/admin/users/create-users" className="w-full sm:w-auto">
                                 <Button className="w-full sm:w-auto gap-2">
                                     <Plus className="w-4 h-4" />
-                                    Add Staff
+                                    Add User
                                 </Button>
                             </Link>
                             <Button 
@@ -721,7 +721,7 @@ export default function StaffsPage() {
                                 className="gap-2"
                             >
                                 <LinkIcon className="w-4 h-4" />
-                                Link Staff
+                                Link User
                             </Button>
                             <Button variant="outline" className="gap-2">
                                 <Download className="w-4 h-4" />
@@ -734,7 +734,7 @@ export default function StaffsPage() {
                         <CardHeader>
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-lg font-semibold text-gray-900">
-                                    Staff List
+                                    User List
                                 </CardTitle>
                                 <Button variant="outline" size="sm" onClick={() => refetch()}>
                                     Refresh
@@ -744,20 +744,20 @@ export default function StaffsPage() {
                         <CardContent>
                             {isLoading ? (
                                 <div className="flex justify-center items-center h-40">
-                                    <p className="text-gray-500">Loading staff...</p>
+                                    <p className="text-gray-500">Loading users...</p>
                                 </div>
                             ) : error ? (
                                 <div className="flex justify-center items-center h-40">
-                                    <p className="text-red-500">Error loading staff</p>
+                                    <p className="text-red-500">Error loading users</p>
                                 </div>
                             ) : staffs.length === 0 ? (
                                 <div className="flex justify-center items-center h-40 flex-col gap-4">
-                                    <p className="text-gray-500">No staff members found</p>
+                                    <p className="text-gray-500">No users found</p>
                                     <div className="flex gap-2">
-                                        <Link href="/admin/staffs/create-staff">
+                                        <Link href="/admin/users/create-users">
                                             <Button className="gap-2">
                                                 <Plus className="w-4 h-4" />
-                                                Add Staff
+                                                Add User
                                             </Button>
                                         </Link>
                                         <Button 
@@ -766,7 +766,7 @@ export default function StaffsPage() {
                                             className="gap-2"
                                         >
                                             <LinkIcon className="w-4 h-4" />
-                                            Link Staff
+                                            Link User
                                         </Button>
                                     </div>
                                 </div>
