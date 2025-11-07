@@ -21,6 +21,9 @@ export default function NetworkSelector({ selectedNetwork, onNetworkChange, netw
     onNetworkChange(wallets?.[0])
   },[])
 
+  console.log(wallets);
+  
+
   return (
     <div className="mb-8">
       <label className="mb-3 block text-sm font-medium text-foreground">Select Network</label>
@@ -36,14 +39,14 @@ export default function NetworkSelector({ selectedNetwork, onNetworkChange, netw
             <div className="flex items-center gap-3">
               {/* <div className={`h-3 w-3 rounded-full ${selected.color}`} /> */}
               <Image
-               width={10}
+               width={20}
                src={selectedNetwork?.logo || placeholder}
-               height={10}
+               height={20}
                alt={selectedNetwork?.chain}
                unoptimized
               />
               <div>
-                <p className="font-medium text-foreground">{selectedNetwork?.chain}</p>
+                <p className="font-medium text-foreground">{selectedNetwork?.symbol} <span className="text-sm">({selectedNetwork?.chain})</span></p>
               </div>
             </div>
             <ChevronDown
@@ -69,19 +72,19 @@ export default function NetworkSelector({ selectedNetwork, onNetworkChange, netw
                 }`}
               >
                 <Image
-                    width={10}
+                    width={20}
                     src={network?.logo || placeholder}
-                    height={10}
+                    height={20}
                     alt={network?.chain}
                     unoptimized
               />
                 <div className="flex-1">
-                  <p className={`font-medium ${selectedNetwork?.chain === network?.chain ? "text-accent" : "text-foreground"}`}>
-                    {network?.chain}
+                  <p className={`font-medium ${selectedNetwork?.symbol === network?.symbol ? "text-accent" : "text-foreground"}`}>
+                    {network?.symbol} <span className="text-sm">({selectedNetwork?.chain})</span>
                   </p>
                   {/* <p className="text-xs text-muted-foreground">{network.symbol}</p> */}
                 </div>
-                {selectedNetwork?.chain === network?.chain && <div className="h-2 w-2 rounded-full bg-accent" />}
+                {selectedNetwork?.symbol === network?.symbol && <div className="h-2 w-2 rounded-full bg-accent" />}
               </button>
             ))}
           </div>

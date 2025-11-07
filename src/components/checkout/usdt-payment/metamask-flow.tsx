@@ -451,15 +451,16 @@ export default function MetaMaskFlow({ amount, recipientAddress, orderNo, networ
           {/* Success State */}
           {walletState === "success" && hash && (
             <div className="space-y-6">
-              {/* <div className="rounded-lg bg-green-50 border border-green-200 p-8 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="rounded-full bg-green-100 p-4">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              <div className="rounded-lg bg-green-50 border border-green-200 p-8 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="rounded-full bg-green-100 p-4">
+                    <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  </div>
+                </div>
+                <h3 className="text-lg font-semibold text-green-900 mb-2">Transaction Successful!</h3>
+                <p className="text-sm text-green-700">Your payment has been sent successfully to the blockchain.</p>
+                <p className="text-xs text-green-600 mt-2">Please click &quot;I&apos;ve made the payment&quot; below to complete your order.</p>
               </div>
-            </div>
-            <h3 className="text-lg font-semibold text-green-900 mb-2">Transaction Successful</h3>
-            <p className="text-sm text-green-700">Your payment has been sent successfully</p>
-          </div> */}
 
               {/* Transaction Details */}
               <div className="rounded-lg bg-card p-6 border border-border shadow-sm">
