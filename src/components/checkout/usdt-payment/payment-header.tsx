@@ -2,10 +2,11 @@
 
 interface PaymentHeaderProps {
   amount: number
-  orderNo: string
+  orderNo: string,
+  currency?: string | null
 }
 
-export default function PaymentHeader({ amount, orderNo }: PaymentHeaderProps) {
+export default function PaymentHeader({ amount, orderNo, currency }: PaymentHeaderProps) {
   return (
     <div className="mb-8 rounded-lg bg-card p-6 shadow-sm border border-border">
       <div className="space-y-4">
@@ -16,7 +17,7 @@ export default function PaymentHeader({ amount, orderNo }: PaymentHeaderProps) {
             <span className="text-4xl font-bold text-primary">
               {amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
-            <span className="text-xl font-semibold text-accent">USDT</span>
+            <span className="text-xl font-semibold text-accent">{currency}</span>
           </div>
         </div>
 

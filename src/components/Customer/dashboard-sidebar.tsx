@@ -52,13 +52,13 @@ export const DashboardSidebar = () => {
     >
       <div className="p-4 lg:p-6">
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center bg-white/20 p-2 rounded-md">
+          <div className="flex items-center justify-center bg-white/30 p-2 rounded-md">
             <Image
               src={logoUrl || 'logo.png'}
               alt='logo'
               width={24}
               height={24}
-              className='w-full h-auto object-contain'
+              className='w-full max-w-[150px] h-auto object-contain'
             />
           </div>
         </div>

@@ -22,7 +22,7 @@ const navigationItems = [
   { name: 'Transactions', href: 'admin/transactions', icon: PiggyBank},
   { name: 'Orders', href: '/admin/orders', icon: Clock },
   { name: 'Stores', href: '/admin/stores', icon: StoreIcon },
-  { name: 'Staffs', href: '/admin/staffs', icon: UsersRoundIcon },
+  { name: 'Users', href: '/admin/users', icon: UsersRoundIcon },
   { name: 'BNPL Customers', href: '/admin/bnpl-customers', icon: UsersRoundIcon },
   { name: 'Payment Methods', href: '/admin/payment-methods', icon: CreditCard },
   { name: 'Reports', href: '/admin/reports', icon: LayoutDashboard },

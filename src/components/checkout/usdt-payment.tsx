@@ -13,6 +13,7 @@ import DirectTransferFlow from './usdt-payment/directTransferFlow'
 import MetaMaskFlow from './usdt-payment/metamask-flow'
 import { UseFormReturn } from 'react-hook-form'
 import AlgorandTransfer from './usdt-payment/algorandTransfer'
+import { TronTransactions } from './usdt-payment/tron-payment'
 
 type UsdtPaymentProps = {
   setCurrentStep: (step: CheckoutStep) => void;
@@ -20,16 +21,16 @@ type UsdtPaymentProps = {
   wallets?: any[];
   form?: UseFormReturn<FormData>;
   orderTotal: number;
+  checkoutData: any
 }
 
 export type PaymentStatus = "pending" | "checking" | "confirmed" | "failed" | 'idle'
 
-const UsdtPayment = ({ setCurrentStep, currentStep, wallets, form, orderTotal }: UsdtPaymentProps) => {
+const UsdtPayment = ({ setCurrentStep, currentStep, wallets, form, orderTotal,checkoutData }: UsdtPaymentProps) => {
   const { getCartTotal, mainCcy, cart } = useCart()
-  const [paymentMethod, setPaymentMethod] = useState<"direct" | "metamask" | "algorand">("direct")
+  const [paymentMethod, setPaymentMethod] = useState<"direct" | "metamask" | "algorand" | "tron">("metamask")
   const [selectedNetwork, setSelectedNetwork] = useState<any | null>(null)
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("idle")
-  const [checkoutData, setCheckoutData] = useState<any>(null);
   const { data } = useQuery({
     queryKey: ['chain-list'],
     queryFn: () => axiosCustomer.request({
@@ -37,20 +38,6 @@ const UsdtPayment = ({ setCurrentStep, currentStep, wallets, form, orderTotal }:
       method: 'GET'
     })
   })
-
-  // Load checkout data from sessionStorage
-  useEffect(() => {
-    const stored = sessionStorage.getItem('checkout');
-    if (stored) {
-      try {
-        const parsedData = JSON.parse(stored);
-        setCheckoutData(parsedData);
-      } catch (error) {
-        console.error('Error parsing checkout data:', error);
-        toast.error('Error loading checkout data');
-      }
-    }
-  }, []);
 
   console.log(data?.data);
 
@@ -83,6 +70,7 @@ const UsdtPayment = ({ setCurrentStep, currentStep, wallets, form, orderTotal }:
         <PaymentHeader
           amount={payingAmount?.toFixed(2) || null}
           orderNo={checkoutData?.orderNo}
+          currency= {checkoutData?.payingCurrency}
         />
         <div className={`${paymentStatus === 'pending' || paymentMethod === 'algorand' && ('pointer-events-none opacity-15')}`}>
           <NetworkSelector
@@ -120,6 +108,19 @@ const UsdtPayment = ({ setCurrentStep, currentStep, wallets, form, orderTotal }:
                   recipientAddress={selectedNetwork?.publicAddress}
                   orderNo={checkoutData?.orderNo}
                   network={selectedNetwork?.chain}
+                  form={form}
+                  paymentStatus={paymentStatus}
+                  setPaymentStatus={setPaymentStatus}
+                />
+              )
+              : paymentMethod === 'tron'
+              ?
+              (
+                <TronTransactions
+                  amount={payingAmount}
+                  recipientAddress={selectedNetwork?.publicAddress}
+                  orderNo={checkoutData?.orderNo}
+                  selectedNetwork={selectedNetwork}
                   form={form}
                   paymentStatus={paymentStatus}
                   setPaymentStatus={setPaymentStatus}

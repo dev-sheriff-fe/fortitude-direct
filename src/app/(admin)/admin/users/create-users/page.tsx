@@ -131,14 +131,14 @@ export default function CreateStaffPage() {
       axiosInstance.post('/usermanager/saveuser', staffData),
     onSuccess: (data) => {
       if (data?.data?.code === '000') {
-        toast.success(isEditMode ? 'Staff updated successfully' : 'Staff created successfully');
-        router.push('/admin/staffs');
+        toast.success(isEditMode ? 'User updated successfully' : 'User created successfully');
+        router.push('/admin/users');
       } else {
-        toast.error(data?.data?.desc || `Failed to ${isEditMode ? 'update' : 'create'} staff`);
+        toast.error(data?.data?.desc || `Failed to ${isEditMode ? 'update' : 'create'} user`);
       }
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} staff`);
+      toast.error(error.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} user`);
     }
   });
 
@@ -161,7 +161,7 @@ export default function CreateStaffPage() {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500">Loading staff data...</p>
+          <p className="text-gray-500">Loading user data...</p>
         </div>
       </div>
     );
@@ -177,7 +177,7 @@ export default function CreateStaffPage() {
             className="flex items-center gap-2 text-muted-foreground hover:text-accent-foreground"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Staff
+            Back to Users
           </Button>
         </div>
 
@@ -187,10 +187,10 @@ export default function CreateStaffPage() {
               <User className="w-8 h-8 text-accent-foreground" />
             </div>
             <h1 className="text-3xl font-bold text-accent-foreground">
-              {isEditMode ? 'Edit Staff' : 'Add New Staff'}
+              {isEditMode ? 'Edit User' : 'Add New User'}
             </h1>
             <p className="text-muted-foreground mt-2">
-              {isEditMode ? 'Update staff information' : 'Add a new staff member to your store'}
+              {isEditMode ? 'Update user information' : 'Add a new user member to your store'}
             </p>
           </div>
         </div>
@@ -202,7 +202,7 @@ export default function CreateStaffPage() {
                 <User className="h-5 w-5" />
                 Personal Information
               </h2>
-              <p className="text-muted-foreground mb-6">Staff personal details and identification</p>
+              <p className="text-muted-foreground mb-6">User personal details and identification</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -326,7 +326,7 @@ export default function CreateStaffPage() {
                 <User className="h-5 w-5" />
                 Role & Status
               </h2>
-              <p className="text-muted-foreground mb-6">Staff role and account status</p>
+              <p className="text-muted-foreground mb-6">User role and account status</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">

@@ -47,16 +47,6 @@ const CreditAssessment = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // const [filteredData, setFilteredData] = React.useState(mockData);
-  // React.useEffect(() => {
-  //   const filtered = mockData.filter(record =>
-  //     record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     record.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //     record.email.toLowerCase().includes(searchTerm.toLowerCase())
-  //   );
-  //   setFilteredData(filtered);
-  // }, [searchTerm]);
-
   const { data, isLoading, error } = useQuery({
     queryKey: ['bnpl-customers', currentPage],
     queryFn: () => axiosInstance.request({
@@ -115,9 +105,9 @@ const CreditAssessment = () => {
       dataIndex: 'customerEmail',
       key: 'customerEmail',
       width: 220,
-      render: (email: string) => (
-        <span className="text-sm text-gray-900 truncate block" title={email}>
-          {email || 'N/A'}
+      render: (record: any) => (
+        <span className="text-sm text-gray-900 truncate block" title={record?.email}>
+          {record?.email || 'N/A'}
         </span>
       ),
     },
@@ -144,9 +134,9 @@ const CreditAssessment = () => {
       dataIndex: 'status',
       key: 'status',
       width: 120,
-      render: (status: string) => (
-        <Badge className={`${getStatusBadge(status)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
-          {status ? status.toLowerCase() : 'N/A'}
+      render: (record: any) => (
+        <Badge className={`${getStatusBadge(record?.status)} text-xs px-2 py-1 flex items-center gap-1 w-fit`}>
+          {record?.status?.toLowerCase()}
         </Badge>
       ),
     },
@@ -155,9 +145,9 @@ const CreditAssessment = () => {
       dataIndex: 'applicationDate',
       key: 'applicationDate',
       width: 120,
-      render: (date: string) => (
+      render: (record: any) => (
         <span className="text-sm text-gray-500">
-          {date ? new Date(date).toLocaleDateString('en-US', {
+          {record ? new Date(record?.applicationDate).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
             year: '2-digit'
