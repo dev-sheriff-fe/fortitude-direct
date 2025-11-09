@@ -33,7 +33,7 @@ const BnplManager = ({ setCurrentStep, form, onShippingUpdate }: BnplManagerProp
     }
   });
 
-  const [selectedStore, setSelectedStore] = useState<string>("");
+  const [selectedStore, setSelectedStore] = useState<number | null>(null);
 
   const watchShippingMethod = form.watch("shippingMethod");
   const watchShippingOption = form.watch("shippingOption");

@@ -41,7 +41,7 @@ export const ShippingForm = ({ setCurrentStep, form, onShippingUpdate }: Shippin
   const { location } = useLocationStore()
   const { back } = useRouter()
   const [selectedShippingOption, setSelectedShippingOption] = useState<string>("economy");
-  const [selectedStore, setSelectedStore] = useState<string>("");
+  const [selectedStore, setSelectedStore] = useState<number|null>(null);
   const [editingAddress, setEditingAddress] = useState<any>(null);
 
   const { register,
@@ -94,35 +94,53 @@ export const ShippingForm = ({ setCurrentStep, form, onShippingUpdate }: Shippin
 
   const pickupStores = [
     {
-      id: 'store-1',
+      id: 1,
       name: 'Downtown Store',
       address: '123 Main Street, Downtown',
       distance: '0.5 miles',
       hours: '9:00 AM - 8:00 PM',
-      phone: '(555) 123-4567'
+      phone: '(555) 123-4567',
+      street: '123 Main Street, Downtown',
+      postCode: 'SE1',
+      state: 'London',
+      country: 'UK',
+      landmark: 'Palace',
+      city: 'London'
     },
     {
-      id: 'store-2',
+      id: 2,
       name: 'Shopping Mall Branch',
       address: '456 Mall Road, Westside',
       distance: '1.2 miles',
       hours: '10:00 AM - 9:00 PM',
-      phone: '(555) 987-6543'
+      phone: '(555) 987-6543',
+      street: '123 Main Street, Downtown',
+      postCode: 'SE1',
+      state: 'London',
+      country: 'UK',
+      landmark: 'Palace',
+      city: 'London'
     },
     {
-      id: 'store-3',
+      id: 3,
       name: 'City Center Outlet',
       address: '789 Central Ave, City Center',
       distance: '2.1 miles',
       hours: '8:00 AM - 7:00 PM',
-      phone: '(555) 456-7890'
+      phone: '(555) 456-7890',
+      street: '123 Main Street, Downtown',
+      postCode: 'SE1',
+      state: 'London',
+      country: 'UK',
+      landmark: 'Palace',
+      city: 'London'
     }
   ];
 
   useEffect(() => {
     setValue("shippingMethod", shippingMethod);
     setValue("shippingOption", selectedShippingOption);
-    setValue("pickupStore", selectedStore);
+    setValue("pickupStore", selectedStore as number);
   }, [shippingMethod, selectedShippingOption, selectedStore, setValue]);
 
   const handleShippingMethodChange = (method: "delivery" | "pickup") => {
@@ -158,9 +176,16 @@ export const ShippingForm = ({ setCurrentStep, form, onShippingUpdate }: Shippin
     setValue("addressType", address.addressType);
   };
 
-  const handleStoreSelect = (storeId: string) => {
-    setSelectedStore(storeId);
-    setValue("pickupStore", storeId);
+  const handleStoreSelect = (store: any) => {
+    setSelectedStore(store?.id);
+    setValue("pickupStore", store?.name);
+    setValue('selectedAddressId', store?.id);
+    setValue('country', store?.country);
+    setValue('addressType', 'WAREHOUSE');
+    setValue('landmark',store?.landmark);
+    setValue('street',store?.street);
+    setValue('city', store?.city);
+    setValue('state',store?.city)
   };
 
   const getSelectedShippingOption = () => {
@@ -370,7 +395,7 @@ export const ShippingForm = ({ setCurrentStep, form, onShippingUpdate }: Shippin
                           ? "border-accent bg-accent/5 shadow-sm"
                           : "border-gray-200 hover:border-accent/50"
                           }`}
-                        onClick={() => handleStoreSelect(store.id)}
+                        onClick={() => handleStoreSelect(store)}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">

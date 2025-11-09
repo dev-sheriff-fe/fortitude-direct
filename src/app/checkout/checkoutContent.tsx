@@ -38,7 +38,7 @@ export interface CreditScoreData {
 const formSchema = z.object({
   shippingMethod: z.enum(["delivery", "pickup"]).default("delivery")?.optional(),
   shippingOption: z.string().optional(),
-  pickupStore: z.string().optional(),
+  pickupStore: z.number().optional(),
   fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
   country: z.string().min(1, "Please select a country"),
   addressType: z.string().min(1, "Please select address type").optional(),
