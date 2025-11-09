@@ -19,7 +19,7 @@ import useUser from '@/store/userStore';
 const navigationItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Inventories', href: '/admin/inventories', icon: Box },
-  { name: 'Transactions', href: 'admin/transactions', icon: PiggyBank},
+  { name: 'Transactions', href: '/admin/transactions', icon: PiggyBank},
   { name: 'Orders', href: '/admin/orders', icon: Clock },
   { name: 'Stores', href: '/admin/stores', icon: StoreIcon },
   { name: 'Users', href: '/admin/users', icon: UsersRoundIcon },
