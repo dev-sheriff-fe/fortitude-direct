@@ -24,7 +24,7 @@ interface CartReviewProps {
   shippingMethod?: "delivery" | "pickup";
   setCurrentStep: (currentStep: CheckoutStep) => void;
   form: UseFormReturn<any>;
-  selectedStore?: string;
+  selectedStore?: number | null;
 }
 
 export const CartReview = ({ 
