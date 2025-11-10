@@ -452,7 +452,7 @@ const MobileOrderCard: React.FC<MobileOrderCardProps> = ({ order, onViewDetails 
         <div className="w-10 h-10 relative rounded-md overflow-hidden">
           <Image
             src={firstItem?.picture || `${placeholder.src}`}
-            alt={firstItem?.itemName}
+            alt={firstItem?.itemName || 'item_icon'}
             fill
             className="object-cover"
             onError={(e) => {
@@ -685,8 +685,9 @@ export default function OrderHistory(): React.ReactElement {
     },
   ];
 
+
   return (
-    <Card className="border-gray-200 shadow-sm h-fit mx-auto">
+    <Card className="border-gray-200 shadow-sm span-1">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-base lg:text-lg font-semibold text-gray-900">

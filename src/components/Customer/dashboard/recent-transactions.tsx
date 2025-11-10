@@ -331,7 +331,7 @@ export default function TransactionHistory(): React.ReactElement {
     <>
       {
         transactions?.length > 0 && (
-          <Card className="border-gray-200 shadow-sm h-fit">
+          <Card className="border-gray-200 shadow-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base lg:text-lg font-semibold text-gray-900">
