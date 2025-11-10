@@ -326,7 +326,7 @@ const WalletPayment: React.FC<WalletPaymentProps> = ({
                 <XCircle className="w-12 h-12 text-red-500 mx-auto" />
                 <h2 className="text-2xl font-bold text-red-600">Failed to Load Wallet</h2>
                 <p className="text-muted-foreground">Unable to load your wallet information.</p>
-                <Button onClick={() => setSelectedPayment(null)} variant="outline">
+                <Button onClick={() => setCurrentStep('cart')} variant="outline">
                     Choose Another Payment Method
                 </Button>
             </div>
@@ -339,7 +339,7 @@ const WalletPayment: React.FC<WalletPaymentProps> = ({
                 <XCircle className="w-12 h-12 text-red-500 mx-auto" />
                 <h2 className="text-2xl font-bold text-red-600">No Wallet Found</h2>
                 <p className="text-muted-foreground">You don't have a wallet set up.</p>
-                <Button onClick={() => setSelectedPayment(null)} variant="outline">
+                <Button onClick={() => setCurrentStep('cart')} variant="outline">
                     Choose Another Payment Method
                 </Button>
             </div>
@@ -435,7 +435,7 @@ const WalletPayment: React.FC<WalletPaymentProps> = ({
                     </Button>
 
                     <Button
-                        onClick={() => setSelectedPayment(null)}
+                        onClick={() => setCurrentStep('cart')}
                         variant="outline"
                         className="w-full"
                     >
