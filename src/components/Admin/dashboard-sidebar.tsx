@@ -72,7 +72,7 @@ export const DashboardSidebar = () => {
           ))}
         </ul>
 
-        <Link
+        {/* <Link
           href={`/?storeCode=${user?.storeCode}`}
           className={
             cn(
@@ -84,7 +84,7 @@ export const DashboardSidebar = () => {
         >
           <StoreIcon className="w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0" />
           <span className="font-medium truncate">My store</span>
-        </Link>
+        </Link> */}
       </nav>
     </div>
   );
